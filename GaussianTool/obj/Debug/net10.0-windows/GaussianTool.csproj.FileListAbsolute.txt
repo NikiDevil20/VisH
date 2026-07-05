@@ -25,3 +25,4 @@ C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-window
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\BottomBar.baml
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\TemplateListView.g.cs
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\TemplateListView.baml
+C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\GaussianTool.sourcelink.json

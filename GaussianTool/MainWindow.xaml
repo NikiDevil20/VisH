@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
         
         <!-- Top Row -->
-        <userControls:MenuBar></userControls:MenuBar>
+        <userControls:MenuBar Panel.ZIndex="3"></userControls:MenuBar>
         
         <!-- Middle Row -->
         
@@ -36,12 +36,23 @@
             <userControls:TemplateListView Grid.Column="0"></userControls:TemplateListView>
             
             <!-- Splitter -->
+            <Border Grid.Column="1" Background="#323232" CornerRadius="0" Panel.ZIndex="2">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10"
+                                      ShadowDepth="3"
+                                      Direction="0"
+                                      />
+                </Border.Effect>
+            </Border>
+            
+            
             <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" ResizeDirection="Columns" 
                           ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" 
-                          Background="Transparent"></GridSplitter>
+                          Background="Transparent" Panel.ZIndex="2">
+            </GridSplitter>
             
             <!-- Content Panel -->
-            <Rectangle Grid.Column="2" Fill="LightGray"></Rectangle>
+            <Rectangle Grid.Column="2" Fill="LightGray" Panel.ZIndex="1"></Rectangle>
             
             
         </Grid>
@@ -50,7 +61,7 @@
         
         
         <!-- Bottom Row -->
-        <userControls:BottomBar Grid.Row="2"></userControls:BottomBar>
+        <userControls:BottomBar Grid.Row="2" Panel.ZIndex="1"></userControls:BottomBar>
 
         
     </Grid>
