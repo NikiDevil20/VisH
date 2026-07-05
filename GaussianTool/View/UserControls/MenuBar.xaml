@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="GaussianTool.View.UserControls.MenuBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:GaussianTool.View.UserControls" Background="#006DB3"
+             mc:Ignorable="d" MouseLeftButtonDown="MenuBar_OnMouseLeftButtonDown"
+             d:DesignHeight="70" d:DesignWidth="800">
+    
+    
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+            
+        <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" 
+                   VerticalAlignment="Center" Foreground="White" 
+                   FontSize="32" FontFamily="Arial" Padding="20,5,0,0">
+            <TextBlock.Text>
+                Gaussian Tool
+            </TextBlock.Text>
+        </TextBlock>
+        
+        <!-- Buttons Grid -->
+        <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            
+            <Button Name="MinimizeBtn" Grid.Column="0" Content="__" Click="MinimizeBtn_OnClick" Width="30" Height="30"
+                    Foreground="White" Background="Transparent" BorderBrush="Transparent" 
+                    BorderThickness="0" FontSize="12" Margin="5"></Button>
+            
+            <Button Name="MaximizeBtn" Grid.Column="1" Content="🗗" Click="MaximizeBtn_OnClick" Width="30" Height="30"
+                    Foreground="White" Background="Transparent" BorderBrush="Transparent" 
+                    BorderThickness="0" FontSize="12" Margin="5"></Button>
+            
+            <Button Name="CloseBtn" Grid.Column="2" Content="X" Click="CloseBtn_OnClick" Width="30" Height="30"
+                    Foreground="White" Background="Transparent" BorderBrush="Transparent" 
+                    BorderThickness="0" FontSize="12" Margin="5"></Button>
+            
+            
+            
+        </Grid>
+            
+            
+    </Grid>
+</UserControl>
