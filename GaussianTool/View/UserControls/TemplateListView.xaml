@@ -31,8 +31,8 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical" Margin="5" VerticalAlignment="Top">
-                        <TextBlock Text="{Binding Title}"></TextBlock>
-                        <TextBlock Text="{Binding Description}"></TextBlock>
+                        <TextBlock FontSize="14" Text="{Binding Title}"></TextBlock>
+                        <TextBlock FontSize="12" Text="{Binding Description}"></TextBlock>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>

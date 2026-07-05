@@ -1,15 +1,13 @@
 ﻿namespace GaussianTool.Objects;
 
-public class CalcTemplate
+public class CalcTemplate(string title, CalcParameters parameters)
 {
-    public string Title { get; set; }
-    public string? Description { get; set; }
-    public CalcParameters Parameters { get; set; }
-    
-    public CalcTemplate(string title, CalcParameters parameters)
+    public string Title { get; } =  title;
+    public CalcParameters Parameters { get; } = parameters;
+    public string Description => $"{parameters.State}, {parameters.Functional}, {parameters.BasisSet}";
+
+    public override string ToString()
     {
-        Title = title;
-        Parameters = parameters;
-        Description = parameters.ToString();
+        return $"'{Title}: {Description}'";
     }
 }

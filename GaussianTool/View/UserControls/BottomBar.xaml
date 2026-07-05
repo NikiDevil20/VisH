@@ -6,6 +6,15 @@
              xmlns:local="clr-namespace:GaussianTool.View.UserControls"
              mc:Ignorable="d" Background="#006DB3"
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Effect>
+        <DropShadowEffect
+            Direction="90"
+            ShadowDepth="3"
+            BlurRadius="10">
+        </DropShadowEffect>
+    </UserControl.Effect>
+    
+    
     <Grid>
         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
                    Foreground="White" FontSize="14" FontFamily="Arial">
