@@ -31,7 +31,7 @@
                    VerticalAlignment="Center" Foreground="White" 
                    FontSize="32" FontFamily="Arial" Padding="20,5,0,0">
             <TextBlock.Text>
-                Gaussian Tool
+                Gaussian GUI
             </TextBlock.Text>
         </TextBlock>
         

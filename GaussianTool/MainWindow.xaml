@@ -27,9 +27,10 @@
         
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" MinWidth="200"></ColumnDefinition>
+                <ColumnDefinition Width="200" MinWidth="200" MaxWidth="400"></ColumnDefinition>
                 <ColumnDefinition Width="5"></ColumnDefinition>
-                <ColumnDefinition MinWidth="200"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition Width="200" MinWidth="200"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
             <!-- Menu Panel -->
@@ -45,15 +46,17 @@
                 </Border.Effect>
             </Border>
             
-            
             <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" ResizeDirection="Columns" 
                           ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" 
                           Background="Transparent" Panel.ZIndex="2">
             </GridSplitter>
             
             <!-- Content Panel -->
-            <Rectangle Grid.Column="2" Fill="LightGray" Panel.ZIndex="1"></Rectangle>
+            <Rectangle Grid.Column="2" Fill="LightGray" Panel.ZIndex="0"></Rectangle>
             
+            
+            <!-- Status Bar -->
+            <userControls:StatusBar Grid.Column="3" Panel.ZIndex="1"></userControls:StatusBar>
             
         </Grid>
         
