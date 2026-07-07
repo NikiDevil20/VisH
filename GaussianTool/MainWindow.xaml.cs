@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GaussianTool.Objects;
+using GaussianTool.Objects.Hilbert;
 
 namespace GaussianTool;
 
@@ -25,24 +26,27 @@ public partial class MainWindow : Window
 
     private void DebugBtn_OnClick(object sender, RoutedEventArgs e)
     {
-        Atom atom1 = new Atom("C", 0, 0, 0) ;
-        Atom atom2 = new Atom("O", 1, 1, 1);
-        Atom[] atoms = [atom1, atom2];
-
-        Molecule molecule = new Molecule("BeispielMolekuel", atoms, 0, 1);
-        CalcParameters parameters = new CalcParameters("td", 16, 32, "wb97xd",
-            "def2tzvp", "T1", "dichloromethane", "71:00:00", ["opt", "freq"]);
-        CalcParameters link = parameters;
-
-        Calculation calc = new Calculation(molecule, parameters, link);
-
-        string clusterPath = calc.ClusterPath;
-        string localPath = calc.LocalPath;
+        // Atom atom1 = new Atom("C", 0, 0, 0) ;
+        // Atom atom2 = new Atom("O", 1, 1, 1);
+        // Atom[] atoms = [atom1, atom2];
+        //
+        // Molecule molecule = new Molecule("BeispielMolekuel", atoms, 0, 1);
+        // CalcParameters parameters = new CalcParameters("td", 16, 32, "wb97xd",
+        //     "def2tzvp", "S0", "dichloromethane", "71:00:00", ["opt", "freq"]);
+        // CalcParameters link = parameters;
+        //
+        // Calculation calc = new Calculation(molecule, parameters, link);
+        //
+        // calc.WriteFiles();
         
-        Console.WriteLine(clusterPath);
-        Console.WriteLine(localPath);
-        Console.WriteLine(calc.UniqueName);
-
-
+        // string msg = JobManager.UploadFiles([calc.LocalGjf, calc.LocalGstart], 
+        //     calc.ClusterPath, [calc.ClusterGjf, calc.ClusterGstart]);
+        // Console.WriteLine(msg);
+        
+        JobManager.DownloadFile(
+            ".gjf",
+            "/home/niabe100/Rechnungen/BeispielMolekuel/S0/BeispielMolekuel_abs_18",
+            "C:\\Users\\nikla\\OneDrive - Heinrich-Heine-Universitat Dusseldorf\\Dokumente\\Rechnun" +
+            "gen\\BeispielMolekuel\\S0\\BeispielMolekuel_abs_18");
     }
 }

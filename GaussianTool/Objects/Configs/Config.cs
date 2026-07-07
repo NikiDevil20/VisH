@@ -1,14 +1,17 @@
 ﻿using System.IO;
 using System.Text.Json;
 
-namespace GaussianTool.Objects;
+namespace GaussianTool.Objects.Configs;
 
 public class Config
 {
     public  string LocalRechnungenPath { get; init; }
     public string ClusterRechnungenPath { get; init; }
     public string ClusterUsername { get; init; }
-
+    public string Cluster { get; init; }
+    public string Storage { get; init; }
+    public string SshKeyPath { get; init; }
+    
 
     public static Config Load()
     {

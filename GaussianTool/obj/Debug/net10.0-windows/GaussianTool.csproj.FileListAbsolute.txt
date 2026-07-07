@@ -58,3 +58,9 @@ C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\StatusBar.baml
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\bin\Debug\net10.0-windows\Data\config.json
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\GaussianTool_Content.g.cs
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\bin\Debug\net10.0-windows\BouncyCastle.Cryptography.dll
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\bin\Debug\net10.0-windows\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\bin\Debug\net10.0-windows\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\bin\Debug\net10.0-windows\Renci.SshNet.dll
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\GaussianTool.csproj.AssemblyReference.cache
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\Gaussian.1CDB2E0C.Up2Date

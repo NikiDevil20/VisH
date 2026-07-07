@@ -2,6 +2,7 @@
 using System.Printing;
 using System.Text;
 using System.Text.Json;
+using GaussianTool.Objects.Configs;
 
 namespace GaussianTool.Objects;
 
@@ -15,8 +16,14 @@ public class Calculation
     public string LocalPath { get; set; }
     public string ClusterPath { get; set; }
     public CalcStatus Status { get; set; }
-    public string UniqueName { get; set; }
-    private string GjfPath { get; set; }
+    private string UniqueName { get; set; }
+    
+    public string LocalGjf { get; set; }
+    public string LocalGstart {get; set;}
+    public string ClusterGjf { get; set; }
+    public string ClusterGstart { get; set; }
+
+
 
     public Calculation(Molecule molecule, CalcParameters parameters, CalcParameters? link = null)
     {
@@ -60,7 +67,7 @@ public class Calculation
         sb.AppendLine($"#PBS -N {Molecule.Name}P");
         sb.AppendLine("#PBS -A OC1M\n");
 
-        sb.AppendLine($"GaussianInputFilename={GjfPath}");
+        sb.AppendLine($"GaussianInputFilename={UniqueName}.gjf");
         sb.AppendLine($"WORKDIR={ClusterPath}");
         
         string staticText = """
@@ -145,6 +152,11 @@ echo "`date +"%d.%m.%Y-%T"`" >> $LOGFILE
         }
         ClusterPath = cfg.ClusterRechnungenPath + $"/{Molecule.Name}/{Parameters.State}/{UniqueName}";
         LocalPath = localPath;
+        
+        LocalGjf = LocalPath + $"/{UniqueName}.gjf";
+        LocalGstart = LocalPath + $"/gstart";
+        ClusterGjf = ClusterPath + $"/{UniqueName}.gjf";
+        ClusterGstart = ClusterPath + $"/gstart";
     }
 
     private string GetName()
@@ -193,6 +205,18 @@ echo "`date +"%d.%m.%Y-%T"`" >> $LOGFILE
         int currentIncrement = int.Parse(incrementString);
 
         return baseName + $"_{currentIncrement + 1}";
+    }
+
+    public void WriteFiles()
+    {
+        string gjfPath = Path.Combine(LocalPath, $"{UniqueName}.gjf");
+        string gstartPath = Path.Combine(LocalPath, "gstart");
+        
+        string gjf = ToGjf();
+        string gstart = ToGstart();
+        
+        File.WriteAllText(gjfPath, gjf);
+        File.WriteAllText(gstartPath, gstart);
     }
 }
 
