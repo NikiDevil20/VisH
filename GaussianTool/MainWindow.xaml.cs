@@ -39,14 +39,5 @@ public partial class MainWindow : Window
         //
         // calc.WriteFiles();
         
-        // string msg = JobManager.UploadFiles([calc.LocalGjf, calc.LocalGstart], 
-        //     calc.ClusterPath, [calc.ClusterGjf, calc.ClusterGstart]);
-        // Console.WriteLine(msg);
-        
-        JobManager.DownloadFile(
-            ".gjf",
-            "/home/niabe100/Rechnungen/BeispielMolekuel/S0/BeispielMolekuel_abs_18",
-            "C:\\Users\\nikla\\OneDrive - Heinrich-Heine-Universitat Dusseldorf\\Dokumente\\Rechnun" +
-            "gen\\BeispielMolekuel\\S0\\BeispielMolekuel_abs_18");
     }
 }

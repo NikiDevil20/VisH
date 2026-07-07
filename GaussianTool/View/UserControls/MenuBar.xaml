@@ -27,9 +27,8 @@
         
         
             
-        <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" 
-                   VerticalAlignment="Center" Foreground="White" 
-                   FontSize="32" FontFamily="Arial" Padding="20,5,0,0">
+        <TextBlock Grid.Row="0" Grid.Column="0" Padding="20,5,0,0" HorizontalAlignment="Left"
+                   VerticalAlignment="Center" Foreground="White" FontSize="32" FontFamily="Arial">
             <TextBlock.Text>
                 Gaussian GUI
             </TextBlock.Text>
@@ -43,17 +42,17 @@
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
-            <Button Name="MinimizeBtn" Grid.Column="0" Content="__" Click="MinimizeBtn_OnClick" Width="30" Height="30"
-                    Foreground="White" Background="Transparent" BorderBrush="Transparent" 
-                    BorderThickness="0" FontSize="12" Margin="5"></Button>
+            <Button Name="MinimizeBtn" Grid.Column="0" Content="__" Click="MinimizeBtn_OnClick" Margin="5"
+                    Width="30" Height="30" FontSize="12" Foreground="White" Background="Transparent"
+                    BorderBrush="Transparent" BorderThickness="0"></Button>
             
-            <Button Name="MaximizeBtn" Grid.Column="1" Content="🗗" Click="MaximizeBtn_OnClick" Width="30" Height="30"
-                    Foreground="White" Background="Transparent" BorderBrush="Transparent" 
-                    BorderThickness="0" FontSize="12" Margin="5"></Button>
+            <Button Name="MaximizeBtn" Grid.Column="1" Content="🗗" Click="MaximizeBtn_OnClick" Margin="5"
+                    Width="30" Height="30" FontSize="12" Foreground="White" Background="Transparent"
+                    BorderBrush="Transparent" BorderThickness="0"></Button>
             
-            <Button Name="CloseBtn" Grid.Column="2" Content="X" Click="CloseBtn_OnClick" Width="30" Height="30"
-                    Foreground="White" Background="Transparent" BorderBrush="Transparent" 
-                    BorderThickness="0" FontSize="12" Margin="5"></Button>
+            <Button Name="CloseBtn" Grid.Column="2" Content="X" Click="CloseBtn_OnClick" Margin="5"
+                    Width="30" Height="30" FontSize="12" Foreground="White" Background="Transparent"
+                    BorderBrush="Transparent" BorderThickness="0"></Button>
             
             
             

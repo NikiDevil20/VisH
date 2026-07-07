@@ -16,8 +16,8 @@
     
     
     <Grid>
-        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
-                   Foreground="White" FontSize="14" FontFamily="Arial">
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"
+                   FontSize="14" FontFamily="Arial">
             <TextBlock.Text>
                 Version 1.0.0 
             </TextBlock.Text>
