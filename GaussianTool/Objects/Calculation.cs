@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using System.Printing;
 using System.Text;
+using System.Text.Json;
 
 namespace GaussianTool.Objects;
 
@@ -21,6 +23,14 @@ public class Calculation
         Molecule = molecule;
         Parameters = parameters;
         Link = link;
+
+        UniqueName = GetName();
+        GetPaths();
+        
+        if (LocalPath != null && !Directory.Exists(LocalPath))
+        {
+            Directory.CreateDirectory(LocalPath);
+        }
     }
 
     public string ToGjf()
@@ -117,6 +127,72 @@ echo "`date +"%d.%m.%Y-%T"`" >> $LOGFILE
 
         return sb.ToString();
     }
-    
+
+    private void GetPaths()
+    {
+        Config cfg = Config.Load();
+        
+        
+        string suffix = Path.Combine(Molecule.Name, Parameters.State, UniqueName);
+        string localPath = Path.Combine(cfg.LocalRechnungenPath, suffix);
+        while (Directory.Exists(localPath))
+        {
+            string baseName = Path.GetFileName(localPath);
+            UniqueName = GetUniqueName(baseName);
+            localPath = Path.GetDirectoryName(localPath);
+            localPath = Path.Combine(localPath, UniqueName);
+            
+        }
+        ClusterPath = cfg.ClusterRechnungenPath + $"/{Molecule.Name}/{Parameters.State}/{UniqueName}";
+        LocalPath = localPath;
+    }
+
+    private string GetName()
+    {
+        string baseName = Molecule.Name;
+        string suffix = "";
+        
+        switch (Parameters.CalcType)
+        {
+            case "opt":
+                suffix = "_opt";
+                break;
+            case "td":
+                if (Parameters.State == "S0")
+                {
+                    suffix = "_abs";
+                    break;
+                }
+                if (Parameters.State.StartsWith("S"))
+                {
+                    suffix = "_flu";
+                    break;
+                }
+                suffix = "_pho";
+                break;
+                
+        }
+
+        string fullName = baseName + suffix;
+        
+        return fullName;
+    }
+
+    private string GetUniqueName(string nonUniqueName)
+    {
+        if (nonUniqueName.EndsWith("abs") || nonUniqueName.EndsWith("flu") ||
+            nonUniqueName.EndsWith("pho") || nonUniqueName.EndsWith("opt"))
+        {
+            // hat noch kein inkrement
+            return nonUniqueName + "_1";
+        }
+
+        int index = nonUniqueName.LastIndexOf("_");
+        string baseName = nonUniqueName.Substring(0, index);
+        string incrementString = nonUniqueName.Substring(index+1);
+        int currentIncrement = int.Parse(incrementString);
+
+        return baseName + $"_{currentIncrement + 1}";
+    }
 }
 

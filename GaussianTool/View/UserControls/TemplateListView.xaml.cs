@@ -17,7 +17,8 @@ public partial class TemplateListView : UserControl
 
     private void AddTemplateBtn_OnClick(object sender, RoutedEventArgs e)
     {
-        CalcParameters parameters = new CalcParameters(8, 16, "B3LYP", "def2svp", "S0", "dichloromethane", "71:00:00",["opt", "freq"]);
+        CalcParameters parameters = new CalcParameters("Opt", 8, 16, "B3LYP", "def2svp", 
+            "S0", "dichloromethane", "71:00:00",["opt", "freq"]);
         CalcTemplate template = new CalcTemplate("GeoOpt Grundzustand", parameters);
         
         TemplateLv.Items.Add(template);

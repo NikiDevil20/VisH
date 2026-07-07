@@ -1,8 +1,11 @@
-﻿namespace GaussianTool.Objects;
+﻿using System.Text;
 
-public class CalcParameters(int proc, int ram, string functional, string basisSet, string state, string? solvent, 
+namespace GaussianTool.Objects;
+
+public class CalcParameters(string calcType, int proc, int ram, string functional, string basisSet, string state, string? solvent, 
     string time, List<string> keywords)
 {
+    public string CalcType { get; } = calcType;
     public int Proc { get; } = proc;
     public int Ram { get; } = ram;
     public string Functional { get; } = functional;
@@ -13,13 +16,15 @@ public class CalcParameters(int proc, int ram, string functional, string basisSe
 
     public override string ToString()
     {
-        string returnString = $"%NProcShared={Proc}\n";
-        returnString += "%Chk=gauss.chk\n";
-        returnString += $"mem={Ram}GB\n";
-        returnString += $"#p {Functional} {BasisSet}\n";
-        if (solvent != null) returnString += $"scrf=(smd,solvent={solvent}) ";
-        returnString += string.Join(" ", Keywords) + "\n \n";
-        
-        return returnString;
+        var sb = new StringBuilder();
+        sb.AppendLine($"%NProcShared={Proc}");
+        sb.AppendLine("%Chk=gauss.chk");
+        sb.AppendLine($"mem={Ram}GB");
+        sb.AppendLine($"#p {Functional} {BasisSet}");
+        if (solvent != null) sb.Append($"scrf=(smd,solvent={solvent}) ");
+        sb.AppendLine(string.Join(" ", Keywords));
+        sb.AppendLine(" ");
+
+        return sb.ToString();
     }
 }

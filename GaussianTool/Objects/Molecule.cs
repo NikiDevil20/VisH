@@ -3,16 +3,16 @@
 namespace GaussianTool.Objects;
 
 
-public class Molecule(string name, List<Atom> atoms, int charge, int multiplicity)
+public class Molecule(string name, Atom[] atoms, int charge, int multiplicity)
 {
     public readonly string Name = name;
-    private readonly IReadOnlyList<Atom> _atoms = atoms.ToList();
+    private readonly Atom[] _atoms = atoms;
     public readonly int Charge = charge;
     public readonly int Multiplicity = multiplicity;
 
     public override string ToString()
     {
-        return $"{Name}\n\n{Charge} {Multiplicity}\n{CoordsToString()}";
+        return $"{Name}\r\n\n{Charge} {Multiplicity}\r\n{CoordsToString()}";
     }
 
     private string CoordsToString()

@@ -52,8 +52,9 @@
             </GridSplitter>
             
             <!-- Content Panel -->
-            <Rectangle Grid.Column="2" Fill="LightGray" Panel.ZIndex="0"></Rectangle>
-            
+            <!-- Rectangle Grid.Column="2" Fill="LightGray" Panel.ZIndex="0"></-->
+            <Button Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="Click Me!" 
+                    FontSize="48" Margin="50" Name="DebugBtn" Click="DebugBtn_OnClick"> </Button>
             
             <!-- Status Bar -->
             <userControls:StatusBar Grid.Column="3" Panel.ZIndex="1"></userControls:StatusBar>

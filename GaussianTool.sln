@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GaussianTool", "GaussianTool\GaussianTool.csproj", "{E6555EFB-9FD0-4749-94D2-4830151F9EF3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GaussianTool.Tests", "GaussianTool.Tests\GaussianTool.Tests.csproj", "{B23EDF04-B0EF-45A6-ABE1-75F6BF5C4C2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{E6555EFB-9FD0-4749-94D2-4830151F9EF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6555EFB-9FD0-4749-94D2-4830151F9EF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6555EFB-9FD0-4749-94D2-4830151F9EF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B23EDF04-B0EF-45A6-ABE1-75F6BF5C4C2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B23EDF04-B0EF-45A6-ABE1-75F6BF5C4C2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B23EDF04-B0EF-45A6-ABE1-75F6BF5C4C2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B23EDF04-B0EF-45A6-ABE1-75F6BF5C4C2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

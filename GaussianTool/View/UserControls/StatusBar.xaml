@@ -20,9 +20,31 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         
+        <!-- Header -->
         <TextBlock Grid.Row="0" FontSize="14" HorizontalAlignment="Center" Margin="5">
             Status
         </TextBlock>
+        
+        <!-- Main -->
+        <ListView x:Name="StatusLv" Grid.Row="1" Background="Transparent" BorderBrush="Transparent" 
+                  BorderThickness="0" Foreground="White" Margin="5" SelectionMode="Single">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Margin" Value="0, 0, 0, 10"></Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+            
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical" Margin="5" VerticalAlignment="Top">
+                        <TextBlock FontSize="14" Text="{Binding JobName}"></TextBlock>
+                        <TextBlock FontSize="12" Text="{Binding JobStatus}"></TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            
+        </ListView>
+        
         
         
     </Grid>
