@@ -1,7 +1,5 @@
 ﻿using System.IO;
-using System.Printing;
 using System.Text;
-using System.Text.Json;
 using GaussianTool.Objects.Configs;
 
 namespace GaussianTool.Objects;
