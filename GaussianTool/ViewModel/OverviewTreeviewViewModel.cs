@@ -4,7 +4,7 @@ using GaussianTool.Model.FileHandling;
 
 namespace GaussianTool.ViewModel;
 
-public class OverviewTreeviewViewModel
+public class OverviewTreeviewViewModel : ViewModelBase
 {
     
     public ObservableCollection<TreeNode> RootNodes { get; } = [];
