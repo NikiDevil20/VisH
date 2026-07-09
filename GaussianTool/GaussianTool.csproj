@@ -19,4 +19,8 @@
       <PackageReference Include="SSH.NET" Version="2025.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="PythonScripts\venv\" />
+    </ItemGroup>
+
 </Project>

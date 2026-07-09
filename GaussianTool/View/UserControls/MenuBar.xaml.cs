@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using GaussianTool.ViewModel;
 
 namespace GaussianTool.View.UserControls;
 
@@ -9,6 +10,7 @@ public partial class MenuBar : UserControl
     public MenuBar()
     {
         InitializeComponent();
+        DataContext = new MenuBarViewModel();
     }
 
     private void MenuBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
