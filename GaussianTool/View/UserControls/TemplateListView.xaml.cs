@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using GaussianTool.Objects;
+using GaussianTool.Model;
 
 namespace GaussianTool.View.UserControls;
     

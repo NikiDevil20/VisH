@@ -1,4 +1,4 @@
-﻿namespace GaussianTool.Objects;
+﻿namespace GaussianTool.Model;
 
 public class CalcTemplate(string title, CalcParameters parameters)
 {

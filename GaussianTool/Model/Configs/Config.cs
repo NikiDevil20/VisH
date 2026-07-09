@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text.Json;
 
-namespace GaussianTool.Objects.Configs;
+namespace GaussianTool.Model.Configs;
 
 public class Config
 {

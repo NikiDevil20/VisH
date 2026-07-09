@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 
-namespace GaussianTool.Objects.FileHandling;
+namespace GaussianTool.Model.FileHandling;
 
 public class TreeNode
 {

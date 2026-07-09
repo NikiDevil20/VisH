@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Text;
-using GaussianTool.Objects.Configs;
+using GaussianTool.Model.Configs;
 
-namespace GaussianTool.Objects;
+namespace GaussianTool.Model;
 
 public class Calculation
 {

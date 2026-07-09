@@ -1,7 +1,7 @@
-﻿using GaussianTool.Objects.Configs;
+﻿using GaussianTool.Model.Configs;
 using Renci.SshNet;
 
-namespace GaussianTool.Objects.Hilbert;
+namespace GaussianTool.Model.Hilbert;
 
 public class FileTransferService
 {

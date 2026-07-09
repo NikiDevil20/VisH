@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace GaussianTool.Objects;
+namespace GaussianTool.Model;
 
 public class CalcParameters(string calcType, int proc, int ram, string functional, string basisSet, string state, string? solvent, 
     string time, List<string> keywords)

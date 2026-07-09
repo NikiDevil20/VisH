@@ -84,3 +84,5 @@ C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-window
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\Gaussian.1CDB2E0C.Up2Date
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\CalcOverviewScrollViewer.g.cs
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\CalcOverviewScrollViewer.baml
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\OverviewTreeview.g.cs
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\OverviewTreeview.baml

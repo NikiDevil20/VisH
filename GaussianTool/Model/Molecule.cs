@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace GaussianTool.Objects;
+namespace GaussianTool.Model;
 
 
 public class Molecule(string name, Atom[] atoms, int charge, int multiplicity)

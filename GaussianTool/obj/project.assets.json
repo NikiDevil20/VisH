@@ -223,19 +223,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Niklas\\.nuget\\packages\\": {}
+    "C:\\Users\\nikla\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Niklas\\RiderProjects\\GaussianTool\\GaussianTool\\GaussianTool.csproj",
+      "projectUniqueName": "C:\\Users\\nikla\\RiderProjects\\GaussianGUI\\GaussianTool\\GaussianTool.csproj",
       "projectName": "GaussianTool",
-      "projectPath": "C:\\Users\\Niklas\\RiderProjects\\GaussianTool\\GaussianTool\\GaussianTool.csproj",
-      "packagesPath": "C:\\Users\\Niklas\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Niklas\\RiderProjects\\GaussianTool\\GaussianTool\\obj\\",
+      "projectPath": "C:\\Users\\nikla\\RiderProjects\\GaussianGUI\\GaussianTool\\GaussianTool.csproj",
+      "packagesPath": "C:\\Users\\nikla\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\nikla\\RiderProjects\\GaussianGUI\\GaussianTool\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Niklas\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\nikla\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0-windows"

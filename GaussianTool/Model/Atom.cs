@@ -1,4 +1,4 @@
-﻿namespace GaussianTool.Objects;
+﻿namespace GaussianTool.Model;
 
 public class Atom(string element, double x, double y, double z, bool isFixed = false)
 {

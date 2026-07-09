@@ -1,4 +1,4 @@
-﻿namespace GaussianTool.Objects.FileHandling;
+﻿namespace GaussianTool.Model.FileHandling;
 
 public class FileHandler
 {

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace GaussianTool.Objects.Hilbert;
+namespace GaussianTool.Model.Hilbert;
 
 public static class JobManager
 {

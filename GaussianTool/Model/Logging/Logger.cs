@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace GaussianTool.Objects.Logging;
+namespace GaussianTool.Model.Logging;
 
 public class Logger
 {
