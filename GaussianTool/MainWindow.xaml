@@ -53,7 +53,7 @@
             
             <!-- Content Panel -->
             
-            <userControls:OverviewTreeview Grid.Column="2"></userControls:OverviewTreeview>
+            <userControls:Overview Grid.Column="2"></userControls:Overview>
             
             
             <!-- Status Bar -->
