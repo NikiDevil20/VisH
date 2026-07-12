@@ -1,15 +1,23 @@
-﻿namespace GaussianTool.Model;
+﻿using System.Globalization;
+using System.Text.Json;
 
-public class Atom(string element, double x, double y, double z, bool isFixed = false)
+namespace GaussianTool.Model;
+
+public class Atom
 {
-    private string Element { get; } =  element;
-    private double X { get; } = x;
-    private double Y { get; } = y;
-    private double Z { get; } = z;
-    private bool IsFixed { get; } = isFixed;
+    public string Element { get; set; }
+    public double x { get; set; }
+    public double y { get; set; }
+    public double z { get; }
 
     public override string ToString()
     {
-        return $"{Element} {X} {Y} {Z}";
+        return $"" +
+               $"{Element} " +
+               $"{x.ToString(CultureInfo.InvariantCulture)} " +
+               $"{y.ToString(CultureInfo.InvariantCulture)} " +
+               $"{z.ToString(CultureInfo.InvariantCulture)}" +
+               $"";
+
     }
 }
