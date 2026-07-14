@@ -7,12 +7,17 @@
              mc:Ignorable="d" Background="white"
              d:DesignHeight="40" d:DesignWidth="200">
     <Grid>
-        <TextBox x:Name="TextInput" Margin="5" HorizontalAlignment="Stretch" VerticalContentAlignment="Center"
+        <TextBox x:Name="TextInput" Margin="0" Text="{Binding Text,
+                   RelativeSource={RelativeSource AncestorType=UserControl},
+                   Mode=TwoWay,
+                   UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center"
                  Background="Transparent" Panel.ZIndex="1" TextChanged="TextInput_TextChanged">
             
         </TextBox>
-        <TextBlock x:Name="TbPlaceholder" Text="Enter text..." Margin="10, 0, 0, 0" VerticalAlignment="Center"
-                   Foreground="Black" Panel.ZIndex="0" />
+        <TextBlock x:Name="TbPlaceholder" Text="{Binding Placeholder,
+                   RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="10, 0, 0, 0" 
+                   VerticalAlignment="Center"
+                   Foreground="LightGray" Panel.ZIndex="0" />
         
         <Button x:Name="ClearButton" Content="X" Click="ClearButton_OnClick" Margin="5" Width="20"
                 HorizontalAlignment="Right" Foreground="Black" Background="Transparent"

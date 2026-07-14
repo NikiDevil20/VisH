@@ -38,7 +38,7 @@ public class OverviewViewModel : ViewModelBase
     public void SetMoleculeImage()
     {
         MoleculeName = "Benzene";
-        MoleculeImage = @"C:\\Users\\Niklas\\RiderProjects\\GaussianTool\\GaussianTool\\Assets\\Benzene_200.svg.png";
+        MoleculeImage = @"C:\\Users\\nikla\\RiderProjects\\GaussianGUI\\GaussianTool\\Assets\\Benzene_200.svg.png";
     }
 
     public void SetupTreeview()

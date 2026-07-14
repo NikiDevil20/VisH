@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "U96dI8eV+vg=",
+  "dgSpecHash": "dWMJvwbmWGY=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Niklas\\RiderProjects\\GaussianTool\\GaussianTool\\GaussianTool.csproj",
+  "projectFilePath": "C:\\Users\\nikla\\RiderProjects\\GaussianGUI\\GaussianTool\\GaussianTool.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Niklas\\.nuget\\packages\\bouncycastle.cryptography\\2.6.2\\bouncycastle.cryptography.2.6.2.nupkg.sha512",
-    "C:\\Users\\Niklas\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
-    "C:\\Users\\Niklas\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.3\\microsoft.extensions.logging.abstractions.8.0.3.nupkg.sha512",
-    "C:\\Users\\Niklas\\.nuget\\packages\\ssh.net\\2025.1.0\\ssh.net.2025.1.0.nupkg.sha512"
+    "C:\\Users\\nikla\\.nuget\\packages\\bouncycastle.cryptography\\2.6.2\\bouncycastle.cryptography.2.6.2.nupkg.sha512",
+    "C:\\Users\\nikla\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\nikla\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.3\\microsoft.extensions.logging.abstractions.8.0.3.nupkg.sha512",
+    "C:\\Users\\nikla\\.nuget\\packages\\ssh.net\\2025.1.0\\ssh.net.2025.1.0.nupkg.sha512"
   ],
   "logs": []
 }
