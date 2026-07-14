@@ -98,3 +98,5 @@ C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-window
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\General.baml
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\MoleculeSettings.baml
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\Windows\StartNewCalcWindow.baml
+C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\ParametersSettings.g.cs
+C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\ParametersSettings.baml

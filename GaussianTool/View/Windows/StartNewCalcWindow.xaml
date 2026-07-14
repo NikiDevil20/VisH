@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GaussianTool.View.Windows"
         xmlns:newCalculationWindow="clr-namespace:GaussianTool.View.UserControls.NewCalculationWindow"
         mc:Ignorable="d"
-        Title="Start New Calculation" Height="600" Width="600">
+        Title="Start New Calculation" Height="600" Width="450">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"></RowDefinition>
@@ -60,10 +60,10 @@
                 </Style>
             </TabControl.ItemContainerStyle>
             
-            <TabItem Header="General">
-                
-                
-            </TabItem>
+            <!-- <TabItem Header="General"> -->
+            <!--      -->
+            <!--      -->
+            <!-- </TabItem> -->
             
             
             <TabItem Header="Molecule">
@@ -72,6 +72,7 @@
             </TabItem>
             
             <TabItem Header="Gaussian">
+                <newCalculationWindow:ParametersSettings></newCalculationWindow:ParametersSettings>
                 
             </TabItem>
             

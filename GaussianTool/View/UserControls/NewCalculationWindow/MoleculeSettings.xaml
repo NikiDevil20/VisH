@@ -9,7 +9,7 @@
              d:DesignHeight="600" d:DesignWidth="600">
         
         
-    <StackPanel Grid.Column="0">
+    <StackPanel >
         <GroupBox VerticalAlignment="Top" Header="Molecule Name" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
                   Padding="5">
         
@@ -34,22 +34,25 @@
         <GroupBox VerticalAlignment="Top" Header="State and Charge" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
                   Padding="5">
             
-            <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                
                 
                 <ComboBox 
                     ItemsSource="{Binding States}"
                     SelectedItem="{Binding SelectedState}"
-                    Width="50"
                     Margin="10, 0"
                     ></ComboBox>
                 
-                <ComboBox 
+                <ComboBox Grid.Column="1" 
                     ItemsSource="{Binding Charges}"
                     SelectedItem="{Binding SelectedCharge}"
-                    Width="50"
                     Margin="10, 0"
                 ></ComboBox>
-            </StackPanel>
+            </Grid>
         </GroupBox>
     </StackPanel>
         
