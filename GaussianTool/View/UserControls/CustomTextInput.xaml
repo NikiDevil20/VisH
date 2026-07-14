@@ -10,7 +10,8 @@
         <TextBox x:Name="TextInput" Margin="0" Text="{Binding Text,
                    RelativeSource={RelativeSource AncestorType=UserControl},
                    Mode=TwoWay,
-                   UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center"
+                   UpdateSourceTrigger=PropertyChanged}" 
+                 Padding="8, 0, 0, 0" HorizontalAlignment="Stretch" VerticalContentAlignment="Center"
                  Background="Transparent" Panel.ZIndex="1" TextChanged="TextInput_TextChanged">
             
         </TextBox>
