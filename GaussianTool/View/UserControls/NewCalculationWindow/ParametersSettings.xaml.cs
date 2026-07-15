@@ -7,7 +7,6 @@ public partial class ParametersSettings : UserControl
 {
     public ParametersSettings()
     {
-        DataContext = new ParameterSettingsViewModel();
         InitializeComponent();
     }
 }

@@ -63,13 +63,11 @@ C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-window
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\Windows\StartNewCalcWindow.g.cs
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\Windows\StartNewCalcWindow.baml
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\BottomBar.g.cs
-C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\CreateCalcControl.g.cs
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\MenuBar.g.cs
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\Overview.g.cs
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\StatusBar.g.cs
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\TemplateListView.g.cs
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\BottomBar.baml
-C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\CreateCalcControl.baml
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\MenuBar.baml
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\Overview.baml
 C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\MainWindow\StatusBar.baml
@@ -100,3 +98,5 @@ C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-window
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\Windows\StartNewCalcWindow.baml
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\ParametersSettings.g.cs
 C:\Users\Niklas\RiderProjects\GaussianTool\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\ParametersSettings.baml
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\ParametersSettings.g.cs
+C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\ParametersSettings.baml

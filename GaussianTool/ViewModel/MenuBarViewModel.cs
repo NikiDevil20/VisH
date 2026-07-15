@@ -24,6 +24,8 @@ public class MenuBarViewModel : ViewModelBase
     private void NewCalc()
     {
         var window = new StartNewCalcWindow();
-        window.ShowDialog();
+        bool? result = window.ShowDialog();
+        
+        Console.WriteLine(result);
     }
 }

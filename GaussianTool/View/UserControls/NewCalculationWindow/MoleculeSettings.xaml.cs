@@ -7,7 +7,6 @@ public partial class MoleculeSettings : UserControl
 {
     public MoleculeSettings()
     {
-        DataContext = new MoleculeSettingsViewModel();
         InitializeComponent();
     }
 }
