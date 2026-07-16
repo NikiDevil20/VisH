@@ -8,15 +8,15 @@ public class Molecule
 {
     public string Name;
     private Atom[] _atoms;
-    public int Charge;
-    public int Multiplicity;
+    public string Charge;
+    public string Multiplicity;
 
-    public Molecule(string jsonList, string name, string charge, string multiplicity)
+    public Molecule(string smilesString, string name, string charge, string multiplicity)
     {
-        _atoms = GetAtoms(jsonList).ToArray();
+        _atoms = GetAtoms(smilesString).ToArray();
         Name = name;
-        Charge = int.Parse(charge);
-        Multiplicity = int.Parse(multiplicity);
+        Charge = charge;
+        Multiplicity = multiplicity;
     }
     
     public override string ToString()
@@ -34,12 +34,32 @@ public class Molecule
         return sb.ToString();
     }
 
-    private List<Atom> GetAtoms(string jsonList)
+    private List<Atom> GetAtoms(string smilesString)
     {
-        List<Atom>? atoms = JsonSerializer.Deserialize<List<Atom>>(jsonList);
+        string jsonString = SmilesToJson(smilesString);
+        
+        List<Atom>? atoms = JsonSerializer.Deserialize<List<Atom>>(jsonString);
         if (atoms == null)
             throw new ArgumentException("Invalid JSON list");
         return atoms;
+    }
+
+    private string SmilesToJson(string smilesString)
+    {
+        var bridge = new PythonBridge();
         
+        if (!IsValidSmiles(smilesString))
+            throw new ArgumentException("Invalid SMILES string");
+
+        string jsonString = bridge.ExecuteScript("CoordBuilder.py", [smilesString]);
+        return jsonString;
+    }
+
+    public static bool IsValidSmiles(string smilesString)
+    {
+        var bridge = new PythonBridge();
+        
+        string errorMessage = bridge.ExecuteScript("SmilesValidation.py", [smilesString]);
+        return (errorMessage.Contains("valid"));
     }
 }

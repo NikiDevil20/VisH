@@ -19,7 +19,7 @@
                 
                 <userControls:CustomTextInput Placeholder="NCores" Text="{Binding NCores}" 
                                               Margin="5"></userControls:CustomTextInput>
-                <userControls:CustomTextInput Grid.Column="1" Placeholder="RAM" Text="{Binding RAM}" 
+                <userControls:CustomTextInput Grid.Column="1" Placeholder="RAM" Text="{Binding Ram}" 
                                               Margin="5"></userControls:CustomTextInput>
             </Grid>
             
@@ -52,6 +52,31 @@
             
         </GroupBox>
         
+        <GroupBox VerticalAlignment="Top" Header="Type and Solvent" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
+                  Padding="5">
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                
+                <ComboBox 
+                    ItemsSource="{Binding CalcTypes}"
+                    SelectedItem="{Binding SelectedCalcType}"
+                    Margin="10, 0"
+                ></ComboBox>
+                
+                <ComboBox Grid.Column="1" 
+                          ItemsSource="{Binding Solvents}"
+                          SelectedItem="{Binding SelectedSolvent}"
+                          Margin="10, 0"
+                ></ComboBox>
+                
+                
+            </Grid>
+            
+        </GroupBox>
         
     </StackPanel>
 </UserControl>

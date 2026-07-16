@@ -22,10 +22,10 @@
                   Padding="5">
             <StackPanel>
                 
-                <userControls:CustomTextInput Placeholder="SMILES" Text="{Binding SmilesEntry}" 
+                <userControls:CustomTextInput Placeholder="SMILES" Text="{Binding SmilesString}" 
                                               Margin="5" Grid.Row="0"></userControls:CustomTextInput>
             
-                <userControls:CustomTextInput Placeholder="Job ID" Text="{Binding CoordsJobId}" 
+                <userControls:CustomTextInput Placeholder="Job ID" Text="{Binding JobId}" 
                                               Margin="5" Grid.Row="1"></userControls:CustomTextInput>
                 
             </StackPanel>

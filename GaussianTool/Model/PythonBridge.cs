@@ -12,7 +12,7 @@ public class PythonBridge
     public PythonBridge()
     {
         // string baseDir = AppContext.BaseDirectory;
-        string baseDir = @"C:\\Users\\Niklas\\RiderProjects\\GaussianTool\\GaussianTool";
+        string baseDir = @"C:\Users\nikla\RiderProjects\GaussianGUI\GaussianTool";
         pythonFolderPath = Path.Combine(baseDir, "PythonScripts");
         pythonExePath = Path.Combine(pythonFolderPath, "venv",  "python.exe");
         
