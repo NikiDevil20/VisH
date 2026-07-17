@@ -48,8 +48,6 @@ public class Calculation
         {
             sb.AppendLine("\n" + "--link1--");
             sb.AppendLine(Link.ToString());
-            sb.AppendLine(Molecule.Name + "\n");
-            sb.AppendLine($"{Molecule.Charge} {Molecule.Multiplicity}");
         }
         
         return sb.ToString();
@@ -59,9 +57,9 @@ public class Calculation
     {
         var sb = new StringBuilder();
         sb.AppendLine("#!/bin/bash");
-        sb.AppendLine($"#PBS -l select=1:ncpus={Parameters.Proc}:mem={Parameters.Ram + 2}GB");
+        sb.AppendLine($"#PBS -l select=1:ncpus={Parameters.Proc}:mem={int.Parse(Parameters.Ram) + 2}GB");
         sb.AppendLine($"#PBS -l walltime={Parameters.Time}");
-        sb.AppendLine("#PBS -r m");
+        sb.AppendLine("#PBS -r n");
         sb.AppendLine($"#PBS -N {Molecule.Name}P");
         sb.AppendLine("#PBS -A OC1M\n");
 
@@ -129,8 +127,9 @@ echo "$PBS_JOBID ($PBS_JOBNAME) @ `hostname` at `date` in "$RUNDIR" END" >> $LOG
 echo "`date +"%d.%m.%Y-%T"`" >> $LOGFILE
 """;
         sb.AppendLine(staticText);
-
-        return sb.ToString();
+        string content = sb.ToString();
+        content = content.Replace("\r\n", "\n");
+        return content;
     }
 
     private void GetPaths()
@@ -164,10 +163,10 @@ echo "`date +"%d.%m.%Y-%T"`" >> $LOGFILE
         
         switch (Parameters.CalcType)
         {
-            case "opt":
+            case "OPT":
                 suffix = "_opt";
                 break;
-            case "td":
+            case "TD":
                 if (Parameters.State == "S0")
                 {
                     suffix = "_abs";

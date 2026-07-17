@@ -7,9 +7,19 @@ public static class JobManager
     private static SshService _sshService = new SshService();
     private static FileTransferService _fileTransferService = new FileTransferService();
 
-    public static string StartJob(string clusterGstartPath)
+    public static void StartJob(string clusterDirectory, string[] localFilePaths, string[] clusterFilesPaths)
     {
-        throw new NotImplementedException();
+        _fileTransferService.Connect();
+        _sshService.Connect();
+        
+        BuildRecursiveDirs(clusterDirectory);
+        
+        UploadFiles(localFilePaths, clusterDirectory, clusterFilesPaths);
+        
+        _sshService.CommandClient.RunCommand($"cd {clusterDirectory} && qsub gstart");
+        
+        _fileTransferService.Disconnect();
+        _sshService.Disconnect();
     }
     
     public static string JobStatus(string? jobId)
@@ -25,37 +35,30 @@ public static class JobManager
     private static string[] ListFiles(string remoteDirectory)
     {
         
-        _sshService.Connect();
         var cmd = _sshService.CommandClient.RunCommand($"cd {remoteDirectory} && dir");
         string msg = cmd.Result;
-        
-        
-        _sshService.Disconnect();
+
         return msg.Split(' ');
     }
     
     public static string UploadFiles(string[] localFilePaths, string remoteDirectory, string[] remoteFilePaths)
     {
-        _fileTransferService.Connect();
         for (int i = 0; i < localFilePaths.Length; i++)
         {
             BuildRecursiveDirs(remoteDirectory);
             var fileStream = File.OpenRead(localFilePaths[i]);
             _fileTransferService.FileClient.UploadFile(fileStream, remoteFilePaths[i]);
         }
-        _fileTransferService.Disconnect();
         return "File uploaded successfully.";
     }
     
     private static string DownloadSpecificFile(string[] remoteFilePaths, string[] localFilePaths)
     {
-        _fileTransferService.Connect();
         for (int i = 0; i < remoteFilePaths.Length; i++)
         {
             var fileStream = File.Create(localFilePaths[i]);
             _fileTransferService.FileClient.DownloadFile(remoteFilePaths[i], fileStream);
         }
-        _fileTransferService.Disconnect();
         return "File downloaded successfully.";
     }
 

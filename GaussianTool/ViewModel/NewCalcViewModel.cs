@@ -2,6 +2,7 @@
 using System.Windows;
 using GaussianTool.Model;
 using GaussianTool.Model.Parameters;
+using GaussianTool.Model.Runner;
 
 namespace GaussianTool.ViewModel;
 
@@ -202,16 +203,15 @@ public class NewCalcViewModel : ViewModelBase
             return;
         }
         
-        // Run!
-        CalcParameters? calcParam = BuildParameter();
+        CalcParameters calcParam = BuildParameter();
+        Molecule mol = new Molecule(SmilesString, MoleculeName, SelectedCharge, SelectedState.Multiplicity);
         
-        Console.WriteLine(calcParam.ToString());
-        Console.WriteLine(calcParam.Link.ToString());
+        Calculation calculation = new Calculation(mol, calcParam, calcParam.Link);
         
-        if (calcParam != null)
-        {
-            RequestClose?.Invoke(true);
-        }
+        Runner.Run(calculation);
+        
+        RequestClose?.Invoke(true);
+        
     }
 
     private void Cancel()
@@ -259,7 +259,7 @@ public class NewCalcViewModel : ViewModelBase
             basisSet: SelectedBasisSet,
             state: SelectedState?.Name,
             solvent: SelectedSolvent,
-            time: "71:99:99",
+            time: "70:99:99",
             keywords: keywordsAndLink[0]
         );
         
@@ -272,7 +272,8 @@ public class NewCalcViewModel : ViewModelBase
             state: SelectedState?.Name,
             solvent: SelectedSolvent,
             time: "71:99:99",
-            keywords: keywordsAndLink[1]
+            keywords: keywordsAndLink[1],
+            isLink: true
         );
         calcParam.Link = link;
 
@@ -292,7 +293,7 @@ public class NewCalcViewModel : ViewModelBase
             return false;
         }
         
-        if (!int.TryParse(NCores, out _) || int.Parse(NCores) <= 0)
+        if (!int.TryParse(NCores, out int cores) || cores <= 0)
         {
             MessageBox.Show(
                 "Please enter a valid number of cores.",
@@ -303,7 +304,7 @@ public class NewCalcViewModel : ViewModelBase
             return false;
         }
         
-        if (!int.TryParse(Ram, out _) || int.Parse(Ram) <= 0)
+        if (!int.TryParse(Ram, out int ram) || ram <= 0)
         {
             MessageBox.Show(
                 "Please enter a valid amount of RAM.",

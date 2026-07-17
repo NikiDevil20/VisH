@@ -1,11 +1,18 @@
 ﻿namespace GaussianTool.Model.FileHandling;
+using System.IO;
 
 public class FileHandler
 {
+    public Calculation Calculation {get; set; }
 
-
-    public static void WriteFile(string path, string content)
+    public FileHandler(Calculation calculation)
     {
-        
+        Calculation = calculation;
     }
+
+    private void WriteFile(string path, string content)
+    {
+        File.WriteAllText(path, content);
+    }
+
 }

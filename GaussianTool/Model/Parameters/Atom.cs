@@ -12,11 +12,20 @@ public class Atom
 
     public override string ToString()
     {
+        string _x = x.ToString(CultureInfo.InvariantCulture);
+        string _y = y.ToString(CultureInfo.InvariantCulture);
+        string _z = z.ToString(CultureInfo.InvariantCulture);
+        
+        if (_z == "0")
+        {
+            _z = "0.0";
+        }
+
         return $"" +
                $"{Element} " +
-               $"{x.ToString(CultureInfo.InvariantCulture)} " +
-               $"{y.ToString(CultureInfo.InvariantCulture)} " +
-               $"{z.ToString(CultureInfo.InvariantCulture)}" +
+               $"{_x} " +
+               $"{_y} " +
+               $"{_z}" +
                $"";
 
     }
