@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GaussianTool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7443909dabe398bb33236ce94fd9fa6ad2d80b65")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07d28ea32e4e4d5d6955d3350421dbaef05bd689")]
 [assembly: System.Reflection.AssemblyProductAttribute("GaussianTool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GaussianTool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

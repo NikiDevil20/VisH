@@ -18,6 +18,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         
         <!-- Header -->
@@ -26,8 +27,9 @@
         </TextBlock>
         
         <!-- Main -->
-        <ListView x:Name="StatusLv" Grid.Row="1" Background="Transparent" BorderBrush="Transparent" 
-                  BorderThickness="0" Foreground="White" Margin="5" SelectionMode="Single">
+        <ListView Grid.Row="1" Background="Transparent" BorderBrush="Transparent" 
+                  BorderThickness="0" Foreground="White" Margin="5" SelectionMode="Single"
+                  ItemsSource="{Binding JobsOnCluster}">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Margin" Value="0, 0, 0, 10"></Setter>
@@ -49,10 +51,10 @@
                         
                         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding JobName}" FontSize="14"></TextBlock>
                         
-                        <Border Grid.Row="1" Grid.Column="0" Background="{Binding LampColor}" 
-                                CornerRadius="5"></Border>
+                        <!-- <Border Grid.Row="1" Grid.Column="0" Background="{Binding LampColor}"  -->
+                        <!--         CornerRadius="5"></Border> -->
                         
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobStatus}" FontSize="12"></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobState}" FontSize="12"></TextBlock>
                         
                     </Grid>
                 </DataTemplate>
@@ -60,7 +62,10 @@
             
         </ListView>
         
-        
+        <!-- Bottom -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="Refresh" Command="{Binding RefreshCommand}" Margin="5"/>
+        </StackPanel>
         
     </Grid>
 </UserControl>

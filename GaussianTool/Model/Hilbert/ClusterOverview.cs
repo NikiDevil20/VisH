@@ -16,11 +16,11 @@ public class ClusterOverview
         foreach (var jobId in jobIdsOnCluster)
         {
             CalcStatus status = new CalcStatus(jobId);
-            Console.WriteLine($"Job ID: {jobId}, State: {status.State}, Run Time: {status.RunTime}");
+            Console.WriteLine($"Job ID: {jobId}, State: {status.JobState}, Run Time: {status.RunTime}");
         }
     }
 
-    private static string[] GetJobsOnCluster()
+    public static string[] GetJobsOnCluster()
     {
         List<string> jobIds = new List<string>();
         

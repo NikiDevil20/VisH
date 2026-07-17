@@ -5,8 +5,9 @@ namespace GaussianTool.Model;
 
 public class CalcStatus
 {
-    public string State { get; set; }
+    public string JobState { get; set; }
     public string? RunTime {get; set; }
+    public string? JobName { get; set; }
     
     public CalcStatus(string jobid)
     {
@@ -15,7 +16,7 @@ public class CalcStatus
         {
             var propertiesDict = ParseQstat(fullStatusText);
 
-            State = propertiesDict["job_state"] switch
+            JobState = propertiesDict["job_state"] switch
             {
                 "R" => "Running",
                 "Q" => "In Queue",
@@ -23,11 +24,13 @@ public class CalcStatus
             };
             
             RunTime = propertiesDict["resources_used.walltime"];
+            JobName = propertiesDict["Job_Name"];
         }
         else
         {
-            State = "Finished";
+            JobState = "Finished";
             RunTime = null;
+            JobName = jobid;
         }
     }
     
