@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using GaussianTool.Model.Configs;
 
 namespace GaussianTool.Model.Hilbert;
 
@@ -7,7 +8,7 @@ public static class JobManager
     private static SshService _sshService = new SshService();
     private static FileTransferService _fileTransferService = new FileTransferService();
 
-    public static void StartJob(string clusterDirectory, string[] localFilePaths, string[] clusterFilesPaths)
+    public static string StartJob(string clusterDirectory, string[] localFilePaths, string[] clusterFilesPaths)
     {
         _fileTransferService.Connect();
         _sshService.Connect();
@@ -16,20 +17,39 @@ public static class JobManager
         
         UploadFiles(localFilePaths, clusterDirectory, clusterFilesPaths);
         
-        _sshService.CommandClient.RunCommand($"cd {clusterDirectory} && qsub gstart");
+        var cmd = _sshService.CommandClient.RunCommand($"cd {clusterDirectory} && qsub gstart");
         
         _fileTransferService.Disconnect();
         _sshService.Disconnect();
+        return cmd.Result;
     }
     
     public static string JobStatus(string? jobId)
     {
-        throw new NotImplementedException();
+        _sshService.Connect();
+        var cfg = new Config();
+        string result;
+        if (string.IsNullOrWhiteSpace(jobId))
+        {
+            var cmd = _sshService.CommandClient.RunCommand($"qstat -u {cfg.ClusterUsername}");
+            result = cmd.Result;
+
+        }
+        else
+        {
+            var cmd = _sshService.CommandClient.RunCommand($"qstat -f {jobId}");
+            result = cmd.Result;
+        }
+        _sshService.Disconnect();
+        return result;
     }
 
     public static string DeleteJob(string jobId)
     {
-        throw new NotImplementedException();
+        _sshService.Connect();
+        var cmd = _sshService.CommandClient.RunCommand($"qdel {jobId}");
+        _sshService.Disconnect();
+        return cmd.Result;
     }
 
     private static string[] ListFiles(string remoteDirectory)
@@ -99,5 +119,65 @@ public static class JobManager
 
             throw new FileNotFoundException($"Datei mit Endung {ending} in {string.Join(", ", files)} nicht gefunden.");
         }
+    }
+
+    private static string[] Dir(string path)
+    {
+        var cmd = _sshService.CommandClient.RunCommand($"cd {path} && dir");
+        string fullString = cmd.Result;
+        string[] splitString = fullString.Split([" ", "\n", "\r", "\t"], StringSplitOptions.RemoveEmptyEntries);
+        
+        return splitString;
+    }
+
+    public static string[] GetJobsOnCluster()
+    {
+        List<string> pathsToJobs = new List<string>();
+        
+        _sshService.Connect();
+        string[] molecules = Dir("Rechnungen");
+        foreach (var mol in molecules)
+        {
+            string path = $"Rechnungen/{mol}";
+            string[] statesPerMol = Dir(path);
+
+            foreach (var state in statesPerMol)
+            {
+                string innerPath = $" {path}/{state}";
+                string[] calcsPerState = Dir(innerPath);
+                foreach (var calc in calcsPerState)
+                {
+                    string calcPath = $"{innerPath}/{calc}";
+                    pathsToJobs.Add(calcPath);
+                }
+            }
+        }
+        _sshService.Disconnect();
+        return pathsToJobs.ToArray();
+    }
+
+    public static string? GetJobId(string directory)
+    {
+        _sshService.Connect();
+        string fullName;
+        string[] splitName;
+        
+        string[] files = Dir(directory);
+
+        foreach (var fileName in files)
+        {
+            if (fileName.EndsWith(".log") ||
+                fileName.EndsWith(".lg") ||
+                fileName.EndsWith(".fchk"))
+            {
+                fullName = fileName;
+                splitName = fullName.Split('.');
+                string jobId = splitName[1] + $".hpc-batch";
+                _sshService.Disconnect();
+                return jobId;
+            }
+        }
+        _sshService.Disconnect();
+        return null;
     }
 }

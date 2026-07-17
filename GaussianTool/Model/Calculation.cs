@@ -1,6 +1,9 @@
 ﻿using System.IO;
 using System.Text;
 using GaussianTool.Model.Configs;
+using System.Text.Json;
+using System.Windows;
+using GaussianTool.Model.Hilbert;
 
 namespace GaussianTool.Model;
 
@@ -10,10 +13,10 @@ public class Calculation
     public CalcParameters Parameters { get; init; }
     public CalcParameters? Link { get; init; }
     
-    public string JobId { get; set; }
+    public string? JobId { get; set; }
     public string LocalPath { get; set; }
     public string ClusterPath { get; set; }
-    public CalcStatus Status { get; set; }
+    public CalcStatus? Status { get; set; }
     private string UniqueName { get; set; }
     
     public string LocalGjf { get; set; }
@@ -215,5 +218,20 @@ echo "`date +"%d.%m.%Y-%T"`" >> $LOGFILE
         File.WriteAllText(gjfPath, gjf);
         File.WriteAllText(gstartPath, gstart);
     }
+    
+    public void SaveCalculation()
+    {
+        if (JobId == null)
+        {
+            MessageBox.Show("No job ID available for saving.");
+            return;
+        }
+
+        string jsonString = JsonSerializer.Serialize(this);
+        string path = Path.Combine(LocalPath, $"{UniqueName}.json");
+        File.WriteAllText(path, jsonString);
+    }
+
+    
 }
 

@@ -36,10 +36,25 @@
             
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Vertical" Margin="5" VerticalAlignment="Top">
-                        <TextBlock Text="{Binding JobName}" FontSize="14"></TextBlock>
-                        <TextBlock Text="{Binding JobStatus}" FontSize="12"></TextBlock>
-                    </StackPanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding JobName}" FontSize="14"></TextBlock>
+                        
+                        <Border Grid.Row="1" Grid.Column="0" Background="{Binding LampColor}" 
+                                CornerRadius="5"></Border>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobStatus}" FontSize="12"></TextBlock>
+                        
+                    </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
             

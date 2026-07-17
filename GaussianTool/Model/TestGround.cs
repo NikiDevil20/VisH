@@ -6,6 +6,6 @@ public class TestGround
 {
     public TestGround()
     {
-        
+        ClusterOverview.GetOverview();
     }
 }

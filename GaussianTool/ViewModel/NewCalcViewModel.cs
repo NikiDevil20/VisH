@@ -208,7 +208,10 @@ public class NewCalcViewModel : ViewModelBase
         
         Calculation calculation = new Calculation(mol, calcParam, calcParam.Link);
         
-        Runner.Run(calculation);
+        string jobId = Runner.Run(calculation);
+        calculation.JobId = jobId;
+        
+        calculation.SaveCalculation();
         
         RequestClose?.Invoke(true);
         
