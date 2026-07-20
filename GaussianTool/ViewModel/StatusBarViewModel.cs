@@ -14,15 +14,16 @@ public class StatusBarViewModel : ViewModelBase
         
     }
 
-    private void Refresh()
+    private async void Refresh()
     {
-        string[] jobIds = ClusterOverview.GetJobsOnCluster();
+        // string[] jobIds = ClusterOverview.GetJobsOnCluster();
+
+        string[] jobPaths = JobManager.GetJobsOnCluster();
         
         List<CalcStatus> calcStatuses = new List<CalcStatus>();
-        foreach (var jobId in jobIds)
-        {
-            calcStatuses.Add(new CalcStatus(jobId));
-        }
+        var tasks = jobPaths.Select(async jobPath => await CalcStatus.CreateAsync(jobPath));
+        calcStatuses = (await Task.WhenAll(tasks)).ToList();
+        
         JobsOnCluster.Clear();
         foreach (var status in calcStatuses)
         {

@@ -51,8 +51,8 @@
                         
                         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding JobName}" FontSize="14"></TextBlock>
                         
-                        <!-- <Border Grid.Row="1" Grid.Column="0" Background="{Binding LampColor}"  -->
-                        <!--         CornerRadius="5"></Border> -->
+                        <Border Grid.Row="1" Grid.Column="0" Background="{Binding LampColor}"
+                                                                                          CornerRadius="5"></Border>
                         
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobState}" FontSize="12"></TextBlock>
                         

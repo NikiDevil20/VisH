@@ -24,24 +24,76 @@ public static class JobManager
         return cmd.Result;
     }
     
-    public static string JobStatus(string? jobId)
+    public static bool NormalTermination(string dirPath, string logfileName)
     {
-        _sshService.Connect();
-        var cfg = new Config();
-        string result;
-        if (string.IsNullOrWhiteSpace(jobId))
-        {
-            var cmd = _sshService.CommandClient.RunCommand($"qstat -u {cfg.ClusterUsername}");
-            result = cmd.Result;
+        var cmd = _sshService.CommandClient.RunCommand(
+            $"cd {dirPath} && " +
+            $"tail {logfileName}");
+        return cmd.Result.Contains("Normal termination");
+    }
 
+    public static Dictionary<string, string> JobStatusAndId(string path)
+    {
+        bool logExists = false;
+        bool qstatOutput = false;
+        bool normalTermination = false;
+
+        string jobId = "";
+        string status = "Q";
+
+        Dictionary<string, string> jobInfo = new Dictionary<string, string>();
+
+        _sshService.Connect();
+        
+        string[] files = Dir(path);
+        
+        foreach (string file in files)
+        { 
+           if (file.EndsWith(".log")) 
+           {
+               Console.WriteLine($"Processing log file: {file}");
+               logExists = true;
+               string logFile = file;
+               string[] splitName = logFile.Split(".");
+               jobId = splitName[1] + ".hpc-batch";
+
+               normalTermination = NormalTermination(path, logFile);
+               if (!normalTermination)
+               {
+                   var qstat = _sshService.CommandClient.RunCommand($"qstat {jobId}");
+                   if (!string.IsNullOrWhiteSpace(qstat.Result))
+                   {
+                       qstatOutput = true;
+                   }
+               }
+           }
         }
-        else
-        {
-            var cmd = _sshService.CommandClient.RunCommand($"qstat -f {jobId}");
-            result = cmd.Result;
-        }
+        
         _sshService.Disconnect();
-        return result;
+        
+        if (logExists && qstatOutput)
+        {
+            status = "R";
+        }
+        else if (logExists && !qstatOutput)
+        {
+            status = "F";
+        }
+        if (normalTermination)
+        {
+            status = "S";
+        }
+        
+        // if (string.IsNullOrEmpty(jobId))
+        // {
+        //     throw new FileNotFoundException("Job not found.");
+        // }
+        
+        jobInfo["jobName"] = Path.GetFileName(path);
+        jobInfo["jobId"] = jobId;
+        jobInfo["status"] = status;
+        return jobInfo;
+        
     }
 
     public static string DeleteJob(string jobId)
@@ -52,13 +104,13 @@ public static class JobManager
         return cmd.Result;
     }
 
-    private static string[] ListFiles(string remoteDirectory)
+    private static string[] Dir(string path)
     {
+        var cmd = _sshService.CommandClient.RunCommand($"cd {path} && dir");
+        string fullString = cmd.Result;
+        string[] splitString = fullString.Split([" ", "\n", "\r", "\t"], StringSplitOptions.RemoveEmptyEntries);
         
-        var cmd = _sshService.CommandClient.RunCommand($"cd {remoteDirectory} && dir");
-        string msg = cmd.Result;
-
-        return msg.Split(' ');
+        return splitString;
     }
     
     public static string UploadFiles(string[] localFilePaths, string remoteDirectory, string[] remoteFilePaths)
@@ -106,7 +158,7 @@ public static class JobManager
 
     public static void DownloadFile(string ending, string remoteDirectory, string localDirectory)
     {
-        string[] files = ListFiles(remoteDirectory);
+        string[] files = Dir(remoteDirectory);
         foreach (var file in files)
         {
             if (file.EndsWith(ending))
@@ -120,38 +172,24 @@ public static class JobManager
             throw new FileNotFoundException($"Datei mit Endung {ending} in {string.Join(", ", files)} nicht gefunden.");
         }
     }
-
-    private static string[] Dir(string path)
-    {
-        var cmd = _sshService.CommandClient.RunCommand($"cd {path} && dir");
-        string fullString = cmd.Result;
-        string[] splitString = fullString.Split([" ", "\n", "\r", "\t"], StringSplitOptions.RemoveEmptyEntries);
-        
-        return splitString;
-    }
-
+    
     public static string[] GetJobsOnCluster()
     {
         List<string> pathsToJobs = new List<string>();
         
         _sshService.Connect();
         string[] molecules = Dir("Rechnungen");
-        foreach (var mol in molecules)
-        {
-            string path = $"Rechnungen/{mol}";
-            string[] statesPerMol = Dir(path);
 
-            foreach (var state in statesPerMol)
-            {
-                string innerPath = $" {path}/{state}";
-                string[] calcsPerState = Dir(innerPath);
-                foreach (var calc in calcsPerState)
-                {
-                    string calcPath = $"{innerPath}/{calc}";
-                    pathsToJobs.Add(calcPath);
-                }
-            }
+        var cmd = _sshService.CommandClient.RunCommand("cd Rechnungen && find -maxdepth 3 -mindepth 3 -type d");
+        string fullString = cmd.Result;
+        string[] splitString = fullString.Split([" ", "\n", "\r", "\t"], StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var path in splitString)
+        {
+            string newPath = "Rechnungen" + path.Substring(1, path.Length - 1);
+            pathsToJobs.Add(newPath);
         }
+        
         _sshService.Disconnect();
         return pathsToJobs.ToArray();
     }
@@ -172,7 +210,7 @@ public static class JobManager
             {
                 fullName = fileName;
                 splitName = fullName.Split('.');
-                string jobId = splitName[1] + $".hpc-batch";
+                string jobId = splitName[1] + ".hpc-batch";
                 _sshService.Disconnect();
                 return jobId;
             }

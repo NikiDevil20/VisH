@@ -15,8 +15,8 @@ public class ClusterOverview
 
         foreach (var jobId in jobIdsOnCluster)
         {
-            CalcStatus status = new CalcStatus(jobId);
-            Console.WriteLine($"Job ID: {jobId}, State: {status.JobState}, Run Time: {status.RunTime}");
+            CalcStatus status = new CalcStatus();
+            Console.WriteLine($"Job ID: {jobId}, State: {status.JobState}");
         }
     }
 
@@ -35,6 +35,6 @@ public class ClusterOverview
         }
         return jobIds.ToArray();
     }
-
+    
     
 }
