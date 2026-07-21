@@ -40,22 +40,25 @@
                 <DataTemplate>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding JobName}" FontSize="14"></TextBlock>
-                        
-                        <Border Grid.Row="1" Grid.Column="0" Background="{Binding LampColor}"
-                                                                                          CornerRadius="5"></Border>
-                        
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobState}" FontSize="12"></TextBlock>
-                        
+
+                        <TextBlock Grid.Row="0"
+                                   Text="{Binding JobName}"
+                                   FontSize="14"/>
+
+                        <StackPanel Grid.Row="1"
+                                    Orientation="Horizontal">
+
+                            <Ellipse Width="12"
+                                     Height="12"
+                                     Fill="{Binding LampColor}"
+                                     Margin="0,0,8,0"/>
+
+                            <TextBlock Text="{Binding JobState}"
+                                       FontSize="12"/>
+                        </StackPanel>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

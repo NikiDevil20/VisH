@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+﻿using System.Windows.Media;
 using GaussianTool.Model.Hilbert;
 using GaussianTool.Model.PostRun;
 
@@ -11,8 +11,9 @@ public class CalcStatus
     public string JobId { get; set; }
     public Brush LampColor { get; set; }
     
-    public static async Task<CalcStatus> CreateAsync(string jobPath)
+    public static CalcStatus Create(string jobPath)
     {
+        
         var calcStatus = new CalcStatus();
         
         var jobDict = JobManager.JobStatusAndId(jobPath);
@@ -31,11 +32,11 @@ public class CalcStatus
     
         calcStatus.LampColor = calcStatus.JobState switch
         {
-            "Successful" => new SolidBrush(Color.Green),
-            "Running" => new SolidBrush(Color.Yellow),
-            "In Queue" => new SolidBrush(Color.Orange),
-            "Failed" => new SolidBrush(Color.Red),
-            _ => new SolidBrush(Color.Gray)
+            "Successful" => new SolidColorBrush(Colors.Green),
+            "Running" => new SolidColorBrush(Colors.Yellow),
+            "In Queue" => new SolidColorBrush(Colors.Orange),
+            "Failed" => new SolidColorBrush(Colors.Red),
+            _ => new SolidColorBrush(Colors.Gray)
         };
         return calcStatus;
     }

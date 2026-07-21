@@ -8,6 +8,16 @@ public static class JobManager
     private static SshService _sshService = new SshService();
     private static FileTransferService _fileTransferService = new FileTransferService();
 
+
+    public static void Connect()
+    {
+        _sshService.Connect();
+    }
+    
+    public static void Disconnect()
+    {
+        _sshService.Disconnect();
+    }
     public static string StartJob(string clusterDirectory, string[] localFilePaths, string[] clusterFilesPaths)
     {
         _fileTransferService.Connect();
@@ -42,8 +52,6 @@ public static class JobManager
         string status = "Q";
 
         Dictionary<string, string> jobInfo = new Dictionary<string, string>();
-
-        _sshService.Connect();
         
         string[] files = Dir(path);
         
@@ -68,8 +76,6 @@ public static class JobManager
                }
            }
         }
-        
-        _sshService.Disconnect();
         
         if (logExists && qstatOutput)
         {
@@ -98,9 +104,7 @@ public static class JobManager
 
     public static string DeleteJob(string jobId)
     {
-        _sshService.Connect();
         var cmd = _sshService.CommandClient.RunCommand($"qdel {jobId}");
-        _sshService.Disconnect();
         return cmd.Result;
     }
 
@@ -177,9 +181,6 @@ public static class JobManager
     {
         List<string> pathsToJobs = new List<string>();
         
-        _sshService.Connect();
-        string[] molecules = Dir("Rechnungen");
-
         var cmd = _sshService.CommandClient.RunCommand("cd Rechnungen && find -maxdepth 3 -mindepth 3 -type d");
         string fullString = cmd.Result;
         string[] splitString = fullString.Split([" ", "\n", "\r", "\t"], StringSplitOptions.RemoveEmptyEntries);
@@ -190,7 +191,6 @@ public static class JobManager
             pathsToJobs.Add(newPath);
         }
         
-        _sshService.Disconnect();
         return pathsToJobs.ToArray();
     }
 
