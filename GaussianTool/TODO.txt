@@ -1,1 +1,2 @@
-﻿Proper Path conversion, Methods for Folder and File
+﻿Async Laden von Status
+Löschen nach Download

@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:GaussianTool.View.UserControls"
              mc:Ignorable="d" Background="#323232" Foreground="White"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300"
+             Loaded="UserControl_Loaded">
     <UserControl.Effect>
         <DropShadowEffect
             Direction="180"
@@ -29,7 +30,8 @@
         <!-- Main -->
         <ListView Grid.Row="1" Background="Transparent" BorderBrush="Transparent" 
                   BorderThickness="0" Foreground="White" Margin="5" SelectionMode="Single"
-                  ItemsSource="{Binding JobsOnCluster}">
+                  ItemsSource="{Binding JobsOnCluster}"
+                  SelectedItem="{Binding SelectedCalcstatus}">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Margin" Value="0, 0, 0, 10"></Setter>
@@ -68,6 +70,7 @@
         <!-- Bottom -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Content="Refresh" Command="{Binding RefreshCommand}" Margin="5"/>
+            <Button Content="Download" Command="{Binding DownloadCommand}" Margin="5"></Button>
         </StackPanel>
         
     </Grid>

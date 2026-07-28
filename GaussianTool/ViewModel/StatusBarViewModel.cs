@@ -10,9 +10,32 @@ namespace GaussianTool.ViewModel;
 public class StatusBarViewModel : ViewModelBase
 {
     public ObservableCollection<CalcStatus> JobsOnCluster { get; } = new();
-    public RelayCommand RefreshCommand => new RelayCommand(execute => Refresh());
+    private CalcStatus? _selectedCalcstatus;
+    public CalcStatus? SelectedCalcstatus
+    {
+        get => _selectedCalcstatus;
+        set
+        {
+            if (_selectedCalcstatus != value)
+            {
+                _selectedCalcstatus = value;
+                OnPropertyChanged();
+            }
+        }
+    }
     
-    private void Refresh()
+    public RelayCommand RefreshCommand => new RelayCommand(execute => Refresh());
+    public RelayCommand DownloadCommand => new RelayCommand(
+        execute => DownloadSelection(), canExecute => IsSelected());
+
+    // public StatusBarViewModel()
+    // {
+    //     Refresh();
+    // }
+
+    
+    
+    public void Refresh()
     {
         try
         {
@@ -69,5 +92,32 @@ public class StatusBarViewModel : ViewModelBase
         {
             JobManager.Disconnect();
         }
+    }
+
+    private bool IsSelected()
+    {
+        return SelectedCalcstatus != null;
+    }
+
+    private void DownloadSelection()
+    {
+        if (IsSelected())
+        {
+            Console.WriteLine($"Downloading selection: {SelectedCalcstatus.JobName}");
+        }
+        
+        
+        
+        // try
+        // {
+        //
+        // }
+        // catch (Exception e)
+        // {
+        //     Console.WriteLine(e);
+        //     throw;
+        // }
+        
+        JobManager.DownloadFolder(SelectedCalcstatus.JobPath);
     }
 }

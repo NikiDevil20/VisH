@@ -160,13 +160,11 @@ public static class JobManager
         return "File uploaded successfully.";
     }
     
-    private static string DownloadSpecificFile(PathObject[] remoteFilePaths, PathObject[] localFilePaths)
+    private static string DownloadSpecificFile(PathObject path)
     {
-        for (int i = 0; i < remoteFilePaths.Length; i++)
-        {
-            var fileStream = File.Create(localFilePaths[i].ClusterPath);
-            _fileTransferService.FileClient.DownloadFile(remoteFilePaths[i].ClusterPath, fileStream);
-        }
+        var fileStream = File.Create(path.WindowsPath);
+        _fileTransferService.FileClient.DownloadFile(path.ClusterPath, fileStream);
+        
         return "Success";
     }
 
@@ -194,17 +192,18 @@ public static class JobManager
 
     public static void DownloadFolder(PathObject path)
     {
-        PathObject[] files = Dir(path);
-        var remoteFiles = new List<PathObject>();
-        var localFiles = new List<PathObject>();
+        _fileTransferService.Connect();
+        PathObject[] files = path.FolderContent;
+        
         foreach (var file in files)
         {
-            PathObject remoteFile = path.Join(file.ClusterPath);
-            PathObject localFile = path.Join(file.ClusterPath);
-            remoteFiles.Add(remoteFile);
-            localFiles.Add(localFile);
+            string results = DownloadSpecificFile(file);
+            if (results == "Success")
+            {
+                Console.WriteLine($"File downloaded successfully: {file.ClusterPath}");
+            }
         }
-        DownloadSpecificFile(remoteFiles.ToArray(), localFiles.ToArray());
+        _fileTransferService.Disconnect();
     }
     
     public static PathObject[] GetJobsOnCluster()
