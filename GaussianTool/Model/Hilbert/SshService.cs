@@ -29,10 +29,15 @@ public class SshService
     public string GetClusterDestinationType(string path)
     {
         string escapedPath = path.Replace("\"", "\\\"");
-
         string command =
-            $"[ -d \"{escapedPath}\" ] && echo D || [ -f \"{escapedPath}\" ] && echo F || echo N";
-
+            $"if [ -d \"{escapedPath}\" ]; then " +
+            "echo D; " +
+            $"elif [ -f \"{escapedPath}\" ]; then " +
+            "echo F; " +
+            "else " +
+            "echo N; " +
+            "fi";
+    
         var cmd = CommandClient.RunCommand(command);
         return cmd.Result.Trim();
     }

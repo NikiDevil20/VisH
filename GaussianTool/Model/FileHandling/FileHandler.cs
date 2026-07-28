@@ -1,18 +1,20 @@
-﻿namespace GaussianTool.Model.FileHandling;
+﻿using GaussianTool.Model.Enums;
+using GaussianTool.Model.Hilbert;
+
+namespace GaussianTool.Model.FileHandling;
 using System.IO;
 
-public class FileHandler
+public static class FileHandler
 {
-    public Calculation Calculation {get; set; }
-
-    public FileHandler(Calculation calculation)
+    public static string? DownloadDirectory(PathObject path)
     {
-        Calculation = calculation;
-    }
+        if (path.DestinationType != PathType.Directory)
+        {
+            return "PointsToFile";
+        }
 
-    private void WriteFile(string path, string content)
-    {
-        File.WriteAllText(path, content);
+        JobManager.DownloadFolder(path);
+        return null;
     }
 
 }

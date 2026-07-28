@@ -2,6 +2,7 @@
 using System.Windows;
 using GaussianTool.Model;
 using GaussianTool.Model.Configs;
+using GaussianTool.Model.FileHandling;
 using GaussianTool.Model.Hilbert;
 
 namespace GaussianTool.ViewModel;
@@ -16,7 +17,7 @@ public class StatusBarViewModel : ViewModelBase
         try
         {
             JobManager.Connect();
-            string[] jobPaths = JobManager.GetJobsOnCluster();
+            PathObject[] jobPaths = JobManager.GetJobsOnCluster();
             List<CalcStatus> calcStatuses = new List<CalcStatus>();
             foreach (var jobPath in jobPaths)
             {

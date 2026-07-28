@@ -1,4 +1,6 @@
-﻿namespace GaussianTool.Model.Hilbert;
+﻿using GaussianTool.Model.FileHandling;
+
+namespace GaussianTool.Model.Hilbert;
 
 public class ClusterOverview
 {
@@ -11,29 +13,29 @@ public class ClusterOverview
 
     public static void GetOverview()
     {
-        string[] jobIdsOnCluster = GetJobsOnCluster();
+        PathObject[] jobsOnCluster = GetJobsOnCluster();
 
-        foreach (var jobId in jobIdsOnCluster)
+        foreach (var job in jobsOnCluster)
         {
             CalcStatus status = new CalcStatus();
-            Console.WriteLine($"Job ID: {jobId}, State: {status.JobState}");
+            Console.WriteLine($"Job ID: {job.ClusterPath}, State: {status.JobState}");
         }
     }
 
-    public static string[] GetJobsOnCluster()
+    public static PathObject[] GetJobsOnCluster()
     {
-        List<string> jobIds = new List<string>();
+        List<PathObject> jobs = new List<PathObject>();
         
-        string[] paths = JobManager.GetJobsOnCluster();
+        PathObject[] paths = JobManager.GetJobsOnCluster();
         foreach (var path in paths)
         {
             string? jobId = JobManager.GetJobId(path);
             if (jobId != null)
             {
-                jobIds.Add(jobId);
+                jobs.Add(path);
             }
         }
-        return jobIds.ToArray();
+        return jobs.ToArray();
     }
     
     
