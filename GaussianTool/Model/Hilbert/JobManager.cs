@@ -44,6 +44,8 @@ public static class JobManager
             $"tail {path.Filename}");
         return cmd.Result.Contains("Normal termination");
     }
+    
+    
 
     public static Dictionary<string, string> JobStatusAndId(PathObject path)
     {
@@ -160,14 +162,77 @@ public static class JobManager
         return "File uploaded successfully.";
     }
     
-    private static string DownloadSpecificFile(PathObject path)
+    public static ulong FileSize(PathObject path)
     {
-        var fileStream = File.Create(path.WindowsPath);
-        _fileTransferService.FileClient.DownloadFile(path.ClusterPath, fileStream);
-        
-        return "Success";
-    }
+        try
+        {
+            _fileTransferService.Connect();
+            if (path.DestinationType == PathType.Directory)
+            {
+                return 0;
+            }
 
+            var attributes = _fileTransferService.FileClient.GetAttributes(path.ClusterPath);
+            return (ulong)attributes.Size;
+        }
+        finally
+        {
+            _fileTransferService.Disconnect();
+        }
+    }
+    
+    private static void DownloadFile(string path, Stream fileStream, Action<ulong> downloadCallback)
+    {
+        _fileTransferService.FileClient.DownloadFile(path, fileStream, downloadCallback);
+    }
+    
+    public static void DownloadFolder(
+        PathObject path,
+        IProgress<DownloadProgress> progress)
+    {
+        _fileTransferService.Connect();
+        try
+        {
+            ulong totalFolderSize = path.Size;
+            ulong bytesFinished = 0;
+
+            foreach (var file in path.FolderContent)
+            {
+                using var fileStream = File.Create(file.WindowsPath);
+
+                progress?.Report(new DownloadProgress(
+                    file.Filename,
+                    file.Size,
+                    0,
+                    totalFolderSize,
+                    bytesFinished
+                ));
+
+                DownloadFile(
+                    file.ClusterPath,
+                    fileStream,
+                    downloadedBytes =>
+                    {
+                        ulong totalDownloaded = bytesFinished + downloadedBytes;
+
+                        progress.Report(new DownloadProgress
+                            (
+                                file.Filename,
+                                file.Size,
+                                downloadedBytes,
+                                totalFolderSize,
+                                totalDownloaded)
+                        );
+                    });
+                bytesFinished += file.Size;
+            }
+        }
+        finally
+        {
+            _fileTransferService.Disconnect();
+        }
+    }
+    
     private static void BuildRecursiveDirs(string directoryPath)
     {
         string[] parts = directoryPath.Split('/');
@@ -190,21 +255,6 @@ public static class JobManager
         
     }
 
-    public static void DownloadFolder(PathObject path)
-    {
-        _fileTransferService.Connect();
-        PathObject[] files = path.FolderContent;
-        
-        foreach (var file in files)
-        {
-            string results = DownloadSpecificFile(file);
-            if (results == "Success")
-            {
-                Console.WriteLine($"File downloaded successfully: {file.ClusterPath}");
-            }
-        }
-        _fileTransferService.Disconnect();
-    }
     
     public static PathObject[] GetJobsOnCluster()
     {

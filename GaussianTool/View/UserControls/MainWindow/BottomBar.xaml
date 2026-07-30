@@ -5,7 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:GaussianTool.View.UserControls"
              mc:Ignorable="d" Background="#006DB3"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300"
+             DataContext="{Binding DownloadManager, 
+    PresentationTraceSources.TraceLevel=High}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    
     <UserControl.Effect>
         <DropShadowEffect
             Direction="90"
@@ -14,13 +20,26 @@
         </DropShadowEffect>
     </UserControl.Effect>
     
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="0.2*"/>
+        </Grid.ColumnDefinitions>
+        
+        <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" Margin="5, 0"
+                   FontSize="14" FontFamily="Arial" Text="{Binding CurrentFileName}"/>
     
-    <Grid>
-        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"
-                   FontSize="14" FontFamily="Arial">
-            <TextBlock.Text>
-                Version 1.0.0 
-            </TextBlock.Text>
-        </TextBlock>
+        <ProgressBar
+            Grid.Column="1"
+            Value="{Binding LocalDownloadPercentage}"
+            Minimum="0"
+            Maximum="100"
+            Margin="5"
+            Visibility="{Binding IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        
+        <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" Margin="5, 0"
+                   Visibility="{Binding IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                   FontSize="14" FontFamily="Arial" Text="{Binding DownloadPercentage, StringFormat={}{0:F1} %}"/>
     </Grid>
 </UserControl>

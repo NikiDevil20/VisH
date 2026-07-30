@@ -15,6 +15,7 @@ public class PathObject
     public PathObject[]? FolderContent { get; set; }
     public string Foldername { get; set; }
     public string? Filename { get; set; }
+    public ulong Size { get; set; }
     
     public PathObject(string pathName, bool isClusterPath=false)
     {
@@ -39,6 +40,7 @@ public class PathObject
         Foldername = GetFoldername();
         if (DestinationType == PathType.File)
             Filename = GetFilename();
+        Size = GetSize();
     }
     
     private PathType GetDestinationType()
@@ -185,5 +187,28 @@ public class PathObject
         string[] namesInDirectory = Directory.GetFileSystemEntries(WindowsPath);
         pathsInDirectory = namesInDirectory.Select(name => new PathObject(name, isClusterPath: false)).ToArray();
         return pathsInDirectory;
+    }
+    
+    private ulong GetSize()
+    {
+        if (DestinationType == PathType.File)
+        {
+            if (IsClusterPath)
+            {
+                var size = JobManager.FileSize(this);
+                return size;
+            }
+            var fileInfo = new FileInfo(WindowsPath);
+            return (ulong)fileInfo.Length;
+        }
+        if (FolderContent == null)
+            return 0;
+        
+        ulong totalSize = 0;
+        foreach (var path in FolderContent)
+        {
+            totalSize += path.Size;
+        }
+        return totalSize;
     }
 }

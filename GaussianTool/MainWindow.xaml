@@ -57,7 +57,7 @@
             
             
             <!-- Status Bar -->
-            <userControls:StatusBar Grid.Column="3" Panel.ZIndex="1"></userControls:StatusBar>
+            <userControls:StatusBar Grid.Column="3" Panel.ZIndex="1" DataContext="{Binding StatusViewModel}"></userControls:StatusBar>
             
         </Grid>
         

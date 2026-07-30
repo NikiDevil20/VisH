@@ -9,8 +9,6 @@ public partial class StatusBar : UserControl
     public StatusBar()
     {
         InitializeComponent();
-        var vm = new StatusBarViewModel();
-        DataContext = vm;
     }
     
     private void UserControl_Loaded(object sender, RoutedEventArgs e)
