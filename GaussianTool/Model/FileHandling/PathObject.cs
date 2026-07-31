@@ -163,7 +163,7 @@ public class PathObject
         return string.Empty;
     }
 
-    private PathObject[]? GetFolderContent()
+    public PathObject[]? GetFolderContent()
     {
         if (DestinationType != PathType.Directory)
             return null;

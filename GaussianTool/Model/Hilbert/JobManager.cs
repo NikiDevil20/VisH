@@ -56,14 +56,14 @@ public static class JobManager
         State status = State.Queue;
 
         Dictionary<string, string> jobInfo = new Dictionary<string, string>();
-
+        
         if (path.DestinationType != PathType.Directory)
             throw new ArgumentException("Path must be a directory.");
 
         if (path.FolderContent == null || path.FolderContent.Length == 0)
             throw new FileNotFoundException("Directory is empty.");
         
-        PathObject[] files = path.FolderContent;
+        PathObject[] files = path.GetFolderContent();
         
         foreach (var file in files)
         {
@@ -86,7 +86,6 @@ public static class JobManager
                }
            }
         }
-        
         if (logExists && qstatOutput)
         {
             status = State.Running;
@@ -99,11 +98,6 @@ public static class JobManager
         {
             status = State.Successful;
         }
-        
-        // if (string.IsNullOrEmpty(jobId))
-        // {
-        //     throw new FileNotFoundException("Job not found.");
-        // }
         
         jobInfo["jobName"] = Path.GetFileName(path.ClusterPath);
         jobInfo["jobId"] = jobId;

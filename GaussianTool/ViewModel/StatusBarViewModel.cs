@@ -43,7 +43,6 @@ public class StatusBarViewModel : ViewModelBase
 
     public void RefreshJobList()
     {
-        Console.WriteLine("Refreshing job list...");
         try
         {
             JobManager.Connect();
