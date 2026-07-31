@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using GaussianTool.Model;
+using GaussianTool.Model.FileHandling;
 using GaussianTool.Model.Parameters;
 using GaussianTool.Model.Runner;
 
@@ -178,8 +179,10 @@ public class NewCalcViewModel : ViewModelBase
 
     public event Action<bool>? RequestClose; 
     
+    public Calculation? Result { get; private set; }
     public NewCalcViewModel()
     {
+        Console.WriteLine("NewCalcViewModel initialized");
         SelectedState = States[0];
         SelectedCharge = Charges[3];
         SelectedFunctional = Functionals[0];
@@ -208,13 +211,8 @@ public class NewCalcViewModel : ViewModelBase
         
         Calculation calculation = new Calculation(mol, calcParam, calcParam.Link);
         
-        string jobId = Runner.Run(calculation);
-        calculation.JobId = jobId;
-        
-        calculation.SaveCalculation();
-        
+        Result = calculation;
         RequestClose?.Invoke(true);
-        
     }
 
     private void Cancel()

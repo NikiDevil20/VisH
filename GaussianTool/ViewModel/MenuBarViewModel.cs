@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using GaussianTool.Model;
+using GaussianTool.Model.FileHandling;
 using GaussianTool.View.Windows;
 
 namespace GaussianTool.ViewModel;
@@ -9,9 +10,11 @@ public class MenuBarViewModel : ViewModelBase
 {
     public RelayCommand DebugCommand => new RelayCommand(execute => Debug());
     public RelayCommand NewCalcCommand => new RelayCommand(execute => NewCalc());
+    private FileHandler _fileHandler { get; set; }
 
-    public MenuBarViewModel()
+    public MenuBarViewModel(FileHandler fileHandler)
     {
+        _fileHandler = fileHandler;
     }
 
 
@@ -23,9 +26,16 @@ public class MenuBarViewModel : ViewModelBase
     
     private void NewCalc()
     {
+        Console.WriteLine("Before WindowCreation");
         var window = new StartNewCalcWindow();
-        bool? result = window.ShowDialog();
-        
-        Console.WriteLine(result);
+        Console.WriteLine("Window Created");
+        if (window.ShowDialog() == true)
+        {
+            var calculation = window.Result;
+            Console.WriteLine(calculation);
+            string jobId = _fileHandler.Upload(calculation);
+            calculation.JobId = jobId;
+            calculation.SaveCalculation();
+        }
     }
 }

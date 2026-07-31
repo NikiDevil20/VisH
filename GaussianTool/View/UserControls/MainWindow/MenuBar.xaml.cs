@@ -10,7 +10,6 @@ public partial class MenuBar : UserControl
     public MenuBar()
     {
         InitializeComponent();
-        DataContext = new MenuBarViewModel();
     }
 
     private void MenuBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -1,18 +1,23 @@
 ﻿using GaussianTool.Model.Hilbert;
 
-namespace GaussianTool.Model.Runner;
+namespace GaussianTool.Model.FileHandling;
 
-public static class Runner
+public class UploadManager
 {
-    public static string Run(Calculation calculation)
+    public bool ClusterWasChanged { get; set; }
+    
+    
+
+    public string Run(Calculation calculation)
     {
         calculation.WriteFiles();
         
         string jobId = JobManager.StartJob(
-            calculation.GjfPath.ClusterPath,
+            calculation.GjfPath.ClusterFolder,
             [calculation.GjfPath.WindowsPath, calculation.GstartPath.WindowsPath],
             [calculation.GjfPath.ClusterPath, calculation.GstartPath.ClusterPath]
-            );
+        );
+        ClusterWasChanged = true;
         return jobId;
     }
 }

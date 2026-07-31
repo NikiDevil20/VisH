@@ -6,16 +6,21 @@ public class MainWindowViewModel
 {
     public StatusBarViewModel StatusViewModel { get; }
     public OverviewViewModel OverviewViewModel { get; }
+    public MenuBarViewModel MenuBarViewModel { get; }
     public DownloadManager DownloadManager { get; }
+    
+    public FileHandler FileHandler { get; set; }
 
     public MainWindowViewModel()
     {
-
-        var downloadManager = new DownloadManager();
-        StatusViewModel = new StatusBarViewModel(downloadManager);
+        FileHandler = new FileHandler();
+        
+        StatusViewModel = new StatusBarViewModel(FileHandler);
         
         OverviewViewModel = new OverviewViewModel();
-
-        DownloadManager = downloadManager;
+        
+        MenuBarViewModel = new MenuBarViewModel(FileHandler);
+        
+        DownloadManager = FileHandler.DownloadManager;
     }
 }

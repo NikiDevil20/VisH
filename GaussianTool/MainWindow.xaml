@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
         
         <!-- Top Row -->
-        <userControls:MenuBar Panel.ZIndex="3"></userControls:MenuBar>
+        <userControls:MenuBar Panel.ZIndex="3" DataContext="{Binding MenuBarViewModel}"/>
         
         <!-- Middle Row -->
         

@@ -13,11 +13,12 @@ public class PathObject
     private bool IsClusterPath { get; set; }
     public PathType DestinationType { get; set; }
     public PathObject[]? FolderContent { get; set; }
-    public string Foldername { get; set; }
+    public string WindowsFolder { get; set; }
+    public string ClusterFolder {get; set;}
     public string? Filename { get; set; }
     public ulong Size { get; set; }
     
-    public PathObject(string pathName, bool isClusterPath=false)
+    public PathObject(string pathName, bool isClusterPath=false, bool _virtual=false)
     {
         IsClusterPath = isClusterPath;
         if (isClusterPath)
@@ -32,12 +33,10 @@ public class PathObject
         }
         
         DestinationType = GetDestinationType();
-        if (DestinationType == PathType.NotDefined)
-        {
-            throw new InvalidOperationException("Path not found.");
-        }
+        
         FolderContent = GetFolderContent();
-        Foldername = GetFoldername();
+        WindowsFolder = GetFoldername(false);
+        ClusterFolder = GetFoldername(true);
         if (DestinationType == PathType.File)
             Filename = GetFilename();
         Size = GetSize();
@@ -120,11 +119,11 @@ public class PathObject
         return $"{cfg.LocalRechnungenPath}\\{relativePath}";
     }
 
-    private string GetFoldername()
+    private string GetFoldername(bool cluster)
     {
         string[] elements;
         
-        if (IsClusterPath)
+        if (cluster)
         {
             if (DestinationType == PathType.Directory)
                 return ClusterPath;

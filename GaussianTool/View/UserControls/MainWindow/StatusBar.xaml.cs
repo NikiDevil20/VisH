@@ -15,7 +15,7 @@ public partial class StatusBar : UserControl
     {
         if (DataContext is StatusBarViewModel vm)
         {
-            vm.Refresh();
+            vm.RefreshJobList();
         }
     }
 }

@@ -10,8 +10,7 @@ public static class JobManager
 {
     private static SshService _sshService = new SshService();
     private static FileTransferService _fileTransferService = new FileTransferService();
-
-
+    
     public static void Connect()
     {
         _sshService.Connect();
@@ -25,7 +24,7 @@ public static class JobManager
     {
         _fileTransferService.Connect();
         _sshService.Connect();
-        
+        Console.WriteLine(clusterDirectory);
         BuildRecursiveDirs(clusterDirectory);
         
         UploadFiles(localFilePaths, clusterDirectory, clusterFilesPaths);
@@ -40,7 +39,7 @@ public static class JobManager
     private static bool NormalTermination(PathObject path)
     {
         var cmd = _sshService.CommandClient.RunCommand(
-            $"cd {path.Foldername} && " +
+            $"cd {path.ClusterFolder} && " +
             $"tail {path.Filename}");
         return cmd.Result.Contains("Normal termination");
     }
@@ -71,7 +70,6 @@ public static class JobManager
            if (file.ClusterPath.EndsWith(".log")) 
            {
                logExists = true;
-               
                jobId = GaussianRegex.MatchString(file.ClusterPath, @"\.(\d+\.hpc-batch)\.log$");
 
                normalTermination = NormalTermination(file);
