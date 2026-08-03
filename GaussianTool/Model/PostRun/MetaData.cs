@@ -5,14 +5,15 @@ namespace GaussianTool.Model.PostRun;
 
 public class MetaData
 {
-    public string? JobId { get; set; }
-    public string? Functional { get; set; }
-    public string? BasisSet { get; set; }
-    public int? Charge { get; set; }
-    public int? Multiplicity { get; set; }
-    public TimeSpan? Walltime { get; set; }
-    public int? Procs { get; set; }
-    public int? Ram { get; set; }
+    public string JobName { get; set; }
+    public string JobId { get; set; }
+    public string Functional { get; set; }
+    public string BasisSet { get; set; }
+    public string Charge { get; set; }
+    public string Multiplicity { get; set; }
+    public string Walltime { get; set; }
+    public string Procs { get; set; }
+    public string Ram { get; set; }
     
     public MetaData(PathObject calculationDirectory)
     {
@@ -26,6 +27,7 @@ public class MetaData
         var jobId = GaussianRegex.MatchString(lgFileContent, GaussianRegex.JobIdRegex);
         var walltimeUnformatted = GaussianRegex.MatchString(lgFileContent, GaussianRegex.WalltimeRegex);
         var walltime = TimeSpan.Parse(walltimeUnformatted ?? "00:00:00");
+        var jobName = GaussianRegex.MatchString(lgFileContent, GaussianRegex.JobNameRegex);
         
         // from log file
         var functional = GaussianRegex.MatchString(logFileContent, GaussianRegex.FunctionalRegex);
@@ -35,15 +37,31 @@ public class MetaData
         var procs = GaussianRegex.MatchInt(logFileContent, GaussianRegex.NCpuRegex);
         var ram = GaussianRegex.MatchInt(logFileContent, GaussianRegex.RamRegex);
 
-        JobId = jobId;
-        Functional = functional;
-        BasisSet = basisSet;
-        Charge = charge;
-        Multiplicity = multiplicity;
-        Walltime = walltime;
-        Procs = procs;
-        Ram = ram;
+        JobName = jobName ?? "not detected";
+        JobId = jobId ?? "not detected";
+        Functional = functional ?? "not detected";
+        BasisSet = basisSet ?? "not detected";
+        Charge = charge?.ToString() ?? "not detected";
+        Multiplicity = multiplicity?.ToString() ?? "not detected";
+        Walltime = walltime.ToString() ?? "not detected";
+        Procs = procs?.ToString() ?? "not detected";
+        Ram = ram?.ToString() ?? "not detected";
     }
     
-    
+    public Dictionary<string, string> ToDictionary()
+    {
+        return new Dictionary<string, string>()
+        {
+            { "JobName", JobName },
+            { "JobId", JobId },
+            { "Functional", Functional },
+            { "BasisSet", BasisSet },
+            { "Charge", Charge },
+            { "Multiplicity", Multiplicity },
+            { "Walltime", Walltime },
+            { "Procs", Procs },
+            { "Ram", Ram }
+        };
+    }
+
 }

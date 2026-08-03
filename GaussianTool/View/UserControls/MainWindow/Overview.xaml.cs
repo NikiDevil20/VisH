@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using GaussianTool.Model;
 using GaussianTool.Model.Configs;
 using GaussianTool.Model.FileHandling;
 using GaussianTool.ViewModel;
@@ -13,9 +14,11 @@ public partial class Overview : UserControl
     public Overview()
     {
         InitializeComponent();
-        
-        DataContext = new OverviewViewModel();
-        
+
+        // PythonBridge pythonBridge = new PythonBridge();
+        // LogFileAnalyzer logFileAnalyzer = new LogFileAnalyzer(pythonBridge);
+        //
+        // DataContext = new OverviewViewModel(logFileAnalyzer);
         
     }
     

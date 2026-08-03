@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using GaussianTool.Model.FileHandling;
 
 namespace GaussianTool.Model;
 
@@ -10,6 +11,7 @@ public class Molecule
     private Atom[] _atoms;
     public string Charge;
     public string Multiplicity;
+    public string SmilesString;
 
     public Molecule(string smilesString, string name, string charge, string multiplicity)
     {
@@ -17,6 +19,7 @@ public class Molecule
         Name = name;
         Charge = charge;
         Multiplicity = multiplicity;
+        SmilesString = smilesString;
     }
     
     public override string ToString()
@@ -52,7 +55,20 @@ public class Molecule
             throw new ArgumentException("Invalid SMILES string");
 
         string jsonString = bridge.ExecuteScript("CoordBuilder.py", [smilesString]);
+        
         return jsonString;
+    }
+
+    public void DrawSvg(string directory, PythonBridge pythonBridge)
+    {
+        const string scriptName = "DrawPngFromSmiles.py";
+        var direcotryPath = directory;
+        
+        string[] pythonArguments = [SmilesString, direcotryPath];
+        
+        string output = pythonBridge.ExecuteScript(scriptName, pythonArguments);
+        Console.WriteLine(output);
+
     }
 
     public static bool IsValidSmiles(string smilesString)

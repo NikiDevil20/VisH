@@ -2,16 +2,33 @@
 using GaussianTool.Model;
 using GaussianTool.Model.Configs;
 using GaussianTool.Model.FileHandling;
+using GaussianTool.Model.PostRun;
 
 namespace GaussianTool.ViewModel;
 
 public class OverviewViewModel : ViewModelBase
 {
-    
+    private LogFileAnalyzer _logFileAnalyzer;
     public ObservableCollection<TreeNode> RootNodes { get; } = [];
-    public ObservableCollection<DataGridItem> Properties { get; set; }
-    public string MoleculeImage { get; set; }
-    public string MoleculeName { get; set; }
+    // public ObservableCollection<DataGridItem> Properties { get; } = [];
+    
+    public ObservableCollection<DataGridItem> MetaDataGridItems { get; } = [];
+    public ObservableCollection<DataGridItem> EnergiesGridItems { get; } = [];
+    public ObservableCollection<DataGridItem> FrequenciesGridItems { get; } = [];
+    public ObservableCollection<DataGridItem> OrbitalsGridItems{ get; } = [];
+    private string _moleculeImage = "";
+    public string MoleculeImage
+    {
+        get => _moleculeImage;
+        set => SetProperty(ref _moleculeImage, value);
+    }
+    private string _moleculeName = "";
+    public string MoleculeName
+    {
+        get => _moleculeName;
+        set => SetProperty(ref _moleculeName, value);
+    }
+    private PathObject? SelectedPath { get; set; }
     private TreeNode? _selectedNode;
     public TreeNode? SelectedNode 
     { 
@@ -19,29 +36,78 @@ public class OverviewViewModel : ViewModelBase
         set
         {
             _selectedNode = value;
-            OnPropertyChanged();
+            if (value is null)
+            {
+                SelectedPath = null;
+                OnPropertyChanged();
+                return;
+            }
             
-            // Console.WriteLine(value.FullPath);
+            SelectedPath = new PathObject(value.FullPath);
+            RefreshSelection();
+            OnPropertyChanged();
         }
     }
     
-    public OverviewViewModel()
+    public OverviewViewModel(LogFileAnalyzer logFileAnalyzer)
     {
+        _logFileAnalyzer = logFileAnalyzer;
         SetupTreeview();
-        SetMoleculeImage();
-        DisplayProperties();
-        
-        
-        Console.WriteLine(_selectedNode);
-    }
-    
-    public void SetMoleculeImage()
-    {
-        MoleculeName = "Benzene";
-        MoleculeImage = @"C:\\Users\\Nikla\\RiderProjects\\GaussianGUI\\GaussianTool\\Assets\\Benzene_200.svg.png";
     }
 
-    public void SetupTreeview()
+    private void RefreshSelection()
+    {
+        DisplayProperties();
+    }
+
+    private bool StructurePresent()
+    {
+        if (SelectedPath is null)
+            return false;
+
+        if (SelectedPath.TryGetFileWithEnding(".png") is null)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private bool PropertiesPresent()
+    {
+        if (SelectedPath is null)
+            return false;
+        
+        if (SelectedPath.TryGetFileWithEnding(".log") is null || SelectedPath.TryGetFileWithEnding(".lg") is null)
+        {
+            Console.WriteLine(".log and .lg files not present.");
+            return false;
+        }
+
+        return true;
+    }
+    
+    private void SetMoleculeImage(PathObject directory)
+    {
+        if (StructurePresent())
+        {
+            var pngFile = directory.TryGetFileWithEnding(".png");
+            MoleculeImage = pngFile.WindowsPath;
+        }
+        else
+        {
+            MoleculeImage = "/GaussianTool;component/Assets/FileNotFound.png";
+        }
+    }
+
+    private void ClearProperties()
+    {
+        MetaDataGridItems.Clear();
+        EnergiesGridItems.Clear();
+        FrequenciesGridItems.Clear();
+        OrbitalsGridItems.Clear();
+    }
+
+    private void SetupTreeview()
     {
         Config cfg = Config.Load();
 
@@ -53,27 +119,59 @@ public class OverviewViewModel : ViewModelBase
         }
     }
     
-    public void DisplayProperties()
+    private void DisplayProperties()
     {
-        string[] values = { "100", "120", "140", "160" };
-        string[] keywords = { "Property1", "Property2", "Property3", "Property4" };
+        if (SelectedPath is null)
+            return;
         
-        Dictionary<string, string> propDict = new Dictionary<string, string>();
-        for (int i = 0; i < values.Length; i++)
+        SetMoleculeImage(SelectedPath);
+        
+        if (!PropertiesPresent())
         {
-            propDict.Add(keywords[i], values[i]);
+            ClearProperties();
+            return;
         }
-        
-        
-        Properties = new ObservableCollection<DataGridItem>();
 
-
-        foreach (var ele in propDict)
-        {
-            DataGridItem Item = new DataGridItem(ele.Key, ele.Value);
-            Properties.Add(Item);
-        }
+        CalcResults calcResults = _logFileAnalyzer.Run(SelectedPath);
         
+        MoleculeName = calcResults.MetaData.JobName;
         
+        DictToGridItems(SetupMetaData(calcResults.MetaData), MetaDataGridItems);
+        DictToGridItems(SetupEnergies(calcResults.Energy), EnergiesGridItems);
+        DictToGridItems(SetupFrequencies(calcResults.Frequency), FrequenciesGridItems);
+        DictToGridItems(SetupOrbitals(calcResults.Orbitals), OrbitalsGridItems);
     }
+
+
+    private void DictToGridItems(Dictionary<string, string> dict, ObservableCollection<DataGridItem> targetCollection)
+    {
+        targetCollection.Clear();
+        
+        foreach (var ele in dict)
+        {
+            targetCollection.Add(new DataGridItem(ele.Key, ele.Value));
+        }
+    }
+    private Dictionary<string, string> SetupMetaData(MetaData metaData)
+    {
+        return metaData.ToDictionary();
+    }
+
+    private Dictionary<string, string> SetupEnergies(EnergyResults energyResults)
+    {
+        return energyResults.ToDictionary();
+    }
+
+    private Dictionary<string, string> SetupFrequencies(Frequency frequency)
+    {
+        return frequency.ToDictionary();
+    }
+
+    private Dictionary<string, string> SetupOrbitals(Orbitals orbitals)
+    {
+        return orbitals.ToDictionary();
+
+    }
+    
+    
 }

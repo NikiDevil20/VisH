@@ -222,8 +222,25 @@ public class PathObject
         return totalSize;
     }
     
-    public PathObject? GetFileWithEnding(string ending)
+    public void RefreshFolderContent()
     {
-        return FolderContent?.FirstOrDefault(f => f.Filename?.EndsWith(ending) == true);
+        _folderContent = GetFolderContent();
+    }
+    
+    public PathObject GetFileWithEnding(string ending, bool refresh=false)
+    {
+        if (refresh)
+            RefreshFolderContent();
+            
+        var file = FolderContent?.FirstOrDefault(f => f.Filename?.EndsWith(ending) == true);
+        if (file == null)
+            throw new FileNotFoundException($"File with ending '{ending}' not found in {WindowsPath}.");
+        return file;
+    }
+    
+    public PathObject? TryGetFileWithEnding(string ending)
+    {
+        var file = FolderContent?.FirstOrDefault(f => f.Filename?.EndsWith(ending) == true);
+        return file;
     }
 }

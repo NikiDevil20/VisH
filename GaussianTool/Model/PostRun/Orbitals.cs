@@ -12,4 +12,14 @@ public class Orbitals
         LUMO = energies[nHomo+1];
         Gap = LUMO - HOMO;
     }
+    
+    public Dictionary<string, string> ToDictionary()
+    {
+        return new Dictionary<string, string>()
+        {
+            { "HOMO", HOMO.ToString() },
+            { "LUMO", LUMO.ToString() },
+            { "Gap", Gap.ToString() }
+        };
+    }
 }

@@ -38,7 +38,9 @@ public class GaussianRegex
     public static readonly Regex JobIdLogFile =
         new(@"(\d+\.hpc-batch)", RegexOptions.Compiled);
     
-    
+    public static readonly Regex JobNameRegex =
+        new(@"Job Name\s*=\s*(\S+)", RegexOptions.Compiled);
+
     public static double? MatchDouble(string text, Regex pattern)
     {
         var match = pattern.Match(text);

@@ -15,7 +15,7 @@ public class CalcResults
     public double[] ScfEnergies { get; init; } = [];
     public string CoordResults { get; init; } = string.Empty;
     public int NHomo { get; init; } = 0;
-
+    public int Version { get; init; } = 1;
 
     private PathObject? _calculationDirectory;
 
@@ -38,7 +38,7 @@ public class CalcResults
         CalcResults? results;
         try
         {
-            var json = File.ReadAllText(calculationDirectory.GetFileWithEnding(".json")?.WindowsPath ?? string.Empty);
+            var json = File.ReadAllText(calculationDirectory.GetFileWithEnding("result.json", true).WindowsPath);
             results = JsonSerializer.Deserialize<CalcResults>(json);
         }
         catch (FileNotFoundException e)
@@ -60,8 +60,16 @@ public class CalcResults
         return results;
     }
     
-        
-    
+    public Dictionary<string, object> ToDictionary()
+    {
+        return new Dictionary<string, object>()
+        {
+            { "MetaData", MetaData.ToDictionary() },
+            { "Energy", Energy.ToDictionary() },
+            { "Frequency", Frequency.ToDictionary() },
+            { "Orbitals", Orbitals.ToDictionary() }
+        };
+    }
 
 
     public static double HartreeToElectronVolt(double hartree)

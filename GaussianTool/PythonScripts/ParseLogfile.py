@@ -1,4 +1,4 @@
-﻿import os
+﻿from pathlib import Path
 import cclib
 import sys
 import json
@@ -27,10 +27,13 @@ def parse_logfile(logfile_path):
     
     data = cclib.io.ccread(logfile_path)
     
-    json_dict["NHomo"] = data.homos[0]
-    json_dict["AllFreqs"] = data.vibfreqs
-    json_dict["MoEnergies"] = data.moenergies[0]
-    json_dict["ScfEnergies"] = data.scfenergies
+    json_dict["NHomo"] = int(data.homos[0])
+    try:
+        json_dict["AllFreqs"] = data.vibfreqs.tolist()
+    except AttributeError:
+        json_dict["AllFreqs"] = []
+    json_dict["MoEnergies"] = data.moenergies[0].tolist()
+    json_dict["ScfEnergies"] = data.scfenergies.tolist()
     json_dict["CoordResults"] = coords_to_string(data)
     json_dict["Version"] = 1
     
@@ -55,5 +58,5 @@ directory = sys.argv[2]
 
 json_dict = parse_logfile(logfile)
 
-with open(os.path.join(directory, "output.json"), "w") as f:
-    json.dump(json_dict, f)
+with open(Path(directory) / "result.json", "w", encoding="utf-8") as f:
+    json.dump(json_dict, f, indent=2)

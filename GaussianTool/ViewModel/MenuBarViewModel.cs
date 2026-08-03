@@ -26,16 +26,15 @@ public class MenuBarViewModel : ViewModelBase
     
     private void NewCalc()
     {
-        Console.WriteLine("Before WindowCreation");
         var window = new StartNewCalcWindow();
-        Console.WriteLine("Window Created");
         if (window.ShowDialog() == true)
         {
             var calculation = window.Result;
-            Console.WriteLine(calculation);
             string jobId = _fileHandler.Upload(calculation);
             calculation.JobId = jobId;
             calculation.SaveCalculation();
+            
+            calculation.Molecule.DrawSvg(calculation.GjfPath.WindowsFolder, new PythonBridge());
         }
     }
 }

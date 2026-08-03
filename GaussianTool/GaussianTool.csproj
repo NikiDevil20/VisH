@@ -20,7 +20,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Assets\" />
+      <Resource Include="Assets\FileNotFound.png" />
+    </ItemGroup>
+
+    <ItemGroup>
       <Folder Include="PythonScripts\venv\" />
     </ItemGroup>
 

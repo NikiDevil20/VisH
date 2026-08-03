@@ -1,13 +1,31 @@
 ﻿import sys
 import json
 from rdkit import Chem
-from rdkit.Chem import AllChem
+from rdkit.Chem import AllChem, Draw, rdDepictor
+
+# def draw_structure_to_png(mol: Chem.Mol, path: str) -> None:
+#     rdDepictor.Compute2DCoords(mol)
+# 
+#     drawer = Draw.MolDraw2DSVG(400, 300)
+#     opts = drawer.drawOptions()
+#     
+#     opts.useBWAtomPalette()      
+#     opts.clearBackground = True 
+#     
+#     drawer.DrawMolecule(mol)
+#     drawer.FinishDrawing()
+#     
+#     with open(path, "w", encoding="utf-8") as f:
+#         f.write(drawer.GetDrawingText())
+
 
 coords = []
 
 smiles_string = sys.argv[1]
 
 mol = Chem.MolFromSmiles(smiles_string)
+
+# draw_structure_to_png(mol, "structure.svg")
 
 mol = Chem.AddHs(mol)
 

@@ -1,4 +1,5 @@
-﻿using GaussianTool.Model.FileHandling;
+﻿using GaussianTool.Model;
+using GaussianTool.Model.FileHandling;
 
 namespace GaussianTool.ViewModel;
 
@@ -14,10 +15,12 @@ public class MainWindowViewModel
     public MainWindowViewModel()
     {
         FileHandler = new FileHandler();
+        PythonBridge pythonBridge = new PythonBridge();
+        LogFileAnalyzer logFileAnalyzer = new LogFileAnalyzer(pythonBridge);
         
         StatusViewModel = new StatusBarViewModel(FileHandler);
         
-        OverviewViewModel = new OverviewViewModel();
+        OverviewViewModel = new OverviewViewModel(logFileAnalyzer);
         
         MenuBarViewModel = new MenuBarViewModel(FileHandler);
         

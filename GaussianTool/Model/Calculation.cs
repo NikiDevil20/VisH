@@ -227,7 +227,7 @@ public class Calculation
         }
 
         string jsonString = JsonSerializer.Serialize(this);
-        string path = Path.Combine(GjfPath.WindowsFolder, $"{UniqueName}.json");
+        string path = Path.Combine(GjfPath.WindowsFolder, $"{UniqueName}.config.json");
         File.WriteAllText(path, jsonString);
     }
 }

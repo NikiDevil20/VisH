@@ -2,12 +2,20 @@
 
 public class EnergyResults
 {
-    public double SCF { get; }
+    public double Scf { get; }
 
     public EnergyResults(double[] scfEnergies)
     {
-        SCF = scfEnergies[^1]; // Assuming the last value in the array is the SCF energy
+        Scf = scfEnergies[^1]; // Assuming the last value in the array is the SCF energy
     }
 
-    
+    public Dictionary<string, string> ToDictionary()
+    {
+        return new Dictionary<string, string>()
+        {
+            { "SCF", Scf.ToString() }
+        };
+    }
+
+
 }
