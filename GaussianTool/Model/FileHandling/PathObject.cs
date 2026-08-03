@@ -12,13 +12,23 @@ public class PathObject
     public string ClusterPath { get; set; }
     private bool IsClusterPath { get; set; }
     public PathType DestinationType { get; set; }
-    public PathObject[]? FolderContent { get; set; }
+    private PathObject[]? _folderContent;
+
+    public PathObject[]? FolderContent
+    {
+        get => _folderContent ??= GetFolderContent();
+    }
     public string WindowsFolder { get; set; }
     public string ClusterFolder {get; set;}
     public string? Filename { get; set; }
-    public ulong Size { get; set; }
+    private ulong? _size;
+
+    public ulong? Size
+    {
+        get => _size ??= GetSize();
+    }
     
-    public PathObject(string pathName, bool isClusterPath=false, bool _virtual=false)
+    public PathObject(string pathName, bool isClusterPath=false)
     {
         IsClusterPath = isClusterPath;
         if (isClusterPath)
@@ -34,12 +44,10 @@ public class PathObject
         
         DestinationType = GetDestinationType();
         
-        FolderContent = GetFolderContent();
         WindowsFolder = GetFoldername(false);
         ClusterFolder = GetFoldername(true);
         if (DestinationType == PathType.File)
             Filename = GetFilename();
-        Size = GetSize();
     }
     
     private PathType GetDestinationType()
@@ -206,8 +214,16 @@ public class PathObject
         ulong totalSize = 0;
         foreach (var path in FolderContent)
         {
-            totalSize += path.Size;
+            if (path.Size.HasValue)
+            {
+                totalSize += path.Size.Value;
+            }
         }
         return totalSize;
+    }
+    
+    public PathObject? GetFileWithEnding(string ending)
+    {
+        return FolderContent?.FirstOrDefault(f => f.Filename?.EndsWith(ending) == true);
     }
 }

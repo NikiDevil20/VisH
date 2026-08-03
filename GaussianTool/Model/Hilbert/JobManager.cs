@@ -70,7 +70,7 @@ public static class JobManager
            if (file.ClusterPath.EndsWith(".log")) 
            {
                logExists = true;
-               jobId = GaussianRegex.MatchString(file.ClusterPath, @"\.(\d+\.hpc-batch)\.log$");
+               jobId = GaussianRegex.MatchString(file.ClusterPath, GaussianRegex.JobIdLogFile);
 
                normalTermination = NormalTermination(file);
                if (!normalTermination)
@@ -185,7 +185,7 @@ public static class JobManager
         _fileTransferService.Connect();
         try
         {
-            ulong totalFolderSize = path.Size;
+            ulong? totalFolderSize = path.Size;
             ulong bytesFinished = 0;
 
             foreach (var file in path.FolderContent)
@@ -194,9 +194,9 @@ public static class JobManager
 
                 progress?.Report(new DownloadProgress(
                     file.Filename,
-                    file.Size,
+                    file.Size ?? 0,
                     0,
-                    totalFolderSize,
+                    totalFolderSize ?? 0,
                     bytesFinished
                 ));
 
@@ -210,13 +210,13 @@ public static class JobManager
                         progress.Report(new DownloadProgress
                             (
                                 file.Filename,
-                                file.Size,
+                                file.Size ?? 0,
                                 downloadedBytes,
-                                totalFolderSize,
+                                totalFolderSize ?? 0,
                                 totalDownloaded)
                         );
                     });
-                bytesFinished += file.Size;
+                bytesFinished += file.Size ?? 0;
             }
         }
         finally
