@@ -77,6 +77,11 @@ public class CalcResults
         return hartree * 27.2114;
     }
     
+    public static double ElectronVoltToHartree(double electronVolt)
+    {
+        return electronVolt / 27.2114;
+    }
+
     public static double HartreeToNanoMeters(double hartree)
     {
         return 1239.8 / HartreeToElectronVolt(hartree);

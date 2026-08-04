@@ -23,6 +23,7 @@ public class MetaData
         var lgFileContent = File.ReadAllText(lgFile?.WindowsPath ?? string.Empty);
         var logFileContent = File.ReadAllText(logFile?.WindowsPath ?? string.Empty);
 
+        Console.WriteLine(lgFileContent);
         // from lg File
         var jobId = GaussianRegex.MatchString(lgFileContent, GaussianRegex.JobIdRegex);
         var walltimeUnformatted = GaussianRegex.MatchString(lgFileContent, GaussianRegex.WalltimeRegex);
@@ -60,7 +61,7 @@ public class MetaData
             { "Multiplicity", Multiplicity },
             { "Walltime", Walltime },
             { "Procs", Procs },
-            { "Ram", Ram }
+            { "Ram / GB", Ram }
         };
     }
 

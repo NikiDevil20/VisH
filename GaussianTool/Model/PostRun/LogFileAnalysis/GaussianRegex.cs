@@ -30,16 +30,18 @@ public class GaussianRegex
         new(@"resources_used\.cpupercent\s*=\s*(\d+)", RegexOptions.Compiled);
 
     public static readonly Regex RamRegex =
-        new(@"Resource_List\.mem\s*=\s*(\d+)gb", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        new(@"%mem\s*=\s*(\d+)\s*([KMGT]?B)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static readonly Regex NCpuRegex =
-        new(@"Resource_List\.ncpus\s*=\s*(\d+)", RegexOptions.Compiled);
+        new(@"%NProcShared\s*=\s*(\d+)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
     
     public static readonly Regex JobIdLogFile =
         new(@"(\d+\.hpc-batch)", RegexOptions.Compiled);
     
     public static readonly Regex JobNameRegex =
-        new(@"Job Name\s*=\s*(\S+)", RegexOptions.Compiled);
+        new(@"Job_Name\s*=\s*(\S+)", RegexOptions.Compiled);
 
     public static double? MatchDouble(string text, Regex pattern)
     {

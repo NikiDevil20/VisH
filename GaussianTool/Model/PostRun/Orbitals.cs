@@ -1,6 +1,6 @@
 ﻿namespace GaussianTool.Model.PostRun;
 
-public class Orbitals
+public class Orbitals : CalcResults
 {
     public double HOMO { get; set; }
     public double LUMO { get; set; }
@@ -17,9 +17,12 @@ public class Orbitals
     {
         return new Dictionary<string, string>()
         {
-            { "HOMO", HOMO.ToString() },
-            { "LUMO", LUMO.ToString() },
-            { "Gap", Gap.ToString() }
+            { "HOMO / eV", HOMO.ToString("F2") },
+            { "LUMO / eV", LUMO.ToString("F2") },
+            { "Gap / eV", Gap.ToString("F2") },
+            { "HOMO / Hartree", ElectronVoltToHartree(HOMO).ToString("F2") },
+            { "LUMO / Hartree", ElectronVoltToHartree(LUMO).ToString("F2") },
+            { "Gap / Hartree", ElectronVoltToHartree(Gap).ToString("F2") }
         };
     }
 }

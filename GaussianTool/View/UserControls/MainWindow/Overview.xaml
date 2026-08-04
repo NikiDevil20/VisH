@@ -67,83 +67,12 @@
                             <RowDefinition Height="37*"></RowDefinition>
                         </Grid.RowDefinitions>
                         
-                        <!-- <ScrollViewer Margin="5" Background="White" BorderBrush="#006DB3" -->
-                        <!--               Padding="5"> -->
-                        <!--     <ItemsControl ItemsSource="{Binding MetaDataGridItems}"> -->
-                        <!--         <ItemsControl.ItemTemplate> -->
-                        <!--             <DataTemplate> -->
-                        <!--                 <Grid> -->
-                        <!--                     <Grid.ColumnDefinitions> -->
-                        <!--                         <ColumnDefinition Width="37*"></ColumnDefinition> -->
-                        <!--                         <ColumnDefinition Width="63*"></ColumnDefinition> -->
-                        <!--                     </Grid.ColumnDefinitions> -->
-                        <!--                  -->
-                        <!--                     <TextBlock Text="{Binding Property}"></TextBlock> -->
-                        <!--                     <TextBlock Grid.Column="1" Text="{Binding Value}"></TextBlock> -->
-                        <!--                  -->
-                        <!--                 </Grid> -->
-                        <!--             </DataTemplate> -->
-                        <!--         </ItemsControl.ItemTemplate> -->
-                        <!--     </ItemsControl> -->
-                        <!--      -->
-                        <!--     <ItemsControl ItemsSource="{Binding EnergiesGridItems}"> -->
-                        <!--         <ItemsControl.ItemTemplate> -->
-                        <!--             <DataTemplate> -->
-                        <!--                 <Grid> -->
-                        <!--                     <Grid.ColumnDefinitions> -->
-                        <!--                         <ColumnDefinition Width="37*"></ColumnDefinition> -->
-                        <!--                         <ColumnDefinition Width="63*"></ColumnDefinition> -->
-                        <!--                     </Grid.ColumnDefinitions> -->
-                        <!--                  -->
-                        <!--                     <TextBlock Text="{Binding Property}"></TextBlock> -->
-                        <!--                     <TextBlock Grid.Column="1" Text="{Binding Value}"></TextBlock> -->
-                        <!--                  -->
-                        <!--                 </Grid> -->
-                        <!--             </DataTemplate> -->
-                        <!--         </ItemsControl.ItemTemplate> -->
-                        <!--     </ItemsControl> -->
-                        <!--      -->
-                        <!--     <ItemsControl ItemsSource="{Binding FrequenciesGridItems}"> -->
-                        <!--         <ItemsControl.ItemTemplate> -->
-                        <!--             <DataTemplate> -->
-                        <!--                 <Grid> -->
-                        <!--                     <Grid.ColumnDefinitions> -->
-                        <!--                         <ColumnDefinition Width="37*"></ColumnDefinition> -->
-                        <!--                         <ColumnDefinition Width="63*"></ColumnDefinition> -->
-                        <!--                     </Grid.ColumnDefinitions> -->
-                        <!--                  -->
-                        <!--                     <TextBlock Text="{Binding Property}"></TextBlock> -->
-                        <!--                     <TextBlock Grid.Column="1" Text="{Binding Value}"></TextBlock> -->
-                        <!--                  -->
-                        <!--                 </Grid> -->
-                        <!--             </DataTemplate> -->
-                        <!--         </ItemsControl.ItemTemplate> -->
-                        <!--     </ItemsControl> -->
-                        <!--      -->
-                        <!--     <ItemsControl ItemsSource="{Binding OrbitalsGridItems}"> -->
-                        <!--         <ItemsControl.ItemTemplate> -->
-                        <!--             <DataTemplate> -->
-                        <!--                 <Grid> -->
-                        <!--                     <Grid.ColumnDefinitions> -->
-                        <!--                         <ColumnDefinition Width="37*"></ColumnDefinition> -->
-                        <!--                         <ColumnDefinition Width="63*"></ColumnDefinition> -->
-                        <!--                     </Grid.ColumnDefinitions> -->
-                        <!--                  -->
-                        <!--                     <TextBlock Text="{Binding Property}"></TextBlock> -->
-                        <!--                     <TextBlock Grid.Column="1" Text="{Binding Value}"></TextBlock> -->
-                        <!--                  -->
-                        <!--                 </Grid> -->
-                        <!--             </DataTemplate> -->
-                        <!--         </ItemsControl.ItemTemplate> -->
-                        <!--     </ItemsControl> -->
-                        <!-- </ScrollViewer> -->
-                        
-                        
                         <Border Grid.Row="0" 
                             Margin="8,0,8,8" 
                             CornerRadius="2"
-                            BorderThickness="3" 
-                            BorderBrush="#006DB3">
+                            BorderThickness="0" 
+                            BorderBrush="Transparent"
+                            Grid.RowSpan="2">
 
                         <ScrollViewer Margin="5"
                                       Background="White"
@@ -160,8 +89,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-
-
+                                
                                 <!-- Metadata -->
                                 <StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
                                     <TextBlock Text="Metadata"
@@ -179,41 +107,51 @@
                                                     </Grid.ColumnDefinitions>
 
                                                     <TextBlock Text="{Binding Property}"/>
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding Value}"/>
+                                                    <TextBox Grid.Column="1"
+                                                             Text="{Binding Value}"
+                                                             IsReadOnly="True"
+                                                             BorderThickness="0"
+                                                             Background="Transparent"
+                                                             Padding="0"
+                                                             Margin="0"
+                                                             VerticalContentAlignment="Center"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
-
-
-                                <!-- Energies -->
+                                
+                                <!-- Orbitals -->
                                 <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
-                                    <TextBlock Text="Energies"
+                                    <TextBlock Text="Orbitals"
                                                FontWeight="Bold"
                                                FontSize="16"
                                                Margin="0,0,0,5"/>
 
-                                    <ItemsControl ItemsSource="{Binding EnergiesGridItems}">
+                                    <ItemsControl ItemsSource="{Binding OrbitalsGridItems}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="37*"/>
                                                         <ColumnDefinition Width="63*"/>
+                                                        <ColumnDefinition Width="37*"/>
                                                     </Grid.ColumnDefinitions>
 
                                                     <TextBlock Text="{Binding Property}"/>
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding Value}"/>
+                                                    <TextBox Grid.Column="1"
+                                                             Text="{Binding Value}"
+                                                             IsReadOnly="True"
+                                                             BorderThickness="0"
+                                                             Background="Transparent"
+                                                             Padding="0"
+                                                             Margin="0"
+                                                             VerticalContentAlignment="Center"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
-
-
+                                
                                 <!-- Frequencies -->
                                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
                                     <TextBlock Text="Frequencies"
@@ -226,39 +164,50 @@
                                             <DataTemplate>
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="37*"/>
                                                         <ColumnDefinition Width="63*"/>
+                                                        <ColumnDefinition Width="37*"/>
                                                     </Grid.ColumnDefinitions>
 
                                                     <TextBlock Text="{Binding Property}"/>
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding Value}"/>
+                                                    <TextBox Grid.Column="1"
+                                                             Text="{Binding Value}"
+                                                             IsReadOnly="True"
+                                                             BorderThickness="0"
+                                                             Background="Transparent"
+                                                             Padding="0"
+                                                             Margin="0"
+                                                             VerticalContentAlignment="Center"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
-
-
-                                <!-- Orbitals -->
+                                
+                                <!--  Energies -->
                                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
-                                    <TextBlock Text="Orbitals"
+                                    <TextBlock Text="Energies"
                                                FontWeight="Bold"
                                                FontSize="16"
                                                Margin="0,0,0,5"/>
 
-                                    <ItemsControl ItemsSource="{Binding OrbitalsGridItems}">
+                                    <ItemsControl ItemsSource="{Binding EnergiesGridItems}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="37*"/>
                                                         <ColumnDefinition Width="63*"/>
+                                                        <ColumnDefinition Width="37*"/>
                                                     </Grid.ColumnDefinitions>
 
                                                     <TextBlock Text="{Binding Property}"/>
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding Value}"/>
+                                                    <TextBox Grid.Column="1"
+                                                             Text="{Binding Value}"
+                                                             IsReadOnly="True"
+                                                             BorderThickness="0"
+                                                             Background="Transparent"
+                                                             Padding="0"
+                                                             Margin="0"
+                                                             VerticalContentAlignment="Center"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -271,21 +220,15 @@
 
                     </Border>
                         
-                        
-                        
-                        
-                        <Label Grid.Row="1" Content="Notes:"></Label>
-                        
-                        <TextBox Grid.Row="1" Margin="5, 30, 5, 5">
-                            
-                        </TextBox>
+                        <!-- <Label Grid.Row="1" Content="Notes:"></Label> -->
+                        <!-- -->
+                        <!-- <TextBox Grid.Row="1" Margin="5, 30, 5, 5"> -->
+                        <!--      -->
+                        <!-- </TextBox> -->
                         
                     </Grid>
                     
-                    
                 </Border>
-                
-                
                 
             </Grid>
             

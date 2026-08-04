@@ -20,7 +20,7 @@ public class MainWindowViewModel
         
         StatusViewModel = new StatusBarViewModel(FileHandler);
         
-        OverviewViewModel = new OverviewViewModel(logFileAnalyzer);
+        OverviewViewModel = new OverviewViewModel(logFileAnalyzer, FileHandler);
         
         MenuBarViewModel = new MenuBarViewModel(FileHandler);
         

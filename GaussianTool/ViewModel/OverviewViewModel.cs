@@ -9,6 +9,7 @@ namespace GaussianTool.ViewModel;
 public class OverviewViewModel : ViewModelBase
 {
     private LogFileAnalyzer _logFileAnalyzer;
+    private FileHandler _fileHandler;
     public ObservableCollection<TreeNode> RootNodes { get; } = [];
     // public ObservableCollection<DataGridItem> Properties { get; } = [];
     
@@ -49,10 +50,12 @@ public class OverviewViewModel : ViewModelBase
         }
     }
     
-    public OverviewViewModel(LogFileAnalyzer logFileAnalyzer)
+    public OverviewViewModel(LogFileAnalyzer logFileAnalyzer, FileHandler fileHandler)
     {
         _logFileAnalyzer = logFileAnalyzer;
+        _fileHandler = fileHandler;
         SetupTreeview();
+        _fileHandler.ClusterChanged += () => SetupTreeview();
     }
 
     private void RefreshSelection()
@@ -113,6 +116,7 @@ public class OverviewViewModel : ViewModelBase
 
         TreeNode root = TreeNode.BuildTree(cfg.LocalRechnungenPath);
 
+        RootNodes.Clear();
         foreach (var child in root.Children)
         {
             RootNodes.Add(child);
