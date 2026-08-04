@@ -88,7 +88,3 @@ dotnet test
 - [ ] Fix the refresh mechanism in the UI.
 - [ ] Start multiple jobs.
 - [ ] Jobtypes other than geometry optimization.
-
-## License
-
-[TODO: Add License Information]
