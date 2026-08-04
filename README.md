@@ -75,12 +75,6 @@ The application relies on several Python scripts located in `VisH/PythonScripts/
 - `DrawPngFromSmiles.py` / `DrawSvgFromSmiles.py`: Generates 2D structure images.
 - `SmilesValidation.py`: Validates SMILES strings.
 
-## Running Tests
-
-To run the C# unit tests:
-```bash
-dotnet test
-```
 
 ## TODOs / Roadmap
 
