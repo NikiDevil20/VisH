@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GaussianTool", "GaussianTool\GaussianTool.csproj", "{E6555EFB-9FD0-4749-94D2-4830151F9EF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisH", "VisH\VisH.csproj", "{E6555EFB-9FD0-4749-94D2-4830151F9EF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
