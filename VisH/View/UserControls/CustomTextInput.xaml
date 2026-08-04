@@ -1,0 +1,28 @@
+<UserControl x:Class="VisH.View.UserControls.CustomTextInput"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:VisH.View.UserControls"
+             mc:Ignorable="d" Background="white"
+             d:DesignHeight="40" d:DesignWidth="200">
+    <Grid>
+        <TextBox x:Name="TextInput" Margin="0" Text="{Binding Text,
+                   RelativeSource={RelativeSource AncestorType=UserControl},
+                   Mode=TwoWay,
+                   UpdateSourceTrigger=PropertyChanged}" 
+                 Padding="8, 0, 0, 0" HorizontalAlignment="Stretch" VerticalContentAlignment="Center"
+                 Background="Transparent" Panel.ZIndex="1" TextChanged="TextInput_TextChanged">
+            
+        </TextBox>
+        <TextBlock x:Name="TbPlaceholder" Text="{Binding Placeholder,
+                   RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="10, 0, 0, 0" 
+                   VerticalAlignment="Center"
+                   Foreground="LightGray" Panel.ZIndex="0" />
+        
+        <Button x:Name="ClearButton" Content="X" Click="ClearButton_OnClick" Margin="5" Width="20"
+                HorizontalAlignment="Right" Foreground="Black" Background="Transparent"
+                BorderBrush="Transparent" Panel.ZIndex="2"/>
+    </Grid>
+</UserControl>
+
