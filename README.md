@@ -1,4 +1,4 @@
-# GaussianGUI
+# VisH
 
 A WPF-based graphical user interface for managing and analyzing Gaussian computational chemistry calculations. The application allows users to interact with a high-performance computing (HPC) cluster, manage calculation templates, and visualize results.
 
@@ -32,12 +32,12 @@ A WPF-based graphical user interface for managing and analyzing Gaussian computa
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-repo/GaussianGUI.git
-   cd GaussianGUI
+   git clone https://github.com/your-repo/VisH.git
+   cd VisH
    ```
 
 2. **Configure the application:**
-   Edit `GaussianTool/Data/config.json` with your cluster details and paths:
+   Edit `VisH/Data/config.json` with your cluster details and paths:
    ```json
    {
      "LocalRechnungenPath": "C:\\Path\\To\\Local\\Results",
@@ -50,9 +50,9 @@ A WPF-based graphical user interface for managing and analyzing Gaussian computa
    ```
 
 3. **Python Environment:**
-   It is recommended to set up a virtual environment in `GaussianTool/PythonScripts/venv` and install requirements:
+   It is recommended to set up a virtual environment in `VisH/PythonScripts/venv` and install requirements:
    ```bash
-   cd GaussianTool/PythonScripts
+   cd VisH/PythonScripts
    python -m venv venv
    .\venv\Scripts\activate
    pip install rdkit cclib
@@ -60,18 +60,18 @@ A WPF-based graphical user interface for managing and analyzing Gaussian computa
 
 ## Project Structure
 
-- `GaussianTool/`: Main WPF application project.
+- `VisH/`: Main WPF application project.
   - `View/`: XAML views and user controls.
   - `ViewModel/`: MVVM ViewModels.
   - `Model/`: Data structures and business logic.
   - `Data/`: Configuration files (e.g., `config.json`).
   - `Assets/`: Images and static resources.
   - `PythonScripts/`: Python scripts for SMILES processing and log parsing.
-- `GaussianTool.Tests/`: Unit tests for the application.
+- `VisH.Tests/`: Unit tests for the application.
 
 ## Scripts
 
-The application relies on several Python scripts located in `GaussianTool/PythonScripts/`:
+The application relies on several Python scripts located in `VisH/PythonScripts/`:
 - `CoordBuilder.py`: Generates 3D coordinates from SMILES.
 - `ParseLogfile.py`: Extracts results from Gaussian `.log` files using `cclib`.
 - `DrawPngFromSmiles.py` / `DrawSvgFromSmiles.py`: Generates 2D structure images.
@@ -86,10 +86,10 @@ dotnet test
 
 ## TODOs / Roadmap
 
-- [ ] Implement asynchronous loading for job status.
 - [ ] Add automatic deletion of temporary files after download.
-- [ ] Refactor for Dependency Injection.
 - [ ] Fix the refresh mechanism in the UI.
+- [ ] Start multiple jobs.
+- [ ] Jobtypes other than geometry optimization.
 
 ## License
 
