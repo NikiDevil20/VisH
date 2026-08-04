@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="Data\config.json" />
+      <Content Include="Data\config.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="SSH.NET" Version="2025.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="Assets\FileNotFound.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="PythonScripts\venv\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="View\UserControls\MainWindow\BottomBar.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="View\UserControls\MainWindow\MenuBar.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="View\UserControls\MainWindow\Overview.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="View\UserControls\MainWindow\StatusBar.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="View\UserControls\MainWindow\TemplateListView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="View\UserControls\CustomTextInput.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+
+</Project>
