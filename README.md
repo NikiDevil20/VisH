@@ -17,7 +17,6 @@ A WPF-based graphical user interface for managing and analyzing Gaussian computa
 - **SSH Communication:** [SSH.NET](https://github.com/sshnet/SSH.NET)
 - **Scripting:** Python 3 (Integration via `PythonScripts` folder)
 - **Python Libraries:** `rdkit`, `cclib`
-- **Testing:** xUnit / .NET Test Project
 
 ## Requirements
 
@@ -67,7 +66,6 @@ A WPF-based graphical user interface for managing and analyzing Gaussian computa
   - `Data/`: Configuration files (e.g., `config.json`).
   - `Assets/`: Images and static resources.
   - `PythonScripts/`: Python scripts for SMILES processing and log parsing.
-- `VisH.Tests/`: Unit tests for the application.
 
 ## Scripts
 
