@@ -12,27 +12,41 @@ public class KeywordSelector
         Solvents solvent,
         CalculationType calculationType,
         State state,
-        string[] optionalKeywords)
+        string[] optionalKeywords,
+        bool dispersionCorrection=false)
     {
         _solvent = solvent;
         _calculationType = calculationType;
         _state = state;
 
-        string[] keywords;
+        
+        List<string> keywords = new List<string>();
+        List<string> linkKeywords = new List<string>();
+        List<string> scanContext = new List<string>();
+        
+        var keywordGroups = new Dictionary<string, List<string>>
+        {
+            { "keywords", keywords },
+            { "linkKeywords", linkKeywords },
+            { "scanContext", scanContext }
+        };
+        
+        keywords.AddRange(optionalKeywords);
 
         switch (_calculationType)
         { 
             case CalculationType.GeometryOptimization:
-                keywords = GeometryOptimizationKeywords();
+                keywords = GeometryOptimizationKeywords(keywords);
+                linkKeywords.AddRange(["freq", "geom=AllCheck", "Guess=TCheck", "SCRF=Check", "GenChk", "Teste"]);
                 break;
             case CalculationType.TimeDependant:
-                 keywords = TimeDependantKeywords();
+                 keywords = TimeDependantKeywords(keywords);
                 break;
             case CalculationType.NaturalTransitionOrbitals:
-                keywords = NaturalTransitionOrbitalsKeywords();
+                keywords = NaturalTransitionOrbitalsKeywords(keywords);
                 break;
             case CalculationType.PotentialScan:
-                keywords = PotentialScanKeywords();
+                keywords = PotentialScanKeywords(keywords);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(_calculationType), _calculationType, "Invalid calculation type");
@@ -43,13 +57,20 @@ public class KeywordSelector
         return keywordArgument;
     }
     
-    private string[] GeometryOptimizationKeywords()
+    private List<string> GeometryOptimizationKeywords(List<string> keywords)
     {
-        string[] keywords;
+        if (_solvent != Solvents.None)
+        {
+            keywords.Add($"scrf(smd,solvent={_solvent})");
+        }
+        
+        keywords.Add("opt");
+        
         switch (_state)
         {
             case State.S0:
-                keywords = [];
+                keywords.Add("pop=full");
+                keywords.Add("GFInput");
                 break;
             
             case State.S1 or State.S2 or State.S3:
@@ -65,29 +86,8 @@ public class KeywordSelector
         return keywords;
     }
     
-    private string[] TimeDependantKeywords()
+    private List<string> TimeDependantKeywords(List<string> keywords)
     {
-        string[] keywords = Array.Empty<string>();
-        switch (_state)
-        {
-            case State.S0:
-                break;
-            
-            case State.S1 or State.S2 or State.S3:
-                break;
-            
-            case State.T1 or State.T2 or State.T3:
-                break;
-            
-            default:
-                throw new ArgumentOutOfRangeException(nameof(_state), _state, "Invalid state");
-            
-        }
-        return keywords;
-    }
-    private string[] NaturalTransitionOrbitalsKeywords()
-    {
-        string[] keywords = Array.Empty<string>();
         switch (_state)
         {
             case State.S0:
@@ -106,9 +106,28 @@ public class KeywordSelector
         return keywords;
     }
     
-    private string[] PotentialScanKeywords()
+    private List<string> NaturalTransitionOrbitalsKeywords(List<string> keywords)
     {
-        string[] keywords = Array.Empty<string>();
+        switch (_state)
+        {
+            case State.S0:
+                break;
+            
+            case State.S1 or State.S2 or State.S3:
+                break;
+            
+            case State.T1 or State.T2 or State.T3:
+                break;
+            
+            default:
+                throw new ArgumentOutOfRangeException(nameof(_state), _state, "Invalid state");
+            
+        }
+        return keywords;
+    }
+    
+    private List<string> PotentialScanKeywords(List<string> keywords)
+    {
         switch (_state)
         {
             case State.S0:

@@ -4,5 +4,6 @@ public enum Solvents
 {
     Dichloromethane,
     Toluene,
-    Tetrahydrofurane
+    Tetrahydrofurane,
+    None
 }
