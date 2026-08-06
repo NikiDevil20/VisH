@@ -196,6 +196,31 @@ public class PathObject
         return pathsInDirectory;
     }
     
+    public async Task<PathObject[]?> GetFolderContentAsync()
+    {
+        if (DestinationType != PathType.Directory)
+            return null;
+
+        PathObject[] pathsInDirectory;
+        
+        if (IsClusterPath)
+        {
+            try
+            {
+                pathsInDirectory = await Task.Run(() => JobManager.Dir(this));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw new InvalidOperationException("Failed to retrieve folder content.", ex);
+            }
+            return pathsInDirectory;
+        }
+        string[] namesInDirectory = Directory.GetFileSystemEntries(WindowsPath);
+        pathsInDirectory = namesInDirectory.Select(name => new PathObject(name, isClusterPath: false)).ToArray();
+        return pathsInDirectory;
+    }
+    
     private ulong GetSize()
     {
         if (DestinationType == PathType.File)

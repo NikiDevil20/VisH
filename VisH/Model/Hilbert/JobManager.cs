@@ -46,7 +46,7 @@ public static class JobManager
     
     
 
-    public static Dictionary<string, string> JobStatusAndId(PathObject path)
+    public static async Task<Dictionary<string, string>> JobStatusAndIdAsync(PathObject path)
     {
         bool logExists = false;
         bool qstatOutput = false;
@@ -63,7 +63,7 @@ public static class JobManager
         if (path.FolderContent == null || path.FolderContent.Length == 0)
             throw new FileNotFoundException("Directory is empty.");
         
-        PathObject[] files = path.GetFolderContent();
+        PathObject[] files = await path.GetFolderContentAsync();
         
         foreach (var file in files)
         {
@@ -77,7 +77,7 @@ public static class JobManager
                {
                    if (jobId != null)
                    {
-                       var qstat = _sshService.CommandClient.RunCommand($"qstat {jobId}");
+                       var qstat = await Task.Run(() => _sshService.CommandClient.RunCommand($"qstat {jobId}"));
                        if (!string.IsNullOrWhiteSpace(qstat.Result))
                        {
                            qstatOutput = true;

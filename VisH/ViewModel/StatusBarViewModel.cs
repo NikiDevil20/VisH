@@ -92,7 +92,7 @@ public class StatusBarViewModel : ViewModelBase
         RefreshStatus();
     }
 
-    public void RefreshStatus()
+    public async Task RefreshStatus()
     {
         try
         {
@@ -100,9 +100,9 @@ public class StatusBarViewModel : ViewModelBase
             List<CalcStatus> calcStatuses = new List<CalcStatus>();
             foreach (var jobPath in _pathsOnCluster)
             {
-                calcStatuses.Add(CalcStatus.Create(jobPath));
+                calcStatuses.Add(await CalcStatus.CreateAsync(jobPath));
             }
-
+            Console.WriteLine("All jobs Done!");
             JobsOnCluster.Clear();
             foreach (var status in calcStatuses)
             {
