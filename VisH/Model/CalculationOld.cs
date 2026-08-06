@@ -8,7 +8,7 @@ using VisH.Model.Hilbert;
 
 namespace VisH.Model;
 
-public class Calculation
+public class CalculationOld
 {
     public Molecule Molecule { get; init; }
     public CalcParameters Parameters { get; init; }
@@ -24,7 +24,7 @@ public class Calculation
 
 
 
-    public Calculation(Molecule molecule, CalcParameters parameters, CalcParameters? link = null)
+    public CalculationOld(Molecule molecule, CalcParameters parameters, CalcParameters? link = null)
     {
         Molecule = molecule;
         Parameters = parameters;

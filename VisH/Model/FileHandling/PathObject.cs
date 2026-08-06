@@ -11,9 +11,12 @@ public class PathObject
     public string WindowsPath { get; set; }
     public string ClusterPath { get; set; }
     private bool IsClusterPath { get; set; }
-    public PathType DestinationType { get; set; }
+    private PathType? _destinationType;
+    public PathType? DestinationType
+    {
+        get => _destinationType ??= GetDestinationType();
+    }
     private PathObject[]? _folderContent;
-
     public PathObject[]? FolderContent
     {
         get => _folderContent ??= GetFolderContent();
@@ -22,12 +25,10 @@ public class PathObject
     public string ClusterFolder {get; set;}
     public string? Filename { get; set; }
     private ulong? _size;
-
     public ulong? Size
     {
         get => _size ??= GetSize();
     }
-    
     public PathObject(string pathName, bool isClusterPath=false)
     {
         IsClusterPath = isClusterPath;
@@ -41,8 +42,6 @@ public class PathObject
             WindowsPath = pathName;
             ClusterPath = ToCluster(pathName);
         }
-        
-        DestinationType = GetDestinationType();
         
         WindowsFolder = GetFoldername(false);
         ClusterFolder = GetFoldername(true);
