@@ -37,7 +37,6 @@ public class Calculation
 
         if (!Directory.Exists(GjfPath.WindowsFolder))
         {
-            Console.WriteLine($"Creating directory: {GjfPath.WindowsFolder}");
             Directory.CreateDirectory(GjfPath.WindowsFolder);
         }
     }

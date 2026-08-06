@@ -182,7 +182,6 @@ public class NewCalcViewModel : ViewModelBase
     public Calculation? Result { get; private set; }
     public NewCalcViewModel()
     {
-        Console.WriteLine("NewCalcViewModel initialized");
         SelectedState = States[0];
         SelectedCharge = Charges[3];
         SelectedFunctional = Functionals[0];

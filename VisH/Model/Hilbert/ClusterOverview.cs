@@ -18,7 +18,6 @@ public class ClusterOverview
         foreach (var job in jobsOnCluster)
         {
             CalcStatus status = new CalcStatus();
-            Console.WriteLine($"Job ID: {job.ClusterPath}, State: {status.JobState}");
         }
     }
 

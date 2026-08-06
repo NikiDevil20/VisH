@@ -24,7 +24,6 @@ public static class JobManager
     {
         _fileTransferService.Connect();
         _sshService.Connect();
-        Console.WriteLine(clusterDirectory);
         BuildRecursiveDirs(clusterDirectory);
         
         UploadFiles(localFilePaths, clusterDirectory, clusterFilesPaths);
@@ -240,7 +239,6 @@ public static class JobManager
             path += "/" + part;
             if (!_fileTransferService.FileClient.Exists(path))
             {
-                Console.WriteLine($"Creating directory: {path}");
                 _fileTransferService.FileClient.CreateDirectory(path);
             }
         }

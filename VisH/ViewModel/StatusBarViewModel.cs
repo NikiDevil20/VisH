@@ -102,7 +102,6 @@ public class StatusBarViewModel : ViewModelBase
             {
                 calcStatuses.Add(await CalcStatus.CreateAsync(jobPath));
             }
-            Console.WriteLine("All jobs Done!");
             JobsOnCluster.Clear();
             foreach (var status in calcStatuses)
             {
