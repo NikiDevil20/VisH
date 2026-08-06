@@ -50,6 +50,38 @@
           "buildTransitive/net6.0/Microsoft.Extensions.Logging.Abstractions.targets": {}
         }
       },
+      "Serilog/4.4.1-dev-02443": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/Serilog.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/Serilog.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/Serilog.targets": {}
+        }
+      },
+      "Serilog.Sinks.File/8.0.0-nblumhardt-02322": {
+        "type": "package",
+        "dependencies": {
+          "Serilog": "4.2.0"
+        },
+        "compile": {
+          "lib/net9.0/Serilog.Sinks.File.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/Serilog.Sinks.File.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "SSH.NET/2025.1.0": {
         "type": "package",
         "dependencies": {
@@ -195,6 +227,60 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "Serilog/4.4.1-dev-02443": {
+      "sha512": "b9JtU+ByGJ83I+dESzaUxw2B3RQYhJbNqa140H+4s8j/4ThZe1w+0q8Wy+ktdVWO0Qh3s+YY+ry0Mc9mkO/KLQ==",
+      "type": "package",
+      "path": "serilog/4.4.1-dev-02443",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "build/Serilog.targets",
+        "buildTransitive/Serilog.targets",
+        "icon.png",
+        "lib/net10.0/Serilog.dll",
+        "lib/net10.0/Serilog.xml",
+        "lib/net462/Serilog.dll",
+        "lib/net462/Serilog.xml",
+        "lib/net471/Serilog.dll",
+        "lib/net471/Serilog.xml",
+        "lib/net6.0/Serilog.dll",
+        "lib/net6.0/Serilog.xml",
+        "lib/net8.0/Serilog.dll",
+        "lib/net8.0/Serilog.xml",
+        "lib/net9.0/Serilog.dll",
+        "lib/net9.0/Serilog.xml",
+        "lib/netstandard2.0/Serilog.dll",
+        "lib/netstandard2.0/Serilog.xml",
+        "serilog.4.4.1-dev-02443.nupkg.sha512",
+        "serilog.nuspec"
+      ]
+    },
+    "Serilog.Sinks.File/8.0.0-nblumhardt-02322": {
+      "sha512": "EA6O7RwYBl52t/SDul6itYPla3wSSm6F+XLGtSiHiqjYlmWH6YGhXL92/FHWhzQglRmXhbgFDK0m9RFKW110/w==",
+      "type": "package",
+      "path": "serilog.sinks.file/8.0.0-nblumhardt-02322",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net462/Serilog.Sinks.File.dll",
+        "lib/net462/Serilog.Sinks.File.xml",
+        "lib/net471/Serilog.Sinks.File.dll",
+        "lib/net471/Serilog.Sinks.File.xml",
+        "lib/net6.0/Serilog.Sinks.File.dll",
+        "lib/net6.0/Serilog.Sinks.File.xml",
+        "lib/net8.0/Serilog.Sinks.File.dll",
+        "lib/net8.0/Serilog.Sinks.File.xml",
+        "lib/net9.0/Serilog.Sinks.File.dll",
+        "lib/net9.0/Serilog.Sinks.File.xml",
+        "lib/netstandard2.0/Serilog.Sinks.File.dll",
+        "lib/netstandard2.0/Serilog.Sinks.File.xml",
+        "serilog-sink-nuget.png",
+        "serilog.sinks.file.8.0.0-nblumhardt-02322.nupkg.sha512",
+        "serilog.sinks.file.nuspec"
+      ]
+    },
     "SSH.NET/2025.1.0": {
       "sha512": "jrnbtf0ItVaXAe6jE8X/kSLa6uC+0C+7W1vepcnRQB/rD88qy4IxG7Lf1FIbWmkoc4iVXv0pKrz+Wc6J4ngmHw==",
       "type": "package",
@@ -219,7 +305,9 @@
   },
   "projectFileDependencyGroups": {
     "net10.0-windows7.0": [
-      "SSH.NET >= 2025.1.0"
+      "SSH.NET >= 2025.1.0",
+      "Serilog >= 4.4.1-dev-02443",
+      "Serilog.Sinks.File >= 8.0.0-nblumhardt-02322"
     ]
   },
   "packageFolders": {
@@ -268,6 +356,14 @@
           "SSH.NET": {
             "target": "Package",
             "version": "[2025.1.0, )"
+          },
+          "Serilog": {
+            "target": "Package",
+            "version": "[4.4.1-dev-02443, )"
+          },
+          "Serilog.Sinks.File": {
+            "target": "Package",
+            "version": "[8.0.0-nblumhardt-02322, )"
           }
         },
         "imports": [
