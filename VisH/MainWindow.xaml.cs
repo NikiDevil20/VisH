@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Serilog;
 using VisH.Model;
 using VisH.ViewModel;
 
@@ -21,6 +22,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Log.Information("MainWindow initialized.");
         DataContext = new MainWindowViewModel();
     }
 }

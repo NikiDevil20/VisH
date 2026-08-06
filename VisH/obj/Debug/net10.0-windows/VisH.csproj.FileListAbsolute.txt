@@ -48,3 +48,10 @@ C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\VisH.csproj.Up2
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\VisH.dll
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\VisH.genruntimeconfig.cache
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\ref\VisH.dll
+C:\Users\nikla\RiderProjects\VisH\VisH\bin\Debug\net10.0-windows\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\nikla\RiderProjects\VisH\VisH\bin\Debug\net10.0-windows\Microsoft.Extensions.Logging.dll
+C:\Users\nikla\RiderProjects\VisH\VisH\bin\Debug\net10.0-windows\Microsoft.Extensions.Options.dll
+C:\Users\nikla\RiderProjects\VisH\VisH\bin\Debug\net10.0-windows\Microsoft.Extensions.Primitives.dll
+C:\Users\nikla\RiderProjects\VisH\VisH\bin\Debug\net10.0-windows\Serilog.dll
+C:\Users\nikla\RiderProjects\VisH\VisH\bin\Debug\net10.0-windows\Serilog.Extensions.Logging.dll
+C:\Users\nikla\RiderProjects\VisH\VisH\bin\Debug\net10.0-windows\Serilog.Sinks.File.dll

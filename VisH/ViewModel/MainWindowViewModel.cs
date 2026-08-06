@@ -25,5 +25,6 @@ public class MainWindowViewModel
         MenuBarViewModel = new MenuBarViewModel(FileHandler);
         
         DownloadManager = FileHandler.DownloadManager;
+        
     }
 }
