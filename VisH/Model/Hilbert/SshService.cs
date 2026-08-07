@@ -41,4 +41,66 @@ public class SshService
         var cmd = CommandClient.RunCommand(command);
         return cmd.Result.Trim();
     }
+    
+    
+    /// <summary>
+    /// Connects to the SSH client if it is not already connected and executes the specified operation.
+    /// Suitable for any return types.
+    /// </summary>
+    /// <param name="operation">The operation to execute</param>
+    /// <returns>The result of the operation</returns>
+    public TResult ConnectAndExecute<TResult>(Func<TResult> operation)
+    {
+        var connectedHere = false;
+        
+        try
+        {
+            if (!CommandClient.IsConnected)
+            {
+                Connect();
+                connectedHere = true;
+            }
+            
+            var result = operation();
+            return result;
+        }
+        finally
+        {
+            if (connectedHere && CommandClient.IsConnected)
+            {
+                Disconnect();
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Connects to the SSH client if it is not already connected and executes the specified operation.
+    /// Suitable for operations that do not return a value.
+    /// </summary>
+    /// <param name="operation">The operation to execute</param>
+    public void ConnectAndExecute(Action operation)
+    {
+        var connectedHere = false;
+        
+        try
+        {
+            if (!CommandClient.IsConnected)
+            {
+                Connect();
+                connectedHere = true;
+            }
+            
+            operation();
+        }
+        finally
+        {
+            if (connectedHere && CommandClient.IsConnected)
+            {
+                Disconnect();
+            }
+        }
+    }
+    
+    
+    
 }

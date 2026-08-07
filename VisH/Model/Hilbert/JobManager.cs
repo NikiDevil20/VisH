@@ -20,21 +20,7 @@ public static class JobManager
     {
         _sshService.Disconnect();
     }
-    public static string StartJob(string clusterDirectory, string[] localFilePaths, string[] clusterFilesPaths)
-    {
-        _fileTransferService.Connect();
-        _sshService.Connect();
-        Console.WriteLine(clusterDirectory);
-        BuildRecursiveDirs(clusterDirectory);
-        
-        UploadFiles(localFilePaths, clusterDirectory, clusterFilesPaths);
-        
-        var cmd = _sshService.CommandClient.RunCommand($"cd {clusterDirectory} && qsub gstart");
-        
-        _fileTransferService.Disconnect();
-        _sshService.Disconnect();
-        return cmd.Result;
-    }
+    
     
     private static bool NormalTermination(PathObject path)
     {
@@ -143,16 +129,7 @@ public static class JobManager
         return paths.ToArray();
     }
     
-    public static string UploadFiles(string[] localFilePaths, string remoteDirectory, string[] remoteFilePaths)
-    {
-        for (int i = 0; i < localFilePaths.Length; i++)
-        {
-            BuildRecursiveDirs(remoteDirectory);
-            var fileStream = File.OpenRead(localFilePaths[i]);
-            _fileTransferService.FileClient.UploadFile(fileStream, remoteFilePaths[i]);
-        }
-        return "File uploaded successfully.";
-    }
+    
     
     public static ulong FileSize(PathObject path)
     {

@@ -13,7 +13,7 @@ public class Calculation
     public Molecule? Molecule { get; set; }
     
     private Runner? Runner { get; set; }
-    private Paths? Paths { get; set; }
+    public Paths? Paths { get; set; }
 
 
     public Calculation()
@@ -109,7 +109,7 @@ public class Calculation
         Molecule = molecule;
     }
 
-    private bool CheckCompletion()
+    public bool CheckCompletion()
     {
         if (MetaData == null) return false;
         if (Molecule == null) return false;
@@ -118,7 +118,7 @@ public class Calculation
         return true;
     }
 
-    private bool AllFilesPresent()
+    public bool AllFilesPresent()
     {
         if (!CheckCompletion()) return false;
         
@@ -175,15 +175,4 @@ public class Calculation
             MetaData?.JobName, jsonPath.WindowsPath);
     }
     
-    public void Run()
-    {
-        if (!AllFilesPresent())
-        {
-            var ex = new InvalidOperationException("Not all required files are present.");
-            Log.Error(ex, "Cannot run calculation with missing files.");
-            throw ex;
-        }
-        
-        
-    }
 }
