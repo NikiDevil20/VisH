@@ -2,17 +2,19 @@ using Serilog;
 using VisH.Model.FileHandling;
 using VisH.Model.Hilbert;
 
-namespace VisH.Model.Setup;
+namespace VisH.Model;
 
 public class Runner
 {
     private JobStarter _jobStarter;
     private SshService _sshService;
+    private FileTransferService _fileTransferService;
 
-    public Runner(JobStarter jobStarter, SshService sshService)
+    public Runner(JobStarter jobStarter, SshService sshService, FileTransferService fileTransferService)
     {
         _jobStarter = jobStarter;
         _sshService = sshService;
+        _fileTransferService = fileTransferService;
     }
 
     public string[] SubmitJobs(
@@ -23,15 +25,12 @@ public class Runner
     {
         var jobCount = clusterDirectories.Length;
         
+        _fileTransferService.ConnectAndExecute(() =>
+            _fileTransferService.UploadFiles(clusterDirectories, clusterFileNames, clusterDirectory)
+            );
+        
         var unparsedJobIds = _sshService.ConnectAndExecute(() =>
-        {
-            _jobStarter.Upload(
-                clusterDirectories,
-                clusterFileNames,
-                clusterDirectory);
-
-            return _jobStarter.Run(clusterDirectories);
-        }
+            _jobStarter.Run(clusterDirectories)
             );
         
         var jobIds = ParseJobIds(unparsedJobIds, jobCount);

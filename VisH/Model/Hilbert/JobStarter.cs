@@ -39,16 +39,16 @@ public class JobStarter
         return cmd.Result;
     }
 
-    public void Upload(
-        string[] calculationLocalDirectories,
-        string[] remoteFilePaths,
-        string remoteDirectory)
-    {
-        _fileTransferService.UploadFiles(
-            calculationLocalDirectories,
-            remoteFilePaths,
-            remoteDirectory);
-    }
+    // public void Upload(
+    //     string[] calculationLocalDirectories,
+    //     string[] remoteFilePaths,
+    //     string remoteDirectory)
+    // {
+    //     _fileTransferService.UploadFiles(
+    //         calculationLocalDirectories,
+    //         remoteFilePaths,
+    //         remoteDirectory);
+    // }
 
     private string ChainCommand(string command, string[] paths)
     {

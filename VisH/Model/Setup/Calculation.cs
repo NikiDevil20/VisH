@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text.Json;
 using Serilog;
+using VisH.Model.Enums;
 using VisH.Model.PostRun;
 
 namespace VisH.Model.Setup;
@@ -29,10 +30,9 @@ public class Calculation
             Log.Error(ex, "Cannot add null metadata.");
             throw ex;
         }
-
+        
         Log.Information(
-            "Metadata for job {JobName} added to calculation.",
-            metaData.JobName);
+            "Metadata added to calculation.");
         MetaData = metaData;
     }
     
@@ -58,7 +58,14 @@ public class Calculation
             Log.Error(ex, "Cannot add null Gaussian parameters.");
             throw ex;
         }
-
+        
+        if (Molecule == null)
+        {
+            var ex = new InvalidOperationException(nameof(Molecule));
+            Log.Error(ex, "Cannot add metadata without a molecule.");
+            throw ex;
+        }
+        
         Log.Information(
             "Gaussian parameters added to calculation.");
         GaussianParameters = gaussianParameters;
@@ -103,12 +110,27 @@ public class Calculation
             Log.Error(ex, "Cannot add null molecule.");
             throw ex;
         }
-
+        
         Log.Information(
             "Molecule added to calculation.");
         Molecule = molecule;
     }
+    
+    public void AddRunner(Runner? runner)
+    {
+        if (runner == null)
+        {
+            var ex = new InvalidOperationException(nameof(runner));
+            Log.Error(ex, "Cannot add null runner.");
+            throw ex;
+        }
 
+        Log.Information(
+            "Runner added to calculation.");
+        Runner = runner;
+    }
+    
+    
     public bool CheckCompletion()
     {
         if (MetaData == null) return false;
@@ -173,6 +195,26 @@ public class Calculation
         }
         Log.Information("Calculation {JobName} saved to {Path}.",
             MetaData?.JobName, jsonPath.WindowsPath);
+    }
+
+    /// <summary>
+    /// Refreshes the status and returns whether the status has changed.
+    /// </summary>
+    /// <returns>status has changed boolean</returns>
+    public bool RefreshStatus()
+    {
+        var oldState = MetaData.JobState;
+        
+        if (oldState is JobState.Failed or JobState.Successful)
+        {
+            // no need to refresh terminal states.
+            return false;
+        }
+        
+        
+        
+
+        return true;
     }
     
 }

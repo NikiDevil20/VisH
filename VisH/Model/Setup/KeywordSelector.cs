@@ -4,17 +4,20 @@ namespace VisH.Model.Setup;
 
 public class KeywordSelector
 {
-    private Solvents _solvent; 
-    private CalculationType _calculationType;
-    private State _state;
+    private Solvents? _solvent; 
+    private CalculationType? _calculationType;
+    private State? _state;
 
-    public string GetKeywords(
-        Solvents solvent,
-        CalculationType calculationType,
-        State state,
-        string[] optionalKeywords,
-        bool dispersionCorrection=false)
+    public Dictionary<string, string> GetKeywords(
+        Solvents? solvent,
+        CalculationType? calculationType,
+        State? state,
+        string[]? optionalKeywords=null,
+        bool dispersionCorrection=false,
+        string[]? optionalScanContext=null)
     {
+        
+
         _solvent = solvent;
         _calculationType = calculationType;
         _state = state;
@@ -24,14 +27,10 @@ public class KeywordSelector
         List<string> linkKeywords = new List<string>();
         List<string> scanContext = new List<string>();
         
-        var keywordGroups = new Dictionary<string, List<string>>
-        {
-            { "keywords", keywords },
-            { "linkKeywords", linkKeywords },
-            { "scanContext", scanContext }
-        };
         
-        keywords.AddRange(optionalKeywords);
+        
+        
+        keywords.AddRange(optionalKeywords ?? new string[0]);
 
         switch (_calculationType)
         { 
@@ -47,6 +46,7 @@ public class KeywordSelector
                 break;
             case CalculationType.PotentialScan:
                 keywords = PotentialScanKeywords(keywords);
+                scanContext = optionalScanContext?.ToList() ?? scanContext;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(_calculationType), _calculationType, "Invalid calculation type");
@@ -54,7 +54,14 @@ public class KeywordSelector
 
         var keywordArgument = string.Join(" ", keywords);
         
-        return keywordArgument;
+        var keywordGroups = new Dictionary<string, string>
+        {
+            { "keywords", keywordArgument },
+            { "linkKeywords", string.Join(" ", linkKeywords) },
+            { "scanContext", string.Join(" ", scanContext) }
+        };
+        
+        return keywordGroups;
     }
     
     private List<string> GeometryOptimizationKeywords(List<string> keywords)

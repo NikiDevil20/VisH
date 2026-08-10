@@ -1,4 +1,5 @@
-﻿using VisH.Model.Configs;
+﻿using System.IO;
+using VisH.Model.Configs;
 using VisH.Model.FileHandling;
 using VisH.Model.PostRun;
 
@@ -31,9 +32,23 @@ public class Paths
 
         _config = Config.Load();
         
+        GetName();
         SetLocalDirectoryNames();
         SetClusterDirectoryNames();
         SetPaths();
+    }
+    
+    private void GetName()
+    {
+        var baseName = _molecule.Name;
+
+        var fullName = NameGenerator.GetCalculationName(
+            baseName,
+            _gaussianParameters.CalculationType,
+            _gaussianParameters.State
+        );
+
+        _metaData.JobName = fullName;
     }
 
     private void SetLocalDirectoryNames()
@@ -46,8 +61,16 @@ public class Paths
         
         PathObject rechnungenDirectory = new PathObject(rechnungenPath, false);
         
-        rechnungenDirectory = rechnungenDirectory.Join(moleculeName).Join(state).Join(jobName);
-        LocalCalculationDirectory = rechnungenDirectory;
+        var rechnungenDirectoryUniqueTest = rechnungenDirectory.Join(moleculeName).Join(state).Join(jobName);
+        
+        while (Directory.Exists(rechnungenDirectoryUniqueTest.WindowsPath))
+        {
+            jobName = NameGenerator.GetUniqueCalculationName(jobName);
+            rechnungenDirectoryUniqueTest = rechnungenDirectory.Join(moleculeName).Join(state).Join(jobName);
+        }
+
+        _metaData.JobName = jobName;
+        LocalCalculationDirectory = rechnungenDirectoryUniqueTest;
     }
 
     private void SetClusterDirectoryNames()

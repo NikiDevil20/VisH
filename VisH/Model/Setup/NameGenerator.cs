@@ -5,21 +5,21 @@ namespace VisH.Model.Setup;
 public static class NameGenerator
 {
     public static string GetCalculationName(
-        Molecule molecule,
-        GaussianParameters gaussianParameters,
+        string baseName,
+        CalculationType calculationType,
+        State state,
         string customName="")
     {
         string fullName;
-        string baseName = molecule.Name;
         string suffix = "";
 
-        switch (gaussianParameters.CalculationType)
+        switch (calculationType)
         {
             case CalculationType.GeometryOptimization:
                 suffix = "opt";
                 break;
             case CalculationType.TimeDependant:
-                switch (gaussianParameters.State)
+                switch (state)
                 {
                     case State.S0:
                         suffix = "abs";

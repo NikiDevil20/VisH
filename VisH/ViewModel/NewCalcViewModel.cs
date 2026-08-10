@@ -1,24 +1,17 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using VisH.Model;
+using VisH.Model.Enums;
 using VisH.Model.FileHandling;
 using VisH.Model.Parameters;
 using VisH.Model.Runner;
+using VisH.Model.Setup;
 
 namespace VisH.ViewModel;
 
 public class NewCalcViewModel : ViewModelBase
 {
-    public ObservableCollection<States> States { get; } = 
-    [
-        new States("0", "S"),
-        new States("1", "S"),
-        new States("2", "S"),
-        new States("3", "S"),
-        new States("1", "T"),
-        new States("2", "T"),
-        new States("3", "T")
-    ];
+    
     
     public ObservableCollection<string> Charges { get; } =
     [
@@ -31,46 +24,25 @@ public class NewCalcViewModel : ViewModelBase
         "3"
     ];
     
-    public ObservableCollection<string> Functionals { get; } =
-    [
-        "wb97xd",
-        "B3LYP",
-        "PBE0"
-    ];
+    State[] StateCollection => Enum.GetValues<State>();
+    Solvents[] SolventCollection => Enum.GetValues<Solvents>();
+    BasisSets[] BasisSetCollection => Enum.GetValues<BasisSets>();
+    Functionals[] FunctionalCollection => Enum.GetValues<Functionals>();
+    CalculationType[] CalcTypeCollection => Enum.GetValues<CalculationType>();
 
-    public ObservableCollection<string> BasisSets { get; } =
-    [
-        "def2svp",
-        "def2tzvp",
-        "def2qzvp"
-    ];
-    
-    public ObservableCollection<string> CalcTypes { get; } =
-    [
-        "OPT",
-        "TD"
-    ];
-
-    public ObservableCollection<string> Solvents { get; } =
-    [
-        "Dichloromethane",
-        "Toluene",
-        "THF"
-    ];
-
-    private States? _selectedState;
+    private State? _selectedState;
     private string? _selectedCharge;
-    private string? _selectedFunctional;
-    private string? _selectedBasisSet;
+    private Functionals? _selectedFunctional;
+    private BasisSets? _selectedBasisSet;
     private string? _moleculeName;
     private string? _smilesString;
     private string? _jobId;
     private string? _nCores;
     private string? _ram;
-    private string? _selectedCalcType;
-    private string? _selectedSolvent;
+    private CalculationType? _selectedCalcType;
+    private Solvents? _selectedSolvent;
     
-    public States? SelectedState
+    public State? SelectedState
     {
         get => _selectedState;
         set
@@ -88,7 +60,7 @@ public class NewCalcViewModel : ViewModelBase
             OnPropertyChanged();
         }
     }
-    public string? SelectedFunctional
+    public Functionals? SelectedFunctional
     {
         get => _selectedFunctional;
         set
@@ -97,7 +69,7 @@ public class NewCalcViewModel : ViewModelBase
             OnPropertyChanged();
         }
     }
-    public string? SelectedBasisSet
+    public BasisSets? SelectedBasisSet
     {
         get => _selectedBasisSet;
         set
@@ -151,7 +123,7 @@ public class NewCalcViewModel : ViewModelBase
             OnPropertyChanged();
         }
     }
-    public string? SelectedCalcType
+    public CalculationType? SelectedCalcType
     {
         get => _selectedCalcType;
         set
@@ -160,7 +132,7 @@ public class NewCalcViewModel : ViewModelBase
             OnPropertyChanged();
         }
     }
-    public string? SelectedSolvent
+    public Solvents? SelectedSolvent
     {
         get => _selectedSolvent;
         set
@@ -176,19 +148,18 @@ public class NewCalcViewModel : ViewModelBase
         execute=>Run(), canExecute=> CanRun());
     public RelayCommand CancelCommand => new RelayCommand(
         execute=>Cancel());
-
+    
     public event Action<bool>? RequestClose; 
     
-    public Calculation? Result { get; private set; }
     public NewCalcViewModel()
     {
         Console.WriteLine("NewCalcViewModel initialized");
-        SelectedState = States[0];
+        SelectedState = State.S0;
         SelectedCharge = Charges[3];
-        SelectedFunctional = Functionals[0];
-        SelectedBasisSet = BasisSets[0];
-        SelectedCalcType = CalcTypes[0];
-        SelectedSolvent = Solvents[0];
+        SelectedFunctional = Functionals.wb97xd;
+        SelectedBasisSet = BasisSets.def2svp;
+        SelectedCalcType = CalculationType.GeometryOptimization;
+        SelectedSolvent = Solvents.Dichloromethane;
     }
     
     
@@ -209,9 +180,7 @@ public class NewCalcViewModel : ViewModelBase
         CalcParameters calcParam = BuildParameter();
         Molecule mol = new Molecule(SmilesString, MoleculeName, SelectedCharge, SelectedState.Multiplicity);
         
-        Calculation calculation = new Calculation(mol, calcParam, calcParam.Link);
-        
-        Result = calculation;
+       
         RequestClose?.Invoke(true);
     }
 
@@ -247,11 +216,12 @@ public class NewCalcViewModel : ViewModelBase
 
     private CalcParameters BuildParameter()
     {
-        string[][]? keywordsAndLink = KeywordSelector.GetKeywordsAndLink(
+        var keywords = KeywordSelector.GetKeywords(
+            SelectedSolvent,
             SelectedCalcType,
             SelectedState
         );
-        
+
         var calcParam = new CalcParameters(
             calcType: SelectedCalcType,
             proc: NCores,
@@ -318,4 +288,5 @@ public class NewCalcViewModel : ViewModelBase
 
         return true;
     }
+    
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace VisH.Model;
+namespace VisH.Model.Parameters;
 
 public class CalcParameters
 {
