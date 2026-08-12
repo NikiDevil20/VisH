@@ -45,7 +45,10 @@ public class Molecule
         List<Atom>? atoms = JsonSerializer.Deserialize<List<Atom>>(jsonString);
         if (atoms == null)
             throw new ArgumentException("Invalid JSON list");
+
+        
         return atoms;
+        
     }
 
     private string SmilesToJson(string smilesString)
