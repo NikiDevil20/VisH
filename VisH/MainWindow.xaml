@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VisH"
         xmlns:userControls="clr-namespace:VisH.View.UserControls"
+        xmlns:mainWindow="clr-namespace:VisH.View.UserControls.MainWindow"
 
 
         mc:Ignorable="d" WindowStyle="None"
@@ -33,18 +34,18 @@
                 <ColumnDefinition Width="200" MinWidth="200"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
-            <!-- Menu Panel -->
-            <userControls:TemplateListView Grid.Column="0"></userControls:TemplateListView>
+            <!-- ~1~ Menu Panel @1@ -->
+            <!-- <userControls:TemplateListView Grid.Column="0"></userControls:TemplateListView> -->
             
-            <!-- Splitter -->
-            <Border Grid.Column="1" Background="#323232" CornerRadius="0" Panel.ZIndex="2">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="10"
-                                      ShadowDepth="3"
-                                      Direction="0"
-                                      />
-                </Border.Effect>
-            </Border>
+            <!-- ~1~ Splitter @1@ -->
+            <!-- <Border Grid.Column="1" Background="#323232" CornerRadius="0" Panel.ZIndex="2"> -->
+            <!--     <Border.Effect> -->
+            <!--         <DropShadowEffect BlurRadius="10" -->
+            <!--                           ShadowDepth="3" -->
+            <!--                           Direction="0" -->
+            <!--                           /> -->
+            <!--     </Border.Effect> -->
+            <!-- </Border> -->
             
             <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" ResizeDirection="Columns" 
                           ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" 
@@ -53,7 +54,7 @@
             
             <!-- Content Panel -->
             
-            <userControls:Overview Grid.Column="2" DataContext="{Binding OverviewViewModel}"></userControls:Overview>
+            <mainWindow:Overview Grid.Column="2" DataContext="{Binding OverviewViewModel}"></mainWindow:Overview>
             
             
             <!-- Status Bar -->

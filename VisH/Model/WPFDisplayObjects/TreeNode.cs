@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 
-namespace VisH.Model.GeneralUtils.FileHandling;
+namespace VisH.Model.WPFDisplayObjects;
 
 public class TreeNode
 {

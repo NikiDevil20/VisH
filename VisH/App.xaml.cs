@@ -2,7 +2,7 @@ using System.Configuration;
 using System.Data;
 using System.Windows;
 using Serilog;
-using VisH.Model.Configs;
+using VisH.Model.GeneralUtils;
 
 namespace VisH;
 

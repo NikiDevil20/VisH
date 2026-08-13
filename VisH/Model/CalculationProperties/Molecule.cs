@@ -1,10 +1,11 @@
 using System.Text;
 using System.Text.Json;
+using VisH.Model.CalculationUtils;
 using VisH.Model.Enums;
 using VisH.Model.GeneralUtils;
 using VisH.Model.Parameters;
 
-namespace VisH.Model.Calculation.CalculationProperties;
+namespace VisH.Model.CalculationProperties;
 
 
 public class Molecule
@@ -16,16 +17,13 @@ public class Molecule
     public string SmilesString { get; set; }
 
     public Molecule(
-        string smilesString,
-        string moleculeName,
-        int charge,
-        State state)
+        BundledConstructionParameters parameters)
     {
-        Atoms = GetAtoms(smilesString).ToArray();
-        MoleculeName = moleculeName;
-        Charge = charge;
-        State = state;
-        SmilesString = smilesString;
+        Atoms = GetAtoms(parameters.SmilesString).ToArray();
+        MoleculeName = parameters.MoleculeName;
+        Charge = int.Parse(parameters.Charge);
+        State = parameters.State;
+        SmilesString = parameters.SmilesString;
     }
     
     public override string ToString()

@@ -1,8 +1,9 @@
 using System.Collections.ObjectModel;
 using VisH.Model;
-using VisH.Model.Configs;
-using VisH.Model.FileHandling;
+using VisH.Model.GeneralUtils;
+using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.PostRun;
+using VisH.Model.WPFDisplayObjects;
 
 namespace VisH.ViewModel;
 
@@ -112,7 +113,7 @@ public class OverviewViewModel : ViewModelBase
 
     private void SetupTreeview()
     {
-        Config cfg = Config.Load();
+        var cfg = Config.Load();
 
         TreeNode root = TreeNode.BuildTree(cfg.LocalRechnungenPath);
 
@@ -136,14 +137,14 @@ public class OverviewViewModel : ViewModelBase
             return;
         }
 
-        CalcResults calcResults = _logFileAnalyzer.Run(SelectedPath);
-        
-        MoleculeName = calcResults.MetaData.JobName;
-        
-        DictToGridItems(SetupMetaData(calcResults.MetaData), MetaDataGridItems);
-        DictToGridItems(SetupEnergies(calcResults.Energy), EnergiesGridItems);
-        DictToGridItems(SetupFrequencies(calcResults.Frequency), FrequenciesGridItems);
-        DictToGridItems(SetupOrbitals(calcResults.Orbitals), OrbitalsGridItems);
+        // CalcResults calcResults = _logFileAnalyzer.Run(SelectedPath);
+        //
+        // MoleculeName = calcResults.MetaData.JobName;
+        //
+        // DictToGridItems(SetupMetaData(calcResults.MetaData), MetaDataGridItems);
+        // DictToGridItems(SetupEnergies(calcResults.Energy), EnergiesGridItems);
+        // DictToGridItems(SetupFrequencies(calcResults.Frequency), FrequenciesGridItems);
+        // DictToGridItems(SetupOrbitals(calcResults.Orbitals), OrbitalsGridItems);
     }
 
 
@@ -156,26 +157,26 @@ public class OverviewViewModel : ViewModelBase
             targetCollection.Add(new DataGridItem(ele.Key, ele.Value));
         }
     }
-    private Dictionary<string, string> SetupMetaData(MetaData metaData)
-    {
-        return metaData.ToDictionary();
-    }
-
-    private Dictionary<string, string> SetupEnergies(EnergyResults energyResults)
-    {
-        return energyResults.ToDictionary();
-    }
-
-    private Dictionary<string, string> SetupFrequencies(Frequency frequency)
-    {
-        return frequency.ToDictionary();
-    }
-
-    private Dictionary<string, string> SetupOrbitals(Orbitals orbitals)
-    {
-        return orbitals.ToDictionary();
-
-    }
+    // private Dictionary<string, string> SetupMetaData(MetaData metaData)
+    // {
+    //     return metaData.ToDictionary();
+    // }
+    //
+    // private Dictionary<string, string> SetupEnergies(EnergyResults energyResults)
+    // {
+    //     return energyResults.ToDictionary();
+    // }
+    //
+    // private Dictionary<string, string> SetupFrequencies(Frequency frequency)
+    // {
+    //     return frequency.ToDictionary();
+    // }
+    //
+    // private Dictionary<string, string> SetupOrbitals(Orbitals orbitals)
+    // {
+    //     return orbitals.ToDictionary();
+    //
+    // }
     
     
 }

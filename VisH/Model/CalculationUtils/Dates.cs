@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 
-namespace VisH.Model.Calculation.CalculationUtils;
+namespace VisH.Model.CalculationUtils;
 
 public class Dates
 {

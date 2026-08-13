@@ -1,7 +1,7 @@
-using VisH.Model.Calculation.CalculationUtils;
+using VisH.Model.CalculationUtils;
 using VisH.Model.Enums;
 
-namespace VisH.Model.Calculation.CalculationProperties;
+namespace VisH.Model.CalculationProperties;
 
 public class MetaData
 {

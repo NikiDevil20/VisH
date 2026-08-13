@@ -26,7 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Model\Calculation\" />
       <Folder Include="PythonScripts\venv\" />
     </ItemGroup>
 
@@ -47,11 +46,6 @@
         <SubType>Designer</SubType>
       </Page>
       <Page Update="View\UserControls\MainWindow\StatusBar.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="View\UserControls\MainWindow\TemplateListView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>

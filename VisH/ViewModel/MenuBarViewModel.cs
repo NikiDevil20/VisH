@@ -1,26 +1,20 @@
 using System.Windows;
 using System.Windows.Input;
 using VisH.Model;
-using VisH.Model.FileHandling;
+using VisH.Model.GeneralUtils;
+using VisH.Model.GeneralUtils.FileHandling;
 using VisH.View.Windows;
 
 namespace VisH.ViewModel;
 
 public class MenuBarViewModel : ViewModelBase
 {
-    public RelayCommand DebugCommand => new RelayCommand(execute => Debug());
     public RelayCommand NewCalcCommand => new RelayCommand(execute => NewCalc());
     private FileHandler _fileHandler { get; set; }
 
     public MenuBarViewModel(FileHandler fileHandler)
     {
         _fileHandler = fileHandler;
-    }
-
-
-    private void Debug()
-    {
-        TestGround tg = new TestGround();
     }
     
     
@@ -29,12 +23,15 @@ public class MenuBarViewModel : ViewModelBase
         var window = new StartNewCalcWindow();
         if (window.ShowDialog() == true)
         {
-            var calculation = window.Result;
-            string jobId = _fileHandler.Upload(calculation);
-            calculation.JobId = jobId;
-            calculation.SaveCalculation();
+            var bundledParameters = window.Result;
             
-            calculation.Molecule.DrawSvg(calculation.GjfPath.WindowsFolder, new PythonBridge());
+            
+            
+            // string jobId = _fileHandler.Upload(calculation);
+            // calculation.JobId = jobId;
+            // calculation.SaveCalculation();
+            //
+            // calculation.Molecule.DrawSvg(calculation.GjfPath.WindowsFolder, new PythonBridge());
         }
     }
 }

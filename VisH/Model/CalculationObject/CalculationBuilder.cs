@@ -1,8 +1,8 @@
-﻿using VisH.Model.Calculation.CalculationProperties;
+﻿using VisH.Model.CalculationProperties;
 using VisH.Model.GeneralUtils.Hilbert;
 using VisH.Model.PostRun;
 
-namespace VisH.Model.Calculation.CalculationObject;
+namespace VisH.Model.CalculationObject;
 
 public static class CalculationBuilder
 {

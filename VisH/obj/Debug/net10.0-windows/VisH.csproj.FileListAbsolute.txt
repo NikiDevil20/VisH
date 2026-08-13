@@ -5,7 +5,6 @@ C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserContro
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\MainWindow\MenuBar.g.cs
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\MainWindow\Overview.g.cs
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\MainWindow\StatusBar.g.cs
-C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\MainWindow\TemplateListView.g.cs
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\General.g.cs
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\MoleculeSettings.g.cs
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\ParametersSettings.g.cs
@@ -21,7 +20,6 @@ C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserContro
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\MainWindow\MenuBar.baml
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\MainWindow\Overview.baml
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\MainWindow\StatusBar.baml
-C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\MainWindow\TemplateListView.baml
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\General.baml
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\MoleculeSettings.baml
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\View\UserControls\NewCalculationWindow\ParametersSettings.baml
@@ -48,3 +46,5 @@ C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\VisH.csproj.Up2
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\VisH.dll
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\VisH.genruntimeconfig.cache
 C:\Users\nikla\RiderProjects\VisH\VisH\obj\Debug\net10.0-windows\ref\VisH.dll
+C:\Users\nikla\RiderProjects\VisH\VisH\bin\Debug\net10.0-windows\Serilog.dll
+C:\Users\nikla\RiderProjects\VisH\VisH\bin\Debug\net10.0-windows\Serilog.Sinks.File.dll

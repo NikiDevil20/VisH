@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using VisH.Model.FileHandling;
+using VisH.Model.GeneralUtils.FileHandling;
 
 namespace VisH.ViewModel;
 

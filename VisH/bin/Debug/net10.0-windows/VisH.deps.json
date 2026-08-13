@@ -8,7 +8,9 @@
     ".NETCoreApp,Version=v10.0": {
       "VisH/1.0.0": {
         "dependencies": {
-          "SSH.NET": "2025.1.0"
+          "SSH.NET": "2025.1.0",
+          "Serilog": "4.4.1-dev-02443",
+          "Serilog.Sinks.File": "8.0.0-nblumhardt-02322"
         },
         "runtime": {
           "VisH.dll": {}
@@ -38,6 +40,25 @@
           "lib/net8.0/Microsoft.Extensions.Logging.Abstractions.dll": {
             "assemblyVersion": "8.0.0.0",
             "fileVersion": "8.0.1325.6609"
+          }
+        }
+      },
+      "Serilog/4.4.1-dev-02443": {
+        "runtime": {
+          "lib/net10.0/Serilog.dll": {
+            "assemblyVersion": "4.4.0.0",
+            "fileVersion": "4.4.0.0"
+          }
+        }
+      },
+      "Serilog.Sinks.File/8.0.0-nblumhardt-02322": {
+        "dependencies": {
+          "Serilog": "4.4.1-dev-02443"
+        },
+        "runtime": {
+          "lib/net9.0/Serilog.Sinks.File.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.0.0"
           }
         }
       },
@@ -81,6 +102,20 @@
       "sha512": "sha512-dL0QGToTxggRLMYY4ZYX5AMwBb+byQBd/5dMiZE07Nv73o6I5Are3C7eQTh7K2+A4ct0PVISSr7TZANbiNb2yQ==",
       "path": "microsoft.extensions.logging.abstractions/8.0.3",
       "hashPath": "microsoft.extensions.logging.abstractions.8.0.3.nupkg.sha512"
+    },
+    "Serilog/4.4.1-dev-02443": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-b9JtU+ByGJ83I+dESzaUxw2B3RQYhJbNqa140H+4s8j/4ThZe1w+0q8Wy+ktdVWO0Qh3s+YY+ry0Mc9mkO/KLQ==",
+      "path": "serilog/4.4.1-dev-02443",
+      "hashPath": "serilog.4.4.1-dev-02443.nupkg.sha512"
+    },
+    "Serilog.Sinks.File/8.0.0-nblumhardt-02322": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EA6O7RwYBl52t/SDul6itYPla3wSSm6F+XLGtSiHiqjYlmWH6YGhXL92/FHWhzQglRmXhbgFDK0m9RFKW110/w==",
+      "path": "serilog.sinks.file/8.0.0-nblumhardt-02322",
+      "hashPath": "serilog.sinks.file.8.0.0-nblumhardt-02322.nupkg.sha512"
     },
     "SSH.NET/2025.1.0": {
       "type": "package",

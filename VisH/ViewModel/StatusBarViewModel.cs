@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using VisH.Model;
-using VisH.Model.Configs;
-using VisH.Model.FileHandling;
-using VisH.Model.Hilbert;
+using VisH.Model.GeneralUtils;
+using VisH.Model.GeneralUtils.FileHandling;
+using VisH.Model.GeneralUtils.Hilbert;
 
 namespace VisH.ViewModel;
 
@@ -98,10 +98,10 @@ public class StatusBarViewModel : ViewModelBase
         {
             JobManager.Connect();
             List<CalcStatus> calcStatuses = new List<CalcStatus>();
-            foreach (var jobPath in _pathsOnCluster)
-            {
-                calcStatuses.Add(CalcStatus.Create(jobPath));
-            }
+            // foreach (var jobPath in _pathsOnCluster)
+            // {
+            //     calcStatuses.Add(CalcStatus.Create(jobPath));
+            // }
 
             JobsOnCluster.Clear();
             foreach (var status in calcStatuses)
@@ -157,9 +157,9 @@ public class StatusBarViewModel : ViewModelBase
 
     private async void DownloadSelection()
     {
-        if (IsSelected())
-        {
-            await _fileHandler.Download(SelectedCalcstatus.JobPath);
-        }
+        // if (IsSelected())
+        // {
+        //     await _fileHandler.Download(SelectedCalcstatus.JobPath);
+        // }
     }
 }

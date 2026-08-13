@@ -1,6 +1,6 @@
 ﻿using VisH.Model.Enums;
 
-namespace VisH.Model.Calculation.CalculationUtils;
+namespace VisH.Model.CalculationUtils;
 
 public class KeywordSelector
 {

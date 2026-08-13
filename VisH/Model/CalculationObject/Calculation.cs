@@ -3,11 +3,11 @@ using System.Text.Json;
 using Serilog;
 using VisH.Model.Enums;
 using VisH.Model.PostRun;
-using VisH.Model.Calculation.CalculationProperties;
-using VisH.Model.Calculation.CalculationUtils;
+using VisH.Model.CalculationProperties;
+using VisH.Model.CalculationUtils;
 using VisH.Model.GeneralUtils.Hilbert;
 
-namespace VisH.Model.Calculation.CalculationObject;
+namespace VisH.Model.CalculationObject;
 
 public class Calculation
 {
@@ -17,8 +17,8 @@ public class Calculation
     public Molecule? Molecule { get; set; }
     
     private SshService _sshService;
+    
     public Paths? Paths { get; set; }
-
 
     public Calculation(SshService sshService)
     {
