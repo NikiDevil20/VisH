@@ -1,7 +1,6 @@
 using System.IO;
-using VisH.Model.Configs;
 using VisH.Model.Enums;
-using VisH.Model.FileHandling;
+using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.PostRun;
 
 namespace VisH.Model.GeneralUtils.Hilbert;
@@ -22,75 +21,74 @@ public static class JobManager
     }
     
     
-    private static bool NormalTermination(PathObject path)
+    private static bool NormalTermination(FileExtension logFile)
     {
         var cmd = _sshService.CommandClient.RunCommand(
-            $"cd {path.ClusterFolder} && " +
-            $"tail {path.Filename}");
+            $"tail {logFile.GetPath(PathType.Cluster)}");
         return cmd.Result.Contains("Normal termination");
     }
     
     
 
-    public static Dictionary<string, string> JobStatusAndId(PathObject path)
-    {
-        bool logExists = false;
-        bool qstatOutput = false;
-        bool normalTermination = false;
-
-        string? jobId = null;
-        State status = State.Queue;
-
-        Dictionary<string, string> jobInfo = new Dictionary<string, string>();
-        
-        if (path.DestinationType != PathType.Directory)
-            throw new ArgumentException("Path must be a directory.");
-
-        if (path.FolderContent == null || path.FolderContent.Length == 0)
-            throw new FileNotFoundException("Directory is empty.");
-        
-        PathObject[] files = path.GetFolderContent();
-        
-        foreach (var file in files)
-        {
-           if (file.ClusterPath.EndsWith(".log")) 
-           {
-               logExists = true;
-               jobId = GaussianRegex.MatchString(file.ClusterPath, GaussianRegex.JobIdLogFile);
-
-               normalTermination = NormalTermination(file);
-               if (!normalTermination)
-               {
-                   if (jobId != null)
-                   {
-                       var qstat = _sshService.CommandClient.RunCommand($"qstat {jobId}");
-                       if (!string.IsNullOrWhiteSpace(qstat.Result))
-                       {
-                           qstatOutput = true;
-                       }
-                   }
-               }
-           }
-        }
-        if (logExists && qstatOutput)
-        {
-            status = State.Running;
-        }
-        else if (logExists && !qstatOutput)
-        {
-            status = State.Failed;
-        }
-        if (normalTermination)
-        {
-            status = State.Successful;
-        }
-        
-        jobInfo["jobName"] = Path.GetFileName(path.ClusterPath);
-        jobInfo["jobId"] = jobId;
-        jobInfo["status"] = status.ToString();
-        return jobInfo;
-        
-    }
+    // public static Dictionary<string, string> JobStatusAndId(PathObject path)
+    // {
+    //     bool logExists = false;
+    //     bool qstatOutput = false;
+    //     bool normalTermination = false;
+    //
+    //     string? jobId = null;
+    //     State status = State.Queue;
+    //
+    //     Dictionary<string, string> jobInfo = new Dictionary<string, string>();
+    //     
+    //     if (path.DestinationType != PathType.Directory)
+    //         throw new ArgumentException("Path must be a directory.");
+    //
+    //     if (path.FolderContent == null || path.FolderContent.Length == 0)
+    //         throw new FileNotFoundException("Directory is empty.");
+    //     
+    //     PathObject[] files = path.GetFolderContent();
+    //     
+    //     foreach (var file in files)
+    //     {
+    //        if (file.ClusterPath.EndsWith(".log")) 
+    //        {
+    //            logExists = true;
+    //            jobId = GaussianRegex.MatchString(file.ClusterPath, GaussianRegex.JobIdLogFile);
+    //
+    //            normalTermination = NormalTermination(file);
+    //            if (!normalTermination)
+    //            {
+    //                if (jobId != null)
+    //                {
+    //                    var qstat = _sshService.CommandClient.RunCommand($"qstat {jobId}");
+    //                    if (!string.IsNullOrWhiteSpace(qstat.Result))
+    //                    {
+    //                        qstatOutput = true;
+    //                    }
+    //                }
+    //            }
+    //        }
+    //     }
+    //     if (logExists && qstatOutput)
+    //     {
+    //         status = State.Running;
+    //     }
+    //     else if (logExists && !qstatOutput)
+    //     {
+    //         status = State.Failed;
+    //     }
+    //     if (normalTermination)
+    //     {
+    //         status = State.Successful;
+    //     }
+    //     
+    //     jobInfo["jobName"] = Path.GetFileName(path.ClusterPath);
+    //     jobInfo["jobId"] = jobId;
+    //     jobInfo["status"] = status.ToString();
+    //     return jobInfo;
+    //     
+    // }
 
     public static string DeleteJob(string jobId)
     {
@@ -131,7 +129,7 @@ public static class JobManager
     
     
     
-    public static ulong FileSize(PathObject path)
+    public static long FileSize(PathObject path)
     {
         try
         {
@@ -142,7 +140,7 @@ public static class JobManager
             }
 
             var attributes = _fileTransferService.FileClient.GetAttributes(path.ClusterPath);
-            return (ulong)attributes.Size;
+            return attributes.Size;
         }
         finally
         {
@@ -156,44 +154,48 @@ public static class JobManager
     }
     
     public static void DownloadFolder(
-        PathObject path,
+        DirectoryExtension directory,
         IProgress<DownloadProgress> progress)
     {
         _fileTransferService.Connect();
         try
         {
-            ulong? totalFolderSize = path.Size;
-            ulong bytesFinished = 0;
+            long totalFolderSize = directory.GetDirectorySize();
+            PathExtension[] files = directory.GetContent();
+            long bytesFinished = 0;
 
-            foreach (var file in path.FolderContent)
+            foreach (var path in files)
             {
-                using var fileStream = File.Create(file.WindowsPath);
+                if (path is not FileExtension file)
+                    continue;
+                
+                using var fileStream = File.Create(file.GetPath());
 
                 progress?.Report(new DownloadProgress(
-                    file.Filename,
-                    file.Size ?? 0,
+                    file.GetFileName(),
+                    file.GetFileSize(PathType.Cluster),
                     0,
-                    totalFolderSize ?? 0,
+                    totalFolderSize,
                     bytesFinished
                 ));
 
                 DownloadFile(
-                    file.ClusterPath,
+                    file.GetPath(PathType.Cluster),
                     fileStream,
                     downloadedBytes =>
                     {
-                        ulong totalDownloaded = bytesFinished + downloadedBytes;
+                        long totalDownloaded = bytesFinished + (long)downloadedBytes;
 
                         progress.Report(new DownloadProgress
                             (
-                                file.Filename,
-                                file.Size ?? 0,
-                                downloadedBytes,
-                                totalFolderSize ?? 0,
+                                file.GetFileName(PathType.Cluster),
+                                file.GetFileSize(PathType.Cluster),
+                                (long)downloadedBytes,
+                                totalFolderSize,
                                 totalDownloaded)
                         );
                     });
-                bytesFinished += file.Size ?? 0;
+                bytesFinished += file.GetFileSize(PathType.Cluster);
             }
         }
         finally

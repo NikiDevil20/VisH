@@ -1,8 +1,7 @@
 using System.IO;
 using System.Threading.Tasks.Dataflow;
-using VisH.Model.Configs;
 using VisH.Model.Enums;
-using VisH.Model.Hilbert;
+using VisH.Model.GeneralUtils.Hilbert;
 
 namespace VisH.Model.GeneralUtils.FileHandling;
 
@@ -24,8 +23,8 @@ public class PathObject
     public string WindowsFolder { get; set; }
     public string ClusterFolder {get; set;}
     public string? Filename { get; set; }
-    private ulong? _size;
-    public ulong? Size
+    private long? _size;
+    public long? Size
     {
         get => _size ??= GetSize();
     }
@@ -195,7 +194,7 @@ public class PathObject
         return pathsInDirectory;
     }
     
-    private ulong GetSize()
+    private long GetSize()
     {
         if (DestinationType == PathType.File)
         {
@@ -205,12 +204,12 @@ public class PathObject
                 return size;
             }
             var fileInfo = new FileInfo(WindowsPath);
-            return (ulong)fileInfo.Length;
+            return fileInfo.Length;
         }
         if (FolderContent == null)
             return 0;
         
-        ulong totalSize = 0;
+        long totalSize = 0;
         foreach (var path in FolderContent)
         {
             if (path.Size.HasValue)

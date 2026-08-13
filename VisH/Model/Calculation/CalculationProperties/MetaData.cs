@@ -7,9 +7,9 @@ public class MetaData
 {
     public Dates Dates { get; set; }
     public Ressources Ressources { get; set; }
-    public string JobName { get; set; }
+    public string? JobName { get; set; }
     public JobState JobState { get; set; }
-    public string JobId { get; set; }
+    public string? JobId { get; set; }
 
     public MetaData()
     {

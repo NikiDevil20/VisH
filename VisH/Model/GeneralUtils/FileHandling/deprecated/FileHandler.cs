@@ -1,7 +1,6 @@
 using VisH.Model.Enums;
-using VisH.Model.Hilbert;
 
-namespace VisH.Model.GeneralUtils.FileHandling;
+namespace VisH.Model.GeneralUtils.FileHandling.deprecated;
 
 public class FileHandler
 {
@@ -15,17 +14,17 @@ public class FileHandler
         UploadManager = new UploadManager();
     }
     
-    public async Task Download(PathObject path)
-    {
-        await DownloadManager.DownloadFolder(path);
-        ClusterChanged?.Invoke();
-    }
-
-    public string Upload(Calculation calculation)
-    {
-        string jobId = UploadManager.Run(calculation);
-        ClusterChanged?.Invoke();
-        return jobId;
-    }
+    // public async Task Download(PathObject path)
+    // {
+    //     await DownloadManager.DownloadFolder(path);
+    //     ClusterChanged?.Invoke();
+    // }
+    //
+    // public string Upload(Calculation.CalculationObject.Calculation calculation)
+    // {
+    //     string jobId = UploadManager.Run(calculation);
+    //     ClusterChanged?.Invoke();
+    //     return jobId;
+    // }
 
 }

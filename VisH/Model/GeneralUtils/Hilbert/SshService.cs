@@ -1,4 +1,3 @@
-using VisH.Model.Configs;
 using Renci.SshNet;
 
 namespace VisH.Model.GeneralUtils.Hilbert;
@@ -42,7 +41,53 @@ public class SshService
         return cmd.Result.Trim();
     }
     
+    public string[] GetClusterContent(string path)
+    {
+        string command = $"cd {path} && ls -Ap";
+
+        var cmd = CommandClient.RunCommand(command);
+        var result = cmd.Result.Trim();
+
+        if (string.IsNullOrEmpty(result))
+        {
+            return Array.Empty<string>();
+        }
+
+        var splitLines = result.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        
+        var fullPaths = splitLines.Select(line => $"{path}/{line}");
+
+        return fullPaths.ToArray();
+    }
     
+    public long? GetClusterDirectorySize(string path)
+    {
+        string command = $"du -sb {path} | cut -f1";
+        var cmd = CommandClient.RunCommand(command);
+        var result = cmd.Result.Trim();
+
+        if (string.IsNullOrEmpty(result) || !long.TryParse(result, out long size))
+        {
+            return null;
+        }
+
+        return size;
+    }
+    
+    public long? GetClusterFileSize(string path)
+    {
+        string command = $"stat -c %s {path}";
+        var cmd = CommandClient.RunCommand(command);
+        var result = cmd.Result.Trim();
+
+        if (string.IsNullOrEmpty(result) || !long.TryParse(result, out long size))
+        {
+            return null;
+        }
+
+        return size;
+    }
+
     /// <summary>
     /// Connects to the SSH client if it is not already connected and executes the specified operation.
     /// Suitable for any return types.

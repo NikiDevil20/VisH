@@ -5,6 +5,7 @@ using VisH.Model.Enums;
 using VisH.Model.PostRun;
 using VisH.Model.Calculation.CalculationProperties;
 using VisH.Model.Calculation.CalculationUtils;
+using VisH.Model.GeneralUtils.Hilbert;
 
 namespace VisH.Model.Calculation.CalculationObject;
 
@@ -15,13 +16,13 @@ public class Calculation
     public GaussianParameters? GaussianParameters { get; set; }
     public Molecule? Molecule { get; set; }
     
-    private Runner? Runner { get; set; }
+    private SshService _sshService;
     public Paths? Paths { get; set; }
 
 
-    public Calculation()
+    public Calculation(SshService sshService)
     {
-        
+        _sshService = sshService;
     }
     
     public void AddMetaData(MetaData? metaData)
@@ -96,7 +97,7 @@ public class Calculation
             throw ex;
         }
 
-        var paths = new Paths(MetaData, Molecule, GaussianParameters);
+        var paths = new Paths(MetaData, Molecule, GaussianParameters, _sshService);
         
         Log.Information(
             "Paths for job {JobName} added to calculation.",
@@ -118,21 +119,6 @@ public class Calculation
         Molecule = molecule;
     }
     
-    public void AddRunner(Runner? runner)
-    {
-        if (runner == null)
-        {
-            var ex = new InvalidOperationException(nameof(runner));
-            Log.Error(ex, "Cannot add null runner.");
-            throw ex;
-        }
-
-        Log.Information(
-            "Runner added to calculation.");
-        Runner = runner;
-    }
-    
-    
     public bool CheckCompletion()
     {
         if (MetaData == null) return false;
@@ -146,17 +132,17 @@ public class Calculation
     {
         if (!CheckCompletion()) return false;
         
-        if (!File.Exists(Paths?.JsonPath?.WindowsPath))
+        if (!File.Exists(Paths?.JsonPath.GetPath()))
         {
             return false;
         }
 
-        if (!File.Exists(Paths.GaussianInputFile?.WindowsPath))
+        if (!File.Exists(Paths.GaussianInputFile.GetPath()))
         {
             return false;
         }
 
-        if (!File.Exists(Paths.GstartFile?.WindowsPath))
+        if (!File.Exists(Paths.GstartFile.GetPath()))
         {
             return false;
         }
@@ -173,30 +159,29 @@ public class Calculation
             throw ex;
         }
 
-        if (Paths?.LocalCalculationDirectory == null)
+        if (Paths?.Directory.GetPath() == null)
         {
-            var ex = new InvalidOperationException(nameof(Paths.LocalCalculationDirectory));
+            var ex = new InvalidOperationException(nameof(Paths.Directory));
             Log.Error(ex, "Cannot save calculation without a local calculation directory.");
             throw ex;
         }
 
-        Directory.CreateDirectory(Paths.LocalCalculationDirectory.WindowsPath);
+        Directory.CreateDirectory(Paths.Directory.GetPath());
         
-        var jsonPath = Paths.LocalCalculationDirectory.Join("calculation.json");
         
         var serializedObject = JsonSerializer.Serialize(this);
 
         try
         {
-            File.WriteAllText(jsonPath.WindowsPath, serializedObject);
+            File.WriteAllText(Paths.JsonPath.GetPath(), serializedObject);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Failed to save calculation to {Path}.", jsonPath.WindowsPath);
+            Log.Error(ex, "Failed to save calculation to {Path}.", Paths.JsonPath.GetPath());
             throw;
         }
         Log.Information("Calculation {JobName} saved to {Path}.",
-            MetaData?.JobName, jsonPath.WindowsPath);
+            MetaData?.JobName, Paths.JsonPath.GetPath());
     }
 
     /// <summary>

@@ -1,6 +1,6 @@
 using Serilog;
-using VisH.Model.FileHandling;
-using VisH.Model.Hilbert;
+using VisH.Model.GeneralUtils.Hilbert;
+
 
 namespace VisH.Model.Calculation.CalculationUtils;
 

@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using VisH.Model.Hilbert;
+using VisH.Model.GeneralUtils.Hilbert;
 using VisH.ViewModel;
 
 namespace VisH.Model.GeneralUtils.FileHandling;
@@ -47,7 +47,7 @@ public class DownloadManager : ViewModelBase
         }
     }
     
-    public async Task DownloadFolder(PathObject path)
+    public async Task DownloadFolder(DirectoryExtension directory)
     {
         IsDownloading = true;
         DownloadPercentage = 0;
@@ -61,7 +61,7 @@ public class DownloadManager : ViewModelBase
         });
         try
         {
-            await Task.Run(() => { JobManager.DownloadFolder(path, progress); });
+            await Task.Run(() => { JobManager.DownloadFolder(directory, progress); });
         }
         finally
         {

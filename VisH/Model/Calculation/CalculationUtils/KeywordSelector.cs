@@ -5,12 +5,12 @@ namespace VisH.Model.Calculation.CalculationUtils;
 public class KeywordSelector
 {
     private Solvents? _solvent; 
-    private CalculationType? _calculationType;
+    private JobTypes? _jobType;
     private State? _state;
 
     public Dictionary<string, string> GetKeywords(
         Solvents? solvent,
-        CalculationType? calculationType,
+        JobTypes? jobType,
         State? state,
         string[]? optionalKeywords=null,
         bool dispersionCorrection=false,
@@ -19,37 +19,33 @@ public class KeywordSelector
         
 
         _solvent = solvent;
-        _calculationType = calculationType;
+        _jobType = jobType;
         _state = state;
-
         
         List<string> keywords = new List<string>();
         List<string> linkKeywords = new List<string>();
         List<string> scanContext = new List<string>();
         
-        
-        
-        
         keywords.AddRange(optionalKeywords ?? new string[0]);
 
-        switch (_calculationType)
+        switch (_jobType)
         { 
-            case CalculationType.GeometryOptimization:
+            case JobTypes.GeometryOptimization:
                 keywords = GeometryOptimizationKeywords(keywords);
                 linkKeywords.AddRange(["freq", "geom=AllCheck", "Guess=TCheck", "SCRF=Check", "GenChk", "Teste"]);
                 break;
-            case CalculationType.TimeDependant:
+            case JobTypes.TimeDependant:
                  keywords = TimeDependantKeywords(keywords);
                 break;
-            case CalculationType.NaturalTransitionOrbitals:
+            case JobTypes.NaturalTransitionOrbitals:
                 keywords = NaturalTransitionOrbitalsKeywords(keywords);
                 break;
-            case CalculationType.PotentialScan:
+            case JobTypes.PotentialScan:
                 keywords = PotentialScanKeywords(keywords);
                 scanContext = optionalScanContext?.ToList() ?? scanContext;
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(_calculationType), _calculationType, "Invalid calculation type");
+                throw new ArgumentOutOfRangeException(nameof(_jobType), _jobType, "Invalid calculation type");
         }
 
         var keywordArgument = string.Join(" ", keywords);
