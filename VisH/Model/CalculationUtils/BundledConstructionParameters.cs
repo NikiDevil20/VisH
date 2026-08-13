@@ -12,5 +12,9 @@ public record BundledConstructionParameters(
     Functionals Functional,
     BasisSets BasisSet,
     JobTypes JobType,
-    Solvents Solvent
+    Solvents Solvent,
+    TimeSpan MaxWalltime,
+    string? OptionalKeywords,
+    bool? DispersionCorrection,
+    string? ScanContext
     );

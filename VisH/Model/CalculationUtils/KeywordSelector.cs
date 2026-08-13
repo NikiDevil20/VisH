@@ -9,30 +9,25 @@ public class KeywordSelector
     private State? _state;
 
     public Dictionary<string, string> GetKeywords(
-        Solvents? solvent,
-        JobTypes? jobType,
-        State? state,
-        string[]? optionalKeywords=null,
-        bool dispersionCorrection=false,
-        string[]? optionalScanContext=null)
+        BundledConstructionParameters bundledParameters)
     {
         
 
-        _solvent = solvent;
-        _jobType = jobType;
-        _state = state;
+        _solvent = bundledParameters.Solvent;
+        _jobType = bundledParameters.JobType;
+        _state = bundledParameters.State;
         
         List<string> keywords = new List<string>();
         List<string> linkKeywords = new List<string>();
-        List<string> scanContext = new List<string>();
+        string? scanContext = null;
         
-        keywords.AddRange(optionalKeywords ?? new string[0]);
+        keywords.Add(bundledParameters.OptionalKeywords ?? "");
 
         switch (_jobType)
         { 
             case JobTypes.GeometryOptimization:
                 keywords = GeometryOptimizationKeywords(keywords);
-                linkKeywords.AddRange(["freq", "geom=AllCheck", "Guess=TCheck", "SCRF=Check", "GenChk", "Teste"]);
+                linkKeywords.AddRange(["freq", "geom=AllCheck", "Guess=TCheck", "SCRF=Check", "GenChk", "Test"]);
                 break;
             case JobTypes.TimeDependant:
                  keywords = TimeDependantKeywords(keywords);
@@ -42,7 +37,7 @@ public class KeywordSelector
                 break;
             case JobTypes.PotentialScan:
                 keywords = PotentialScanKeywords(keywords);
-                scanContext = optionalScanContext?.ToList() ?? scanContext;
+                scanContext = bundledParameters.ScanContext ?? scanContext;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(_jobType), _jobType, "Invalid calculation type");
@@ -54,7 +49,7 @@ public class KeywordSelector
         {
             { "keywords", keywordArgument },
             { "linkKeywords", string.Join(" ", linkKeywords) },
-            { "scanContext", string.Join(" ", scanContext) }
+            { "scanContext", scanContext ?? "" }
         };
         
         return keywordGroups;

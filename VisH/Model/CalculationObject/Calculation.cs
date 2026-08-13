@@ -168,7 +168,6 @@ public class Calculation
 
         Directory.CreateDirectory(Paths.Directory.GetPath());
         
-        
         var serializedObject = JsonSerializer.Serialize(this);
 
         try
@@ -203,5 +202,12 @@ public class Calculation
 
         return true;
     }
-    
+
+    public void WriteFiles()
+    {
+        var fileWriter = new Filewriter(this);
+        
+        fileWriter.WriteGaussianInputFile();
+        fileWriter.WriteGstartFile();
+    }
 }

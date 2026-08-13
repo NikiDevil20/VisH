@@ -4,6 +4,7 @@ using VisH.Model;
 using VisH.Model.CalculationProperties;
 using VisH.Model.CalculationUtils;
 using VisH.Model.Enums;
+using VisH.Model.GeneralUtils.Enums;
 using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.Parameters;
 
@@ -41,7 +42,11 @@ public class NewCalcViewModel : ViewModelBase
     private string? _ram;
     private JobTypes? _selectedCalcType;
     private Solvents? _selectedSolvent;
-    
+    private string? _optionalKeywords;
+    private string? _scanContext;
+    private bool? _dispersionCorrection;
+    private Queues? _selectedQueue;
+
     public State? SelectedState
     {
         get => _selectedState;
@@ -141,6 +146,42 @@ public class NewCalcViewModel : ViewModelBase
             OnPropertyChanged();
         }
     }
+    public string? OptionalKeywords
+    {
+        get => _optionalKeywords;
+        set
+        {
+            _optionalKeywords = value;
+            OnPropertyChanged();
+        }
+    }
+    public string? ScanContext
+    {
+        get => _scanContext;
+        set
+        {
+            _scanContext = value;
+            OnPropertyChanged();
+        }
+    }
+    public bool? DispersionCorrection
+    {
+        get => _dispersionCorrection;
+        set
+        {
+            _dispersionCorrection = value;
+            OnPropertyChanged();
+        }
+    }
+    public Queues? SelectedQueue
+    {
+        get => _selectedQueue;
+        set
+        {
+            _selectedQueue = value;
+            OnPropertyChanged();
+        }
+    }
 
     public RelayCommand SaveTemplateCommand => new RelayCommand(
         execute=>SaveTemplate(), canExecute=> CanSaveTemplate());
@@ -176,7 +217,16 @@ public class NewCalcViewModel : ViewModelBase
             Functional: SelectedFunctional ?? Functionals.wb97xd,
             BasisSet: SelectedBasisSet ?? BasisSets.def2svp,
             JobType: SelectedCalcType ?? JobTypes.GeometryOptimization,
-            Solvent: SelectedSolvent ?? Solvents.Dichloromethane
+            Solvent: SelectedSolvent ?? Solvents.None,
+            MaxWalltime: SelectedQueue switch
+            {
+                Queues.WorkQueue => TimeSpan.FromHours(71),
+                Queues.LongQueue => TimeSpan.FromDays(5),
+                _ => TimeSpan.FromHours(72)
+            },
+            OptionalKeywords: OptionalKeywords,
+            DispersionCorrection: DispersionCorrection,
+            ScanContext: ScanContext
         );
     }
 
