@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Serilog;
 using VisH.Model.Enums;
 using VisH.Model.PostRun;
@@ -11,13 +12,14 @@ namespace VisH.Model.CalculationObject;
 
 public class Calculation
 {
+    
     public MetaData? MetaData { get; set; }
     public Results? Results { get; set; }
     public GaussianParameters? GaussianParameters { get; set; }
     public Molecule? Molecule { get; set; }
     
     private SshService _sshService;
-    
+    [JsonIgnore]
     public Paths? Paths { get; set; }
 
     public Calculation(SshService sshService)
@@ -59,13 +61,6 @@ public class Calculation
         {
             var ex = new InvalidOperationException(nameof(gaussianParameters));
             Log.Error(ex, "Cannot add null Gaussian parameters.");
-            throw ex;
-        }
-        
-        if (Molecule == null)
-        {
-            var ex = new InvalidOperationException(nameof(Molecule));
-            Log.Error(ex, "Cannot add metadata without a molecule.");
             throw ex;
         }
         
@@ -159,14 +154,14 @@ public class Calculation
             throw ex;
         }
 
-        if (Paths?.Directory.GetPath() == null)
+        if (Paths?.RelativeDirectory.GetPath() == null)
         {
-            var ex = new InvalidOperationException(nameof(Paths.Directory));
+            var ex = new InvalidOperationException(nameof(Paths.RelativeDirectory));
             Log.Error(ex, "Cannot save calculation without a local calculation directory.");
             throw ex;
         }
 
-        Directory.CreateDirectory(Paths.Directory.GetPath());
+        Directory.CreateDirectory(Paths.RelativeDirectory.GetPath());
         
         var serializedObject = JsonSerializer.Serialize(this);
 

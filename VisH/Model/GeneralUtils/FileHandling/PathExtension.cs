@@ -30,8 +30,12 @@ public class PathExtension
                 return fullPath;
             }
             case PathType.Cluster:
+            {
                 var clusterPath = Path.Combine(ClusterBaseDir, RelativePath).Replace('\\', '/');
+                Console.WriteLine("Path");
+                Console.WriteLine(clusterPath);
                 return clusterPath;
+            }
         }
 
         throw new ArgumentOutOfRangeException(nameof(pathType), pathType, null);

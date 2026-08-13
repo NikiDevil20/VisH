@@ -25,11 +25,11 @@ public class NewCalcViewModel : ViewModelBase
         "3"
     ];
     
-    State[] StateCollection => Enum.GetValues<State>();
-    Solvents[] SolventCollection => Enum.GetValues<Solvents>();
-    BasisSets[] BasisSetCollection => Enum.GetValues<BasisSets>();
-    Functionals[] FunctionalCollection => Enum.GetValues<Functionals>();
-    JobTypes[] CalcTypeCollection => Enum.GetValues<JobTypes>();
+    public State[] StateCollection => Enum.GetValues<State>();
+    public Solvents[] SolventCollection => Enum.GetValues<Solvents>();
+    public BasisSets[] BasisSetCollection => Enum.GetValues<BasisSets>();
+    public Functionals[] FunctionalCollection => Enum.GetValues<Functionals>();
+    public JobTypes[] CalcTypeCollection => Enum.GetValues<JobTypes>();
 
     private State? _selectedState;
     private string? _selectedCharge;
@@ -192,17 +192,17 @@ public class NewCalcViewModel : ViewModelBase
     
     public event Action<bool>? RequestClose; 
     
-    public BundledConstructionParameters? Result { get; private set; }
+    public BundledConstructionParameters[]? Result { get; private set; }
     
     public NewCalcViewModel()
     {
-        Console.WriteLine("NewCalcViewModel initialized");
         SelectedState = State.S0;
         SelectedCharge = Charges[3];
         SelectedFunctional = Functionals.wb97xd;
         SelectedBasisSet = BasisSets.def2svp;
         SelectedCalcType = JobTypes.GeometryOptimization;
         SelectedSolvent = Solvents.Dichloromethane;
+        SelectedQueue = Queues.WorkQueue;
     }
     
     private BundledConstructionParameters BuildBundledParameters()
@@ -246,7 +246,7 @@ public class NewCalcViewModel : ViewModelBase
         
         BundledConstructionParameters bundledParams = BuildBundledParameters();
 
-        Result = bundledParams;
+        Result = [bundledParams];
         
         RequestClose?.Invoke(true);
     }

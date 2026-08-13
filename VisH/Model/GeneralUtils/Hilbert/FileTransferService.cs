@@ -53,10 +53,12 @@ public class FileTransferService
         string[] remoteFilePaths,
         string remoteDirectory)
     {
+        Console.WriteLine("FTS");
         for (int i = 0; i < localFilePaths.Length; i++)
         {
             BuildRecursiveDirs(remoteDirectory);
             var fileStream = File.OpenRead(localFilePaths[i]);
+            Console.WriteLine(remoteFilePaths[i]);
             FileClient.UploadFile(fileStream, remoteFilePaths[i]);
         }
     }

@@ -37,16 +37,22 @@ public class Filewriter
     private string GetGstartText()
     {
         var sb = new StringBuilder();
+        
+        string walltime =
+            $"{(int)_calculation.GaussianParameters.MaxWalltime.TotalHours:00}" +
+            $":{_calculation.GaussianParameters.MaxWalltime.Minutes:00}" +
+            $":{_calculation.GaussianParameters.MaxWalltime.Seconds:00}";
+        
          sb.AppendLine("#!/bin/bash");
          sb.AppendLine($"#PBS -l select=1:ncpus={_calculation.GaussianParameters.NProc}" +
                        $":mem={_calculation.GaussianParameters.Memory + 2}GB");
-         sb.AppendLine($"#PBS -l walltime={_calculation.GaussianParameters.MaxWalltime:hh\\:mm\\:ss}");
+         sb.AppendLine($"#PBS -l walltime={walltime}");
          sb.AppendLine("#PBS -r n");
          sb.AppendLine($"#PBS -N {_calculation.MetaData.JobName}P");
          sb.AppendLine("#PBS -A OC1M\n");
 
          sb.AppendLine($"GaussianInputFilename={_calculation.Paths.GaussianInputFile.GetFileName()}");
-         sb.AppendLine($"WORKDIR={_calculation.Paths.Directory.GetPath(PathType.Cluster)}");
+         sb.AppendLine($"WORKDIR={_calculation.Paths.RelativeDirectory.GetPath(PathType.Cluster)}");
 
          string staticText = """
                              FileBasename=$(basename $GaussianInputFilename)
@@ -118,7 +124,6 @@ public class Filewriter
     {
         var content = GetGaussianInputText();
         var path = _calculation.Paths.GaussianInputFile.GetPath();
-
         File.WriteAllText(path, content);
     }
 

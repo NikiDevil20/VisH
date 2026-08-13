@@ -8,7 +8,7 @@ namespace VisH.View.Windows;
 
 public partial class StartNewCalcWindow : Window
 {
-    public BundledConstructionParameters? Result =>
+    public BundledConstructionParameters[]? Result =>
         ((NewCalcViewModel)DataContext).Result;
     
     public StartNewCalcWindow()

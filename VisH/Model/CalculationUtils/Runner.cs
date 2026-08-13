@@ -23,12 +23,15 @@ public class Runner
         string clusterDirectory
         )
     {
+        Console.WriteLine("Runner");
+        foreach (var file in remoteFilePaths)
+        {
+            Console.WriteLine(file);
+        }
         
         _fileTransferService.ConnectAndExecute(() =>
             _fileTransferService.UploadFiles(localFilePaths, remoteFilePaths, clusterDirectory)
             );
-        
-        
     }
 
     public string[] SubmitJobs(string[] clusterDirectories)

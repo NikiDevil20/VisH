@@ -29,6 +29,8 @@ public class JobStarter
         
         var cmd = _sshService.CommandClient.RunCommand(fullCommand);
         
+        Console.WriteLine(cmd.Result);
+        
         if (cmd.Error != "")
         {
             var ex = new Exception($"Error occurred while running job: {cmd.Error}");
@@ -56,7 +58,7 @@ public class JobStarter
 
         for (int i = 0; i < paths.Length; i++)
         {
-            formattedCommands[i] = $"(cd \"{paths[i]}\" && echo __start_{i}__ && {command} && __end_{i}__)";
+            formattedCommands[i] = $"(cd \"{paths[i]}\" && echo __start_{i}__ && {command} && echo __end_{i}__)";
         }
         
         fullCommand = string.Join("; ", formattedCommands);

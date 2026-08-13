@@ -34,16 +34,20 @@ public class FileHandler
     
     public string[] Upload(Calculation[] calculations)
     {
-        string[] jobIds = new string[calculations.Length];
         string[] clusterDirectories = new string[calculations.Length];
         
         Runner runner = new Runner(_jobStarter, _sshService, _fileTransferService);
 
         for (int i = 0; i < calculations.Length; i++)
         {
-            clusterDirectories[i] = calculations[i].Paths.Directory.GetPath(PathType.Cluster);
+            calculations[i].WriteFiles();
+            clusterDirectories[i] = calculations[i].Paths.RelativeDirectory.GetPath(PathType.Cluster);
             var gaussianInputFile = calculations[i].Paths.GaussianInputFile;
             var gstartFile = calculations[i].Paths.GstartFile;
+            
+            Console.WriteLine("FileHandler");
+            Console.WriteLine(gaussianInputFile.GetPath(PathType.Cluster));
+            Console.WriteLine(gstartFile.GetPath(PathType.Cluster));
             
             runner.UploadJob(
                 [gaussianInputFile.GetPath(), gstartFile.GetPath()],
@@ -52,7 +56,7 @@ public class FileHandler
             
         }
 
-        runner.SubmitJobs(clusterDirectories);
+        var jobIds = runner.SubmitJobs(clusterDirectories);
         
         ClusterChanged?.Invoke();
         return jobIds;

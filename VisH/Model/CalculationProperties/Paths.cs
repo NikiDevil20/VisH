@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using VisH.Model.GeneralUtils;
 using VisH.Model.CalculationUtils;
+using VisH.Model.Enums;
 using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.GeneralUtils.Hilbert;
 
@@ -16,7 +17,8 @@ public class Paths
     private SshService _sshService;
     
     // paths
-    public DirectoryExtension Directory { get; set; }
+    public DirectoryExtension CustomDirectory { get; set; }
+    public DirectoryExtension RelativeDirectory { get; set; }
     public FileExtension GaussianInputFile { get; set; }
     public FileExtension GstartFile { get; set; }
     public FileExtension? FChkFile { get; set; }
@@ -40,19 +42,21 @@ public class Paths
 
         _config = Config.Load();
         
+        GetName();
+        
         var moleculeName = _molecule.MoleculeName;
         var state = _molecule.State.ToString();
         var jobName = _metaData.JobName;
         
         var relativePath = Path.Combine(moleculeName, state, jobName);
         
-        GetName();
+        
         SetDirectory(relativePath);
-        SetPathsWithoutJobId(relativePath);
+        SetPathsWithoutJobId();
         
         if (_metaData.JobId != null)
         {
-            SetPathsWithJobId(relativePath);
+            SetPathsWithJobId();
         }
     }
     
@@ -71,22 +75,38 @@ public class Paths
 
     private void SetDirectory(string relativePath)
     {
-        Directory = new DirectoryExtension(relativePath, _sshService);
+        RelativeDirectory = new DirectoryExtension(relativePath, _sshService);
+        if (!Directory.Exists(RelativeDirectory.GetPath()))
+        {
+            Directory.CreateDirectory(RelativeDirectory.GetPath());
+            return;
+        }
+        while (Directory.Exists(RelativeDirectory.GetPath()))
+        {
+            var uniqueName = NameGenerator.GetUniqueCalculationName(_metaData.JobName);
+            var moleculeName = _molecule.MoleculeName;
+            var state = _molecule.State.ToString();
+            _metaData.JobName = uniqueName;
+        
+            relativePath = Path.Combine(moleculeName, state, uniqueName);
+            RelativeDirectory = new DirectoryExtension(relativePath, _sshService);
+        }
+        Directory.CreateDirectory(RelativeDirectory.GetPath());
     }
     
-    private void SetPathsWithoutJobId(string relativePath)
+    private void SetPathsWithoutJobId()
     {
-        JsonPath = new FileExtension(Path.Combine(relativePath, "calculation.json"), _sshService);
-        GaussianInputFile = new FileExtension(Path.Combine(relativePath, $"{_metaData.JobName}.gjf"), _sshService);
-        GstartFile = new FileExtension(Path.Combine(relativePath, "gstart"), _sshService);
-        ChkFile = new FileExtension(Path.Combine(relativePath, "gauss.chk"), _sshService);
+        JsonPath = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, "calculation.json"), _sshService);
+        GaussianInputFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, $"{_metaData.JobName}.gjf"), _sshService);
+        GstartFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, "gstart"), _sshService);
+        ChkFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, "gauss.chk"), _sshService);
     }
 
-    private void SetPathsWithJobId(string relativePath)
+    private void SetPathsWithJobId()
     {
-        LogFile = new FileExtension(Path.Combine(relativePath, $"{_metaData.JobName}.{_metaData.JobId}.log"), _sshService);
-        LgFile = new FileExtension(Path.Combine(relativePath, $"{_metaData.JobName}.{_metaData.JobId}.lg"), _sshService);
-        FChkFile = new FileExtension(Path.Combine(relativePath, $"{_metaData.JobName}.{_metaData.JobId}.fchk"), _sshService);
+        LogFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, $"{_metaData.JobName}.{_metaData.JobId}.log"), _sshService);
+        LgFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, $"{_metaData.JobName}.{_metaData.JobId}.lg"), _sshService);
+        FChkFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, $"{_metaData.JobName}.{_metaData.JobId}.fchk"), _sshService);
     }
     
 }
