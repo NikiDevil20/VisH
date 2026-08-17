@@ -14,6 +14,7 @@ public record BundledConstructionParameters(
     JobTypes JobType,
     Solvents Solvent,
     TimeSpan MaxWalltime,
+    string? GeometryOptimizationJobId,
     string? OptionalKeywords,
     bool? DispersionCorrection,
     string? ScanContext
