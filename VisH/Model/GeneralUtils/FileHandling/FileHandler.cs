@@ -45,10 +45,6 @@ public class FileHandler
             var gaussianInputFile = calculations[i].Paths.GaussianInputFile;
             var gstartFile = calculations[i].Paths.GstartFile;
             
-            Console.WriteLine("FileHandler");
-            Console.WriteLine(gaussianInputFile.GetPath(PathType.Cluster));
-            Console.WriteLine(gstartFile.GetPath(PathType.Cluster));
-            
             runner.UploadJob(
                 [gaussianInputFile.GetPath(), gstartFile.GetPath()],
                 [gaussianInputFile.GetPath(PathType.Cluster), gstartFile.GetPath(PathType.Cluster)],

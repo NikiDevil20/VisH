@@ -205,4 +205,13 @@ public class Calculation
         fileWriter.WriteGaussianInputFile();
         fileWriter.WriteGstartFile();
     }
+
+    public static Calculation FromJson(string jsonPath)
+    {
+        var jsonString = File.ReadAllText(jsonPath);
+        
+        var calculation = JsonSerializer.Deserialize<Calculation>(jsonString);
+        
+        return calculation ?? throw new InvalidOperationException("Failed to deserialize calculation from JSON.");
+    }
 }

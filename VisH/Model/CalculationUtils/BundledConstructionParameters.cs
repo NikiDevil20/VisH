@@ -4,7 +4,7 @@ namespace VisH.Model.CalculationUtils;
 
 public record BundledConstructionParameters(
     string MoleculeName,
-    string SmilesString,
+    string? SmilesString,
     string Charge,
     State State,
     int Memory,

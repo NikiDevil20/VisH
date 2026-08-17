@@ -17,9 +17,17 @@ public class Molecule
     public string SmilesString { get; set; }
 
     public Molecule(
-        BundledConstructionParameters parameters)
+        BundledConstructionParameters parameters,
+        string? atomCoordinates=null)
     {
-        Atoms = GetAtoms(parameters.SmilesString).ToArray();
+        if (atomCoordinates != null)
+        {
+            Atoms = GetAtomsFromCoordinates(atomCoordinates).ToArray();
+        }
+        else
+        {
+            Atoms = GetAtoms(parameters.SmilesString).ToArray();
+        }
         MoleculeName = parameters.MoleculeName;
         Charge = int.Parse(parameters.Charge);
         State = parameters.State;
@@ -57,6 +65,12 @@ public class Molecule
             throw new ArgumentException("Invalid JSON list");
         return atoms;
     }
+    
+    private List<Atom> GetAtomsFromCoordinates(string coordinates)
+    {
+        // Implementation for getting atoms from coordinates
+        throw new NotImplementedException();
+    }
 
     private string SmilesToJson(string smilesString)
     {
@@ -88,5 +102,10 @@ public class Molecule
         
         string errorMessage = bridge.ExecuteScript("SmilesValidation.py", [smilesString]);
         return (errorMessage.Contains("valid"));
+    }
+
+    public void SetAtoms(Atom[] atoms)
+    {
+        Atoms = atoms;
     }
 }
