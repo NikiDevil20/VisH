@@ -182,17 +182,19 @@ public class Calculation
     /// Refreshes the status and returns whether the status has changed.
     /// </summary>
     /// <returns>status has changed boolean</returns>
-    public bool RefreshStatus()
+    public bool RefreshStatus(JobState? jobStateFromQstat=null)
     {
         var oldState = MetaData.JobState;
+        
+        // TODO
         
         if (oldState is JobState.Failed or JobState.Successful)
         {
             // no need to refresh terminal states.
             return false;
         }
-        
-        
+
+        var clusterDirectoryContent = Paths.RelativeDirectory.GetContent(PathType.Cluster);
         
 
         return true;

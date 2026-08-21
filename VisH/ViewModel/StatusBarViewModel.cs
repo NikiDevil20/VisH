@@ -1,9 +1,12 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using VisH.Model;
+using VisH.Model.CalculationObject;
+using VisH.Model.Enums;
 using VisH.Model.GeneralUtils;
 using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.GeneralUtils.Hilbert;
+using VisH.Model.PostRun;
 
 namespace VisH.ViewModel;
 
@@ -46,8 +49,9 @@ public class StatusBarViewModel : ViewModelBase
         try
         {
             JobManager.Connect();
-            PathObject[] jobPaths = JobManager.GetJobsOnCluster();
-            _pathsOnCluster = jobPaths.ToArray();
+            // PathObject[] jobPaths = JobManager.GetJobsOnCluster();
+            // _pathsOnCluster = jobPaths.ToArray();
+            // TODO
             
         }
         catch (Renci.SshNet.Common.SshAuthenticationException e)
@@ -94,11 +98,42 @@ public class StatusBarViewModel : ViewModelBase
 
     public void RefreshStatus()
     {
+        var jobFinder = new JobFinder();
+        var statusAddedCounter = 0;
+        
         try
         {
-            JobManager.Connect();
-            List<CalcStatus> calcStatuses = new List<CalcStatus>();
-            // foreach (var jobPath in _pathsOnCluster)
+            var calcStatuses = new List<CalcStatus>();
+
+            var unparsedQstat = JobManager.QStat();
+            
+            var parsedQstat = QstatParser.ParseQstat(unparsedQstat);
+            
+            var calculationsOnCluster = jobFinder.GetCalculationsOnCluster();
+
+            foreach (var runningJob in parsedQstat)
+            {
+                var jobId = runningJob.Key;
+                var jobState = runningJob.Value;
+
+                foreach (var calculation in calculationsOnCluster)
+                {
+                    if (calculation.MetaData.JobId == jobId)
+                    {
+                        calculation.MetaData.JobState = jobState;
+                        statusAddedCounter += 1;
+                    }
+                }
+            }
+            if (statusAddedCounter != calculationsOnCluster.Length)
+            {
+                foreach (var calculationOnCluster in calculationsOnCluster)
+                {
+                    calculationOnCluster.RefreshStatus();
+                }
+            }
+
+            foreach (var jobPath in _pathsOnCluster)
             // {
             //     calcStatuses.Add(CalcStatus.Create(jobPath));
             // }

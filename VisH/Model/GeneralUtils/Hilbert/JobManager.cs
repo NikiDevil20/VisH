@@ -1,4 +1,5 @@
 using System.IO;
+using Serilog;
 using VisH.Model.Enums;
 using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.PostRun;
@@ -28,8 +29,6 @@ public static class JobManager
         return cmd.Result.Contains("Normal termination");
     }
     
-    
-
     // public static Dictionary<string, string> JobStatusAndId(PathObject path)
     // {
     //     bool logExists = false;
@@ -127,8 +126,6 @@ public static class JobManager
         return paths.ToArray();
     }
     
-    
-    
     public static long FileSize(PathObject path)
     {
         try
@@ -225,11 +222,10 @@ public static class JobManager
         }
         
     }
-
     
-    public static PathObject[] GetJobsOnCluster()
+    public static DirectoryExtension[] GetJobsOnCluster()
     {
-        List<PathObject> pathsToJobs = new List<PathObject>();
+        List<DirectoryExtension> pathsToJobs = new List<DirectoryExtension>();
         
         var cmd = _sshService.CommandClient.RunCommand("cd Rechnungen && find -maxdepth 3 -mindepth 3 -type d");
         string fullString = cmd.Result;
@@ -239,8 +235,8 @@ public static class JobManager
 
         foreach (var path in splitString)
         {
-            string newPath = "Rechnungen" + path.Substring(1, path.Length - 1);
-            var newPathObject = new PathObject(newPath, true);
+            var relativePath = path.Substring(1, path.Length - 1);
+            var newPathObject = new DirectoryExtension(relativePath, _sshService);
             pathsToJobs.Add(newPathObject);
         }
         
@@ -270,5 +266,39 @@ public static class JobManager
         }
         _sshService.Disconnect();
         return null;
+    }
+
+    public static JobState GetJobState(DirectoryExtension directory)
+    {
+        JobState jobState;
+        var content = directory.GetContent(PathType.Cluster);
+
+        if (content.Length == 0)
+        {
+            throw new FileNotFoundException("Directory is empty");
+        }
+
+        jobState = JobState.Queue;
+
+
+        return jobState;
+    }
+
+    public static string QStat()
+    {
+        var cfg = Config.Load();
+        var username = cfg.ClusterUsername;
+
+        var cmd = _sshService.ConnectAndExecute(() => 
+            _sshService.CommandClient.RunCommand($"qstat -u {username}"));
+
+        if (!string.IsNullOrWhiteSpace(cmd.Error))
+        {
+            var ex = new InvalidOperationException($"Error occurred while fetching job status: {cmd.Error}");
+            Log.Error(ex, $"Error occurred while fetching job status: {cmd.Error}");
+            throw ex ;
+        }
+
+        return cmd.Result;
     }
 }

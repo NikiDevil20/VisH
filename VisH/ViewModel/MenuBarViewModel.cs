@@ -24,37 +24,40 @@ public class MenuBarViewModel : ViewModelBase
     private void NewCalc()
     {
         var window = new StartNewCalcWindow();
-        if (window.ShowDialog() == true)
+        if (window.ShowDialog() == false)
         {
-            BundledConstructionParameters[] allBundledParameters = window.Result;
-            
-            List<Calculation> calculations = new List<Calculation>();
+            return;
+        }
+        
+        BundledConstructionParameters[] allBundledParameters = window.Result;
+        
+        List<Calculation> calculations = new List<Calculation>();
 
-            foreach (var bundledParameters in allBundledParameters)
+        foreach (var bundledParameters in allBundledParameters)
+        {
+            switch (bundledParameters.JobType)
             {
-                switch (bundledParameters.JobType)
-                {
-                    case JobTypes.GeometryOptimization:
-                        var calculation = CalculationBuilder.GeometryOptimization(bundledParameters);
-                        calculations.Add(calculation);
-                        break;
-                    case JobTypes.TimeDependant:
-                        var timeDependentCalculation = CalculationBuilder.TimeDependant(bundledParameters, bundledParameters.GeometryOptimizationJobId);
-                        calculations.Add(timeDependentCalculation);
-                        break;
-                    default:
-                        throw new NotImplementedException("Unsupported job type");
-                }
-            }
-            
-            var jobIds = _fileHandler.Upload(calculations.ToArray());
-
-            for (int i = 0; i < calculations.Count; i++)
-            {
-                calculations[i].MetaData.JobId = jobIds[i];
-                calculations[i].Molecule.DrawSvg(calculations[i].Paths.RelativeDirectory.GetPath(), new PythonBridge());
-                calculations[i].SaveCalculation();
+                case JobTypes.GeometryOptimization:
+                    var calculation = CalculationBuilder.GeometryOptimization(bundledParameters);
+                    calculations.Add(calculation);
+                    break;
+                case JobTypes.TimeDependant:
+                    var timeDependentCalculation = CalculationBuilder.TimeDependant(bundledParameters, bundledParameters.GeometryOptimizationJobId);
+                    calculations.Add(timeDependentCalculation);
+                    break;
+                default:
+                    throw new NotImplementedException("Unsupported job type");
             }
         }
+        
+        var jobIds = _fileHandler.Upload(calculations.ToArray());
+
+        for (int i = 0; i < calculations.Count; i++)
+        {
+            calculations[i].MetaData.JobId = jobIds[i];
+            calculations[i].Molecule.DrawSvg(calculations[i].Paths.RelativeDirectory.GetPath(), new PythonBridge());
+            calculations[i].SaveCalculation();
+        }
+        
     }
 }

@@ -224,6 +224,7 @@ public class NewCalcViewModel : ViewModelBase
                 Queues.LongQueue => TimeSpan.FromDays(5),
                 _ => TimeSpan.FromHours(72)
             },
+            GeometryOptimizationJobId: JobId,
             OptionalKeywords: OptionalKeywords,
             DispersionCorrection: DispersionCorrection,
             ScanContext: ScanContext

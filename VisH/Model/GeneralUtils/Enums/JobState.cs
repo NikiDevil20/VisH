@@ -6,6 +6,8 @@ public enum JobState
     Queue,
     Failed,
     Successful,
+    Held,
+    Begun,
     InPreparation,
     Unknown
 }

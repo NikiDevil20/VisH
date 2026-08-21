@@ -42,6 +42,9 @@ public class GaussianRegex
     
     public static readonly Regex JobNameRegex =
         new(@"Job_Name\s*=\s*(\S+)", RegexOptions.Compiled);
+    
+    public static readonly Regex JobStateRegex =
+        new(@"^(\d+(?:\[\])?\.hpc-batch)\s+.*?\s([QRHB])\s+\S+\s*$", RegexOptions.Multiline);
 
     public static double? MatchDouble(string text, Regex pattern)
     {

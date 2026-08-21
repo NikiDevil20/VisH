@@ -9,48 +9,9 @@ namespace VisH.Model.PostRun;
 
 public class JobFinder
 {
-    /// <summary>
-    /// Checks if the directory contains the calculation Object which matches the given jobId.
-    /// </summary>
-    /// <param name="directory">PathExtension Object pointing to the directory to search</param>
-    /// <param name="jobId">The job ID to match</param>
-    /// <returns>The matching calculation if it matches, otherwise null</returns>
-    private Calculation? CalculationMatchesJobId(DirectoryExtension directory, string jobId)
+    private bool CalculationMatchesJobId(string jobId, Calculation calculation)
     {
-        const string jsonName = "calculation.json";
-        string? jsonPath = null;
-        
-        var files = directory.GetContent();
-
-        foreach (var file in files)
-        {
-            if (file.GetFileName() == jsonName)
-            {
-                jsonPath = file.GetPath();
-                break;
-            }
-        }
-        
-        if (jsonPath == null)
-        {
-            return null;
-        }
-        
-        try
-        {
-            var calculation = Calculation.FromJson(jsonPath);
-            
-            if (calculation?.MetaData?.JobId != jobId)
-            {
-                return null;
-            }
-        
-            return calculation;
-        }
-        catch (InvalidOperationException)
-        {
-            return null;
-        }
+        return jobId == calculation?.MetaData?.JobId;
     }
 
     public Calculation? GetCalculationByJobId(string jobId)
@@ -61,7 +22,7 @@ public class JobFinder
 
         foreach (var calculationDir in calculationDirectories)
         {
-            var calculation = CalculationMatchesJobId(calculationDir, jobId);
+            var calculation = CalculationMatchesProperty<string>(root, CalculationMatchesJobId ,jobId);
             if (calculation != null)
             {
                 return calculation;
@@ -87,6 +48,68 @@ public class JobFinder
         }
         
         return calculationDirectories.ToArray();
+    }
+
+    public Calculation[] GetCalculationsOnCluster()
+    {
+        var sshService = new SshService();
+        var root = new DirectoryExtension("", new SshService());
+        var calculations = new List<Calculation>();
+        
+        var pathsOnCluster = sshService.ConnectAndExecute(() => 
+            JobManager.GetJobsOnCluster());
+
+        foreach (var directory in pathsOnCluster)
+        {
+            Calculation? calculation = CalculationMatchesProperty<string>(root, CalculationMatchesJobId, directory.GetPath());
+            if (calculation != null)
+            {
+                calculations.Add(calculation);
+            }
+        }
+        
+        return calculations.ToArray();
+    }
+
+    private Calculation? CalculationMatchesProperty<TResult>(
+        DirectoryExtension directory,
+        Func<string, Calculation, bool> propertySelector,
+        string propertyValue)
+    {
+        const string jsonName = "calculation.json";
+        string? jsonPath = null;
+        
+        var files = directory.GetContent();
+
+        foreach (var file in files)
+        {
+            if (file.GetFileName() == jsonName)
+            {
+                jsonPath = file.GetPath();
+                break;
+            }
+        }
+        
+        if (jsonPath == null)
+        {
+            return null;
+        }
+        
+        try
+        {
+            var calculation = Calculation.FromJson(jsonPath);
+            
+            if (propertySelector(propertyValue, calculation) == false)
+            {
+                return null;
+            }
+        
+            return calculation;
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
     }
     
 }
