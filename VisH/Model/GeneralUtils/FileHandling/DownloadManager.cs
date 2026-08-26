@@ -6,6 +6,13 @@ namespace VisH.Model.GeneralUtils.FileHandling;
 
 public class DownloadManager : ViewModelBase
 {
+    private readonly JobManager _jobManager;
+
+    public DownloadManager(JobManager jobManager)
+    {
+        _jobManager = jobManager;
+    }
+
     private bool _isDownloading { get; set; }
     public bool IsDownloading
     {
@@ -61,7 +68,7 @@ public class DownloadManager : ViewModelBase
         });
         try
         {
-            await Task.Run(() => { JobManager.DownloadFolder(directory, progress); });
+            await Task.Run(() => { _jobManager.DownloadFolder(directory, progress); });
         }
         finally
         {

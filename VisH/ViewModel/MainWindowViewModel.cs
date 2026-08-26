@@ -2,6 +2,7 @@ using VisH.Model;
 using VisH.Model.GeneralUtils;
 using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.GeneralUtils.Hilbert;
+using VisH.Model.PostRun;
 
 namespace VisH.ViewModel;
 
@@ -14,22 +15,23 @@ public class MainWindowViewModel
     
     public FileHandler FileHandler { get; set; }
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(SshService sshService)
     {
-        var sshService = new SshService();
         var fileTransferService = new FileTransferService();
+        var jobManager = new JobManager(sshService, fileTransferService);
         var jobStarter = new JobStarter(sshService, fileTransferService);
         
         
-        FileHandler = new FileHandler(sshService, fileTransferService, jobStarter);
+        FileHandler = new FileHandler(sshService, fileTransferService, jobStarter, jobManager);
         PythonBridge pythonBridge = new PythonBridge();
         LogFileAnalyzer logFileAnalyzer = new LogFileAnalyzer(pythonBridge);
         
-        StatusViewModel = new StatusBarViewModel(FileHandler);
+        var jobFinder = new JobFinder(sshService, jobManager);
+        StatusViewModel = new StatusBarViewModel(FileHandler, jobManager, jobFinder);
         
-        OverviewViewModel = new OverviewViewModel(logFileAnalyzer, FileHandler);
+        OverviewViewModel = new OverviewViewModel(logFileAnalyzer, FileHandler, sshService, jobManager);
         
-        MenuBarViewModel = new MenuBarViewModel(FileHandler);
+        MenuBarViewModel = new MenuBarViewModel(FileHandler, sshService, jobFinder);
         
         DownloadManager = FileHandler.DownloadManager;
     }

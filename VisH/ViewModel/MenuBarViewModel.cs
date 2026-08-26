@@ -7,18 +7,26 @@ using VisH.Model.CalculationUtils;
 using VisH.Model.Enums;
 using VisH.Model.GeneralUtils;
 using VisH.Model.GeneralUtils.FileHandling;
+using VisH.Model.GeneralUtils.Hilbert;
+using VisH.Model.PostRun;
 using VisH.View.Windows;
+using VisH.View.Windows.SettingsWindow;
 
 namespace VisH.ViewModel;
 
 public class MenuBarViewModel : ViewModelBase
 {
     public RelayCommand NewCalcCommand => new RelayCommand(execute => NewCalc());
+    public RelayCommand SettingsCommand => new RelayCommand(_ => OpenSettings());
     private FileHandler _fileHandler;
+    private readonly SshService _sshService;
+    private readonly JobFinder _jobFinder;
 
-    public MenuBarViewModel(FileHandler fileHandler)
+    public MenuBarViewModel(FileHandler fileHandler, SshService sshService, JobFinder jobFinder)
     {
         _fileHandler = fileHandler;
+        _sshService = sshService;
+        _jobFinder = jobFinder;
     }
     
     private void NewCalc()
@@ -38,11 +46,12 @@ public class MenuBarViewModel : ViewModelBase
             switch (bundledParameters.JobType)
             {
                 case JobTypes.GeometryOptimization:
-                    var calculation = CalculationBuilder.GeometryOptimization(bundledParameters);
+                    var calculation = CalculationBuilder.GeometryOptimization(bundledParameters, _sshService);
                     calculations.Add(calculation);
                     break;
                 case JobTypes.TimeDependant:
-                    var timeDependentCalculation = CalculationBuilder.TimeDependant(bundledParameters, bundledParameters.GeometryOptimizationJobId);
+                    var timeDependentCalculation = CalculationBuilder.TimeDependant(
+                        bundledParameters, bundledParameters.GeometryOptimizationJobId, _sshService, _jobFinder);
                     calculations.Add(timeDependentCalculation);
                     break;
                 default:
@@ -59,5 +68,14 @@ public class MenuBarViewModel : ViewModelBase
             calculations[i].SaveCalculation();
         }
         
+    }
+
+    private void OpenSettings()
+    {
+        SettingsWindow window = new()
+        {
+            Owner = Application.Current?.MainWindow
+        };
+        window.ShowDialog();
     }
 }

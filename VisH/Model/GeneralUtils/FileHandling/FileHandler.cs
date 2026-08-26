@@ -17,12 +17,16 @@ public class FileHandler
 
     public event Action? ClusterChanged;
     
-    public FileHandler(SshService sshService, FileTransferService fileTransferService, JobStarter jobStarter)
+    public FileHandler(
+        SshService sshService,
+        FileTransferService fileTransferService,
+        JobStarter jobStarter,
+        JobManager jobManager)
     {
         _sshService = sshService;
         _fileTransferService = fileTransferService;
         _jobStarter = jobStarter;
-        DownloadManager = new DownloadManager();
+        DownloadManager = new DownloadManager(jobManager);
         UploadManager = new UploadManager();
     }
     

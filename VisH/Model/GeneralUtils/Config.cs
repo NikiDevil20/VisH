@@ -5,12 +5,12 @@ namespace VisH.Model.GeneralUtils;
 
 public class Config
 {
-    public  string LocalRechnungenPath { get; init; }
-    public string ClusterRechnungenPath { get; init; }
-    public string ClusterUsername { get; init; }
-    public string Cluster { get; init; }
-    public string Storage { get; init; }
-    public string SshKeyPath { get; init; }
+    public string LocalRechnungenPath { get; init; } = string.Empty;
+    public string ClusterRechnungenPath { get; init; } = string.Empty;
+    public string ClusterUsername { get; init; } = string.Empty;
+    public string Cluster { get; init; } = string.Empty;
+    public string Storage { get; init; } = string.Empty;
+    public string SshKeyPath { get; init; } = string.Empty;
     
 
     public static Config Load()

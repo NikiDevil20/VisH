@@ -10,6 +10,8 @@ public class PathObject
     public string WindowsPath { get; set; }
     public string ClusterPath { get; set; }
     private bool IsClusterPath { get; set; }
+    private readonly SshService? _sshService;
+    private readonly JobManager? _jobManager;
     private PathType? _destinationType;
     public PathType? DestinationType
     {
@@ -28,8 +30,14 @@ public class PathObject
     {
         get => _size ??= GetSize();
     }
-    public PathObject(string pathName, bool isClusterPath=false)
+    public PathObject(
+        string pathName,
+        bool isClusterPath = false,
+        SshService? sshService = null,
+        JobManager? jobManager = null)
     {
+        _sshService = sshService;
+        _jobManager = jobManager;
         IsClusterPath = isClusterPath;
         if (isClusterPath)
         {
@@ -67,7 +75,10 @@ public class PathObject
         }
         
         pathToCheck = ClusterPath;
-        var sshService = new SshService();
+        if (_sshService == null)
+            throw new InvalidOperationException("An SSH service is required for cluster paths.");
+
+        var sshService = _sshService;
         string typeChar;
         try
         {
@@ -97,9 +108,17 @@ public class PathObject
     {
         if (IsClusterPath)
         {
-            return new PathObject(ClusterPath + "/" + otherPath, isClusterPath: true);
+            return new PathObject(
+                ClusterPath + "/" + otherPath,
+                isClusterPath: true,
+                sshService: _sshService,
+                jobManager: _jobManager);
         }
-        return new PathObject(WindowsPath + "\\" + otherPath, isClusterPath: false);
+        return new PathObject(
+            WindowsPath + "\\" + otherPath,
+            isClusterPath: false,
+            sshService: _sshService,
+            jobManager: _jobManager);
     }
 
     private string ToCluster(string windowsPath)
@@ -180,7 +199,9 @@ public class PathObject
         {
             try
             {
-                pathsInDirectory = JobManager.Dir(this);
+                if (_jobManager == null)
+                    throw new InvalidOperationException("A job manager is required for cluster paths.");
+                pathsInDirectory = _jobManager.Dir(this);
             }
             catch (Exception ex)
             {
@@ -200,7 +221,9 @@ public class PathObject
         {
             if (IsClusterPath)
             {
-                var size = JobManager.FileSize(this);
+                if (_jobManager == null)
+                    throw new InvalidOperationException("A job manager is required for cluster paths.");
+                var size = _jobManager.FileSize(this);
                 return size;
             }
             var fileInfo = new FileInfo(WindowsPath);

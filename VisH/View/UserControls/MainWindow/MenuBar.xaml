@@ -31,7 +31,7 @@
         <TextBlock Grid.Row="0" Grid.Column="0" Padding="20,5,0,0" HorizontalAlignment="Left"
                    VerticalAlignment="Center" Foreground="White" FontSize="32" FontFamily="Arial">
             <TextBlock.Text>
-                Gaussian GUI
+                Vis
             </TextBlock.Text>
         </TextBlock>
         
@@ -43,7 +43,8 @@
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
-            <Button Grid.Column="0" Content="Settings" Margin="5" Padding="10, 2, 10, 2"></Button>
+            <Button Grid.Column="0" Content="Settings" Margin="5" Padding="10, 2, 10, 2"
+                    Command="{Binding SettingsCommand}" />
             
             <Button Grid.Column="1" Content="Help" Margin="5" Padding="10, 2, 10, 2"></Button>
             

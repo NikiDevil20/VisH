@@ -208,12 +208,19 @@ public class Calculation
         fileWriter.WriteGstartFile();
     }
 
-    public static Calculation FromJson(string jsonPath)
+    public static Calculation FromJson(string jsonPath, SshService sshService)
     {
         var jsonString = File.ReadAllText(jsonPath);
         
         var calculation = JsonSerializer.Deserialize<Calculation>(jsonString);
         
-        return calculation ?? throw new InvalidOperationException("Failed to deserialize calculation from JSON.");
+        if (calculation == null)
+            throw new InvalidOperationException("Failed to deserialize calculation from JSON.");
+
+        calculation._sshService = sshService;
+        if (calculation.MetaData != null && calculation.Molecule != null && calculation.GaussianParameters != null)
+            calculation.AddPaths();
+
+        return calculation;
     }
 }

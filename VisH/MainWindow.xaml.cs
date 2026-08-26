@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VisH.Model;
+using VisH.Model.GeneralUtils.Hilbert;
 using VisH.ViewModel;
 
 namespace VisH;
@@ -18,9 +19,9 @@ namespace VisH;
 /// </summary>
 public partial class MainWindow : Window
 {
-    public MainWindow()
+    public MainWindow(SshService sshService)
     {
         InitializeComponent();
-        DataContext = new MainWindowViewModel();
+        DataContext = new MainWindowViewModel(sshService);
     }
 }
