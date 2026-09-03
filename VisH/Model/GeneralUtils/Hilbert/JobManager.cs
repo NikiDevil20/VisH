@@ -226,8 +226,10 @@ public static class JobManager
     public static DirectoryExtension[] GetJobsOnCluster()
     {
         List<DirectoryExtension> pathsToJobs = new List<DirectoryExtension>();
-        
-        var cmd = _sshService.CommandClient.RunCommand("cd Rechnungen && find -maxdepth 3 -mindepth 3 -type d");
+    
+        var cmd = _sshService.ConnectAndExecute(() =>
+            _sshService.CommandClient.RunCommand("cd Rechnungen && find -maxdepth 3 -mindepth 3 -type d"));
+
         string fullString = cmd.Result;
         string[] splitString = fullString.Split(
             ["\n", "\r"],
@@ -239,7 +241,7 @@ public static class JobManager
             var newPathObject = new DirectoryExtension(relativePath, _sshService);
             pathsToJobs.Add(newPathObject);
         }
-        
+    
         return pathsToJobs.ToArray();
     }
 
