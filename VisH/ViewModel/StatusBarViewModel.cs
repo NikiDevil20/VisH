@@ -13,6 +13,8 @@ namespace VisH.ViewModel;
 public class StatusBarViewModel : ViewModelBase
 {
     private FileHandler _fileHandler;
+    private readonly JobManager _jobManager;
+    private readonly JobFinder _jobFinder;
     public ObservableCollection<CalcStatus> JobsOnCluster { get; } = new();
     private CalcStatus? _selectedCalcstatus;
     public CalcStatus? SelectedCalcstatus
@@ -37,9 +39,11 @@ public class StatusBarViewModel : ViewModelBase
     private bool _changeToClusterWasMade { get; set; }
     
     
-    public StatusBarViewModel(FileHandler fileHandler)
+    public StatusBarViewModel(FileHandler fileHandler, JobManager jobManager, JobFinder jobFinder)
     {
         _fileHandler = fileHandler;
+        _jobManager = jobManager;
+        _jobFinder = jobFinder;
         _changeToClusterWasMade = true;
         _fileHandler.ClusterChanged += () => RefreshJobList();
     }
@@ -48,7 +52,7 @@ public class StatusBarViewModel : ViewModelBase
     {
         try
         {
-            JobManager.Connect();
+            _jobManager.Connect();
             // PathObject[] jobPaths = JobManager.GetJobsOnCluster();
             // _pathsOnCluster = jobPaths.ToArray();
             // TODO
@@ -91,25 +95,24 @@ public class StatusBarViewModel : ViewModelBase
         }
         finally
         {
-            JobManager.Disconnect();
+            _jobManager.Disconnect();
         }
         RefreshStatus();
     }
 
     public void RefreshStatus()
     {
-        var jobFinder = new JobFinder();
         var statusAddedCounter = 0;
         
         try
         {
             var calcStatuses = new List<CalcStatus>();
 
-            var unparsedQstat = JobManager.QStat();
+            var unparsedQstat = _jobManager.QStat();
             
             var parsedQstat = QstatParser.ParseQstat(unparsedQstat);
             
-            var calculationsOnCluster = jobFinder.GetCalculationsOnCluster();
+            var calculationsOnCluster = _jobFinder.GetCalculationsOnCluster();
 
             foreach (var runningJob in parsedQstat)
             {
@@ -133,10 +136,10 @@ public class StatusBarViewModel : ViewModelBase
                 }
             }
 
-            foreach (var jobPath in _pathsOnCluster)
-            // {
-            //     calcStatuses.Add(CalcStatus.Create(jobPath));
-            // }
+            // foreach (var jobPath in _pathsOnCluster)
+            // // {
+            // //     calcStatuses.Add(CalcStatus.Create(jobPath));
+            // // }
 
             JobsOnCluster.Clear();
             foreach (var status in calcStatuses)
@@ -181,7 +184,7 @@ public class StatusBarViewModel : ViewModelBase
         }
         finally
         {
-            JobManager.Disconnect();
+            _jobManager.Disconnect();
         }
     }
 

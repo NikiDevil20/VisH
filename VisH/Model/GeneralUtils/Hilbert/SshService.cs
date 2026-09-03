@@ -1,3 +1,4 @@
+using System.IO;
 using Renci.SshNet;
 
 namespace VisH.Model.GeneralUtils.Hilbert;
@@ -9,10 +10,50 @@ public class SshService
     public SshService()
     {
         Config cfg = Config.Load();
-        
+        if (!TryValidateConfiguration(cfg, out string error))
+            throw new InvalidOperationException(error);
+
         var key = new PrivateKeyFile(cfg.SshKeyPath);
+        Console.WriteLine(cfg.Cluster);
+        Console.WriteLine(cfg.ClusterUsername);
+        Console.WriteLine(cfg.SshKeyPath);
         
         CommandClient = new SshClient(cfg.Cluster, cfg.ClusterUsername, key);
+    }
+
+    public static bool TryValidateConfiguration(Config config, out string error)
+    {
+        if (string.IsNullOrWhiteSpace(config.LocalRechnungenPath) ||
+            !Directory.Exists(config.LocalRechnungenPath))
+        {
+            error = "The local Rechnungen directory does not exist.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(config.Cluster) || string.IsNullOrWhiteSpace(config.ClusterUsername))
+        {
+            error = "The cluster and username must be configured.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(config.SshKeyPath) || !File.Exists(config.SshKeyPath))
+        {
+            error = "The SSH key file does not exist.";
+            return false;
+        }
+
+        try
+        {
+            using PrivateKeyFile _ = new(config.SshKeyPath);
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or ArgumentException or IOException)
+        {
+            error = "The SSH key file is invalid: " + exception.Message;
+            return false;
+        }
+
+        error = string.Empty;
+        return true;
     }
     
     public void Connect()
@@ -105,7 +146,6 @@ public class SshService
                 Connect();
                 connectedHere = true;
             }
-            
             var result = operation();
             return result;
         }

@@ -96,17 +96,17 @@ public class Paths
     
     private void SetPathsWithoutJobId()
     {
-        JsonPath = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, "calculation.json"), _sshService);
-        GaussianInputFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, $"{_metaData.JobName}.gjf"), _sshService);
-        GstartFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, "gstart"), _sshService);
-        ChkFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, "gauss.chk"), _sshService);
+        JsonPath = new FileExtension(RelativeDirectory.RelativePath.Append("calculation.json"), _sshService);
+        GaussianInputFile = new FileExtension(RelativeDirectory.RelativePath.Append($"{_metaData.JobName}.gjf"), _sshService);
+        GstartFile = new FileExtension(RelativeDirectory.RelativePath.Append("gstart"), _sshService);
+        ChkFile = new FileExtension(RelativeDirectory.RelativePath.Append("gauss.chk"), _sshService);
     }
 
     private void SetPathsWithJobId()
     {
-        LogFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, $"{_metaData.JobName}.{_metaData.JobId}.log"), _sshService);
-        LgFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, $"{_metaData.JobName}.{_metaData.JobId}.lg"), _sshService);
-        FChkFile = new FileExtension(Path.Combine(RelativeDirectory.RelativePath, $"{_metaData.JobName}.{_metaData.JobId}.fchk"), _sshService);
+        LogFile = new FileExtension(RelativeDirectory.RelativePath.Append($"{_metaData.JobName}.{_metaData.JobId}.log"), _sshService);
+        LgFile = new FileExtension(RelativeDirectory.RelativePath.Append($"{_metaData.JobName}.{_metaData.JobId}.lg"), _sshService);
+        FChkFile = new FileExtension(RelativeDirectory.RelativePath.Append($"{_metaData.JobName}.{_metaData.JobId}.fchk"), _sshService);
     }
     
 }

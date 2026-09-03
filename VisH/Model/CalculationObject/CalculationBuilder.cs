@@ -8,10 +8,11 @@ namespace VisH.Model.CalculationObject;
 public static class CalculationBuilder
 {
     
-    public static Calculation GeometryOptimization(BundledConstructionParameters bundledParameters)
+    public static Calculation GeometryOptimization(
+        BundledConstructionParameters bundledParameters,
+        SshService sshService)
     {
         var metaData = new MetaData();
-        var sshService = new SshService();
         var gaussianParameters = new GaussianParameters(bundledParameters);
         var molecule = new Molecule(bundledParameters);
         
@@ -29,16 +30,16 @@ public static class CalculationBuilder
 
     public static Calculation TimeDependant(
         BundledConstructionParameters bundledConstructionParameters,
-        string geometryOptimizationJobId)
+        string geometryOptimizationJobId,
+        SshService sshService,
+        JobFinder jobFinder)
     {
-        var jobFinder = new JobFinder();
         var geometryOptimizationJob = jobFinder.GetCalculationByJobId(geometryOptimizationJobId);
 
         string optimizedGeometry = "geometryOptimizationJob.Results.Coordinates"; // TODO
         var molecule = new Molecule(bundledConstructionParameters, atomCoordinates: optimizedGeometry);
         
         var metaData = new MetaData();
-        var sshService = new SshService();
         var gaussianParameters = new GaussianParameters(bundledConstructionParameters);
 
         var calculation = new Calculation(sshService);

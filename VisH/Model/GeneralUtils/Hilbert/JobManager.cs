@@ -6,23 +6,29 @@ using VisH.Model.PostRun;
 
 namespace VisH.Model.GeneralUtils.Hilbert;
 
-public static class JobManager
+public class JobManager
 {
-    private static SshService _sshService = new SshService();
-    private static FileTransferService _fileTransferService = new FileTransferService();
+    private readonly SshService _sshService;
+    private readonly FileTransferService _fileTransferService;
+
+    public JobManager(SshService sshService, FileTransferService fileTransferService)
+    {
+        _sshService = sshService;
+        _fileTransferService = fileTransferService;
+    }
     
-    public static void Connect()
+    public void Connect()
     {
         _sshService.Connect();
     }
     
-    public static void Disconnect()
+    public void Disconnect()
     {
         _sshService.Disconnect();
     }
     
     
-    private static bool NormalTermination(FileExtension logFile)
+    private bool NormalTermination(FileExtension logFile)
     {
         var cmd = _sshService.CommandClient.RunCommand(
             $"tail {logFile.GetPath(PathType.Cluster)}");
@@ -89,13 +95,13 @@ public static class JobManager
     //     
     // }
 
-    public static string DeleteJob(string jobId)
+    public string DeleteJob(string jobId)
     {
         var cmd = _sshService.CommandClient.RunCommand($"qdel {jobId}");
         return cmd.Result;
     }
 
-    public static PathObject[] Dir(PathObject path, PathType? onlyListOneType = null)
+    public PathObject[] Dir(PathObject path, PathType? onlyListOneType = null)
     {
         List<PathObject> paths = new List<PathObject>();
         
@@ -126,7 +132,7 @@ public static class JobManager
         return paths.ToArray();
     }
     
-    public static long FileSize(PathObject path)
+    public long FileSize(PathObject path)
     {
         try
         {
@@ -145,12 +151,12 @@ public static class JobManager
         }
     }
     
-    private static void DownloadFile(string path, Stream fileStream, Action<ulong> downloadCallback)
+    private void DownloadFile(string path, Stream fileStream, Action<ulong> downloadCallback)
     {
         _fileTransferService.FileClient.DownloadFile(path, fileStream, downloadCallback);
     }
     
-    public static void DownloadFolder(
+    public void DownloadFolder(
         DirectoryExtension directory,
         IProgress<DownloadProgress> progress)
     {
@@ -201,7 +207,7 @@ public static class JobManager
         }
     }
     
-    private static void BuildRecursiveDirs(string directoryPath)
+    private void BuildRecursiveDirs(string directoryPath)
     {
         string[] parts = directoryPath.Split('/');
         
@@ -223,7 +229,7 @@ public static class JobManager
         
     }
     
-    public static DirectoryExtension[] GetJobsOnCluster()
+    public DirectoryExtension[] GetJobsOnCluster()
     {
         List<DirectoryExtension> pathsToJobs = new List<DirectoryExtension>();
     
@@ -234,7 +240,7 @@ public static class JobManager
         string[] splitString = fullString.Split(
             ["\n", "\r"],
             StringSplitOptions.RemoveEmptyEntries);
-
+        
         foreach (var path in splitString)
         {
             var relativePath = path.Substring(1, path.Length - 1);
@@ -245,7 +251,7 @@ public static class JobManager
         return pathsToJobs.ToArray();
     }
 
-    public static string? GetJobId(PathObject directory)
+    public string? GetJobId(PathObject directory)
     {
         _sshService.Connect();
         string fullName;
@@ -270,7 +276,7 @@ public static class JobManager
         return null;
     }
 
-    public static JobState GetJobState(DirectoryExtension directory)
+    public JobState GetJobState(DirectoryExtension directory)
     {
         JobState jobState;
         var content = directory.GetContent(PathType.Cluster);
@@ -286,7 +292,7 @@ public static class JobManager
         return jobState;
     }
 
-    public static string QStat()
+    public string QStat()
     {
         var cfg = Config.Load();
         var username = cfg.ClusterUsername;

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using VisH.Model;
 using VisH.Model.GeneralUtils;
 using VisH.Model.GeneralUtils.FileHandling;
+using VisH.Model.GeneralUtils.Hilbert;
 using VisH.Model.PostRun;
 using VisH.Model.WPFDisplayObjects;
 
@@ -11,6 +12,8 @@ public class OverviewViewModel : ViewModelBase
 {
     private LogFileAnalyzer _logFileAnalyzer;
     private FileHandler _fileHandler;
+    private readonly SshService _sshService;
+    private readonly JobManager _jobManager;
     public ObservableCollection<TreeNode> RootNodes { get; } = [];
     // public ObservableCollection<DataGridItem> Properties { get; } = [];
     
@@ -45,16 +48,22 @@ public class OverviewViewModel : ViewModelBase
                 return;
             }
             
-            SelectedPath = new PathObject(value.FullPath);
+            SelectedPath = new PathObject(value.FullPath, sshService: _sshService, jobManager: _jobManager);
             RefreshSelection();
             OnPropertyChanged();
         }
     }
     
-    public OverviewViewModel(LogFileAnalyzer logFileAnalyzer, FileHandler fileHandler)
+    public OverviewViewModel(
+        LogFileAnalyzer logFileAnalyzer,
+        FileHandler fileHandler,
+        SshService sshService,
+        JobManager jobManager)
     {
         _logFileAnalyzer = logFileAnalyzer;
         _fileHandler = fileHandler;
+        _sshService = sshService;
+        _jobManager = jobManager;
         SetupTreeview();
         _fileHandler.ClusterChanged += () => SetupTreeview();
     }

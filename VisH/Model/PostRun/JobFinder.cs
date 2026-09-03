@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Windows.Documents;
+using Serilog;
 using VisH.Model.CalculationObject;
+using VisH.Model.Enums;
 using VisH.Model.GeneralUtils;
 using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.GeneralUtils.Hilbert;
@@ -9,6 +11,15 @@ namespace VisH.Model.PostRun;
 
 public class JobFinder
 {
+    private readonly SshService _sshService;
+    private readonly JobManager _jobManager;
+
+    public JobFinder(SshService sshService, JobManager jobManager)
+    {
+        _sshService = sshService;
+        _jobManager = jobManager;
+    }
+
     private bool CalculationMatchesJobId(string jobId, Calculation calculation)
     {
         return jobId == calculation?.MetaData?.JobId;
@@ -16,13 +27,13 @@ public class JobFinder
 
     public Calculation? GetCalculationByJobId(string jobId)
     {
-        var root = new DirectoryExtension("", new SshService());
+        var root = new DirectoryExtension("", _sshService);
 
         var calculationDirectories = GetCalculationDirs(root);
 
         foreach (var calculationDir in calculationDirectories)
         {
-            var calculation = CalculationMatchesProperty<string>(root, CalculationMatchesJobId ,jobId);
+            var calculation = CalculationMatchesProperty<string>(calculationDir, CalculationMatchesJobId, jobId);
             if (calculation != null)
             {
                 return calculation;
@@ -52,16 +63,14 @@ public class JobFinder
 
     public Calculation[] GetCalculationsOnCluster()
     {
-        var sshService = new SshService();
-        var root = new DirectoryExtension("", new SshService());
         var calculations = new List<Calculation>();
         
-        var pathsOnCluster = sshService.ConnectAndExecute(() => 
-            JobManager.GetJobsOnCluster());
+        var pathsOnCluster = _sshService.ConnectAndExecute(() =>
+            _jobManager.GetJobsOnCluster());
 
         foreach (var directory in pathsOnCluster)
         {
-            Calculation? calculation = CalculationMatchesProperty<string>(root, CalculationMatchesJobId, directory.GetPath());
+            Calculation? calculation = CalculationMatchesProperty<string>(directory, CalculationMatchesJobId, directory.GetPath());
             if (calculation != null)
             {
                 calculations.Add(calculation);
@@ -78,6 +87,12 @@ public class JobFinder
     {
         const string jsonName = "calculation.json";
         string? jsonPath = null;
+
+        if (!Directory.Exists(directory.GetPath()))
+        {
+            Log.Warning($"Directory {directory.GetPath()} does not exist.");
+            return null;
+        }
         
         var files = directory.GetContent();
 
@@ -97,7 +112,7 @@ public class JobFinder
         
         try
         {
-            var calculation = Calculation.FromJson(jsonPath);
+            var calculation = Calculation.FromJson(jsonPath, _sshService);
             
             if (propertySelector(propertyValue, calculation) == false)
             {
