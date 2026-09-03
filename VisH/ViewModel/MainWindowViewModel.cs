@@ -27,7 +27,7 @@ public class MainWindowViewModel
         LogFileAnalyzer logFileAnalyzer = new LogFileAnalyzer(pythonBridge);
         
         var jobFinder = new JobFinder(sshService, jobManager);
-        StatusViewModel = new StatusBarViewModel(FileHandler, jobManager, jobFinder);
+        StatusViewModel = new StatusBarViewModel(FileHandler, jobManager, jobFinder, sshService);
         
         OverviewViewModel = new OverviewViewModel(logFileAnalyzer, FileHandler, sshService, jobManager);
         

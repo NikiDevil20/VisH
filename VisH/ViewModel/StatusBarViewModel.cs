@@ -15,6 +15,7 @@ public class StatusBarViewModel : ViewModelBase
     private FileHandler _fileHandler;
     private readonly JobManager _jobManager;
     private readonly JobFinder _jobFinder;
+    private readonly SshService _sshService;
     public ObservableCollection<CalcStatus> JobsOnCluster { get; } = new();
     private CalcStatus? _selectedCalcstatus;
     public CalcStatus? SelectedCalcstatus
@@ -39,11 +40,12 @@ public class StatusBarViewModel : ViewModelBase
     private bool _changeToClusterWasMade { get; set; }
     
     
-    public StatusBarViewModel(FileHandler fileHandler, JobManager jobManager, JobFinder jobFinder)
+    public StatusBarViewModel(FileHandler fileHandler, JobManager jobManager, JobFinder jobFinder, SshService sshService)
     {
         _fileHandler = fileHandler;
         _jobManager = jobManager;
         _jobFinder = jobFinder;
+        _sshService = sshService;
         _changeToClusterWasMade = true;
         _fileHandler.ClusterChanged += () => RefreshJobList();
     }
@@ -102,91 +104,94 @@ public class StatusBarViewModel : ViewModelBase
 
     public void RefreshStatus()
     {
-        var statusAddedCounter = 0;
+    // var jobFinder = new JobFinder(_sshService, _jobManager);
+    var statusAddedCounter = 0;
+    
+    try
+    {
+        var calcStatuses = new List<CalcStatus>();
+
+        var unparsedQstat = _jobManager.QStat();
         
-        try
+        var parsedQstat = QstatParser.ParseQstat(unparsedQstat);
+        
+        var calculationsOnCluster = _jobFinder.GetCalculationsOnCluster();
+
+        foreach (var runningJob in parsedQstat)
         {
-            var calcStatuses = new List<CalcStatus>();
+            var jobId = runningJob.Key;
+            var jobState = runningJob.Value;
 
-            var unparsedQstat = _jobManager.QStat();
-            
-            var parsedQstat = QstatParser.ParseQstat(unparsedQstat);
-            
-            var calculationsOnCluster = _jobFinder.GetCalculationsOnCluster();
-
-            foreach (var runningJob in parsedQstat)
+            foreach (var calculation in calculationsOnCluster)
             {
-                var jobId = runningJob.Key;
-                var jobState = runningJob.Value;
-
-                foreach (var calculation in calculationsOnCluster)
+                if (calculation.MetaData?.JobId == jobId)
                 {
-                    if (calculation.MetaData.JobId == jobId)
-                    {
-                        calculation.MetaData.JobState = jobState;
-                        statusAddedCounter += 1;
-                    }
+                    calculation.MetaData.JobState = jobState;
+                    statusAddedCounter += 1;
                 }
             }
-            if (statusAddedCounter != calculationsOnCluster.Length)
-            {
-                foreach (var calculationOnCluster in calculationsOnCluster)
-                {
-                    calculationOnCluster.RefreshStatus();
-                }
-            }
+        }
 
-            // foreach (var jobPath in _pathsOnCluster)
-            // // {
-            // //     calcStatuses.Add(CalcStatus.Create(jobPath));
-            // // }
-
-            JobsOnCluster.Clear();
-            foreach (var status in calcStatuses)
+        if (statusAddedCounter != calculationsOnCluster.Length)
+        {
+            foreach (var calculationOnCluster in calculationsOnCluster)
             {
-                JobsOnCluster.Add(status);
+                calculationOnCluster.RefreshStatus();
             }
         }
-        catch (Renci.SshNet.Common.SshAuthenticationException e)
+
+        // Build status objects from calculations
+        foreach (var calculation in calculationsOnCluster)
         {
-            var cfg = Config.Load();
-            string userName = cfg.ClusterUsername;
-            string keyPath = cfg.SshKeyPath;
-            MessageBox.Show(
-                $"Authentication with username '{userName}' and key '{keyPath}' failed.\n" +
-                $"Please check your credentials.",
-                "Authentication Error",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error
-            );
+            calcStatuses.Add(CalcStatus.Create(calculation));
         }
-        catch (System.Net.Sockets.SocketException e)
+
+        JobsOnCluster.Clear();
+        foreach (var status in calcStatuses)
         {
-            var cfg = Config.Load();
-            string clusterAdress = cfg.Cluster;
-            MessageBox.Show(
-                $"Failed to connect to the cluster at: '{clusterAdress}'.\n" +
-                $"Please check your network connection.",
-                "Connection Error",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error
-            );
-        }
-        catch (InvalidOperationException e)
-        {
-            MessageBox.Show(
-                $"An error occurred while refreshing job status.\n" +
-                $"Error: {e.Message}",
-                "Error",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error
-            );
-        }
-        finally
-        {
-            _jobManager.Disconnect();
+            JobsOnCluster.Add(status);
         }
     }
+    catch (Renci.SshNet.Common.SshAuthenticationException e)
+    {
+        var cfg = Config.Load();
+        string userName = cfg.ClusterUsername;
+        string keyPath = cfg.SshKeyPath;
+        MessageBox.Show(
+            $"Authentication with username '{userName}' and key '{keyPath}' failed.\n" +
+            $"Please check your credentials.",
+            "Authentication Error",
+            MessageBoxButton.OK,
+            MessageBoxImage.Error
+        );
+    }
+    catch (System.Net.Sockets.SocketException e)
+    {
+        var cfg = Config.Load();
+        string clusterAdress = cfg.Cluster;
+        MessageBox.Show(
+            $"Failed to connect to the cluster at: '{clusterAdress}'.\n" +
+            $"Please check your network connection.",
+            "Connection Error",
+            MessageBoxButton.OK,
+            MessageBoxImage.Error
+        );
+    }
+    catch (InvalidOperationException e)
+    {
+        MessageBox.Show(
+            $"An error occurred while refreshing job status.\n" +
+            $"Error: {e.Message}",
+            "Error",
+            MessageBoxButton.OK,
+            MessageBoxImage.Error
+        );
+    }
+    finally
+    {
+        _jobManager.Disconnect();
+    }
+}
 
     private bool IsSelected()
     {

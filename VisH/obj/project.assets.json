@@ -311,19 +311,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Niklas\\.nuget\\packages\\": {}
+    "C:\\Users\\nikla\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Niklas\\RiderProjects\\GaussianTool\\VisH\\VisH.csproj",
+      "projectUniqueName": "C:\\Users\\nikla\\RiderProjects\\VisH\\VisH\\VisH.csproj",
       "projectName": "VisH",
-      "projectPath": "C:\\Users\\Niklas\\RiderProjects\\GaussianTool\\VisH\\VisH.csproj",
-      "packagesPath": "C:\\Users\\Niklas\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Niklas\\RiderProjects\\GaussianTool\\VisH\\obj\\",
+      "projectPath": "C:\\Users\\nikla\\RiderProjects\\VisH\\VisH\\VisH.csproj",
+      "packagesPath": "C:\\Users\\nikla\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\nikla\\RiderProjects\\VisH\\VisH\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Niklas\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\nikla\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0-windows"
@@ -333,7 +333,6 @@
       },
       "frameworks": {
         "net10.0-windows7.0": {
-          "framework": "net10.0-windows7.0",
           "targetAlias": "net10.0-windows",
           "projectReferences": {}
         }
@@ -352,7 +351,6 @@
     },
     "frameworks": {
       "net10.0-windows7.0": {
-        "framework": "net10.0-windows7.0",
         "targetAlias": "net10.0-windows",
         "dependencies": {
           "SSH.NET": {
@@ -689,7 +687,7 @@
       "message": "Package 'SSH.NET' 2025.1.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-q939-rpr3-3284",
       "libraryId": "SSH.NET",
       "targetGraphs": [
-        "net10.0-windows"
+        "net10.0-windows7.0"
       ]
     }
   ]

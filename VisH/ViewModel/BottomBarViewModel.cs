@@ -14,7 +14,6 @@ public class BottomBarViewModel : ViewModelBase
     public BottomBarViewModel(DownloadManager downloadManager)
     {
         _downloadManager = downloadManager;
-        Console.WriteLine("BottomBarViewModel initialized.");
         _downloadManager.PropertyChanged += DownloadManagerOnPropertyChanged;
     }
     
