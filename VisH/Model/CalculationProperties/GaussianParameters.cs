@@ -1,6 +1,8 @@
 ﻿using System.Text;
+using System.Text.Json.Serialization;
 using VisH.Model.CalculationUtils;
 using VisH.Model.Enums;
+using VisH.Model.GeneralUtils;
 
 namespace VisH.Model.CalculationProperties;
 
@@ -12,10 +14,16 @@ public class GaussianParameters
     public int NProc { get; set; }
     public JobTypes Jobtype { get; set; }
     public Solvents Solvent { get; set; }
+    [JsonConverter(typeof(TimeSpanJsonConverter))]
     public TimeSpan MaxWalltime { get; set; }
     public string? Keywords { get; set; }
     public string? LinkKeywords { get; set; }
     public string? ScanContext { get; set; }
+    
+    [JsonConstructor]
+    public GaussianParameters()
+    {
+    }
 
     public GaussianParameters(
         BundledConstructionParameters bundledConstructionParameters)

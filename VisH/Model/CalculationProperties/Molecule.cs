@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using VisH.Model.CalculationUtils;
 using VisH.Model.Enums;
 using VisH.Model.GeneralUtils;
@@ -16,6 +17,11 @@ public class Molecule
     public int Charge { get; set; }
     public string SmilesString { get; set; }
 
+    [JsonConstructor]
+    public Molecule()
+    {
+    }
+    
     public Molecule(
         BundledConstructionParameters parameters,
         string? atomCoordinates=null)

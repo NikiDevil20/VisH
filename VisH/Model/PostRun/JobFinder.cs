@@ -70,7 +70,7 @@ public class JobFinder
 
         foreach (var directory in pathsOnCluster)
         {
-            Calculation? calculation = CalculationMatchesProperty<string>(directory, CalculationMatchesJobId, directory.GetPath());
+            Calculation? calculation = CalculationMatchesProperty<string>(directory, CalculationMatchesPath, directory.GetPath());
             if (calculation != null)
             {
                 calculations.Add(calculation);
@@ -98,6 +98,7 @@ public class JobFinder
 
         foreach (var file in files)
         {
+            
             if (file.GetFileName() == jsonName)
             {
                 jsonPath = file.GetPath();
@@ -126,5 +127,10 @@ public class JobFinder
             return null;
         }
     }
-    
+
+    private bool CalculationMatchesPath(string path, Calculation calculationToCheck)
+    {
+        Console.WriteLine($"Checking if {calculationToCheck.Paths.RelativeDirectory.GetPath()} == {path}");
+        return calculationToCheck.Paths.RelativeDirectory.GetPath() == path;
+    }
 }

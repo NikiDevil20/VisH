@@ -116,7 +116,7 @@ public class StatusBarViewModel : ViewModelBase
         var parsedQstat = QstatParser.ParseQstat(unparsedQstat);
         
         var calculationsOnCluster = _jobFinder.GetCalculationsOnCluster();
-
+        
         foreach (var runningJob in parsedQstat)
         {
             var jobId = runningJob.Key;
@@ -143,7 +143,8 @@ public class StatusBarViewModel : ViewModelBase
         // Build status objects from calculations
         foreach (var calculation in calculationsOnCluster)
         {
-            calcStatuses.Add(CalcStatus.Create(calculation));
+            var calcStatus = CalcStatus.Create(calculation);
+            calcStatuses.Add(calcStatus);
         }
 
         JobsOnCluster.Clear();

@@ -237,6 +237,7 @@ public class JobManager
             _sshService.CommandClient.RunCommand("cd Rechnungen && find -maxdepth 3 -mindepth 3 -type d"));
 
         string fullString = cmd.Result;
+        
         string[] splitString = fullString.Split(
             ["\n", "\r"],
             StringSplitOptions.RemoveEmptyEntries);

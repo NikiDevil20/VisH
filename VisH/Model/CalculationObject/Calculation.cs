@@ -6,6 +6,7 @@ using VisH.Model.Enums;
 using VisH.Model.PostRun;
 using VisH.Model.CalculationProperties;
 using VisH.Model.CalculationUtils;
+using VisH.Model.GeneralUtils;
 using VisH.Model.GeneralUtils.Hilbert;
 
 namespace VisH.Model.CalculationObject;
@@ -22,6 +23,12 @@ public class Calculation
     [JsonIgnore]
     public Paths? Paths { get; set; }
 
+    // Parameterless constructor for JSON deserialization
+    [JsonConstructor]
+    public Calculation()
+    {
+    }
+    
     public Calculation(SshService sshService)
     {
         _sshService = sshService;
@@ -163,8 +170,8 @@ public class Calculation
 
         Directory.CreateDirectory(Paths.RelativeDirectory.GetPath());
         
-        var serializedObject = JsonSerializer.Serialize(this);
-
+        var serializedObject = JsonSerializer.Serialize(this, JsonOptions);
+        
         try
         {
             File.WriteAllText(Paths.JsonPath.GetPath(), serializedObject);
@@ -199,6 +206,13 @@ public class Calculation
 
         return true;
     }
+    
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        Converters = { new TimeSpanJsonConverter() },
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = true
+    };
 
     public void WriteFiles()
     {
@@ -211,12 +225,17 @@ public class Calculation
     public static Calculation FromJson(string jsonPath, SshService sshService)
     {
         var jsonString = File.ReadAllText(jsonPath);
+    
+        Console.WriteLine(jsonString);
         
-        var calculation = JsonSerializer.Deserialize<Calculation>(jsonString);
-        
+        var calculation = JsonSerializer.Deserialize<Calculation>(jsonString, JsonOptions);
         if (calculation == null)
+        {
             throw new InvalidOperationException("Failed to deserialize calculation from JSON.");
+        }
 
+        Console.WriteLine($"Deserialized calculation: {calculation.MetaData?.JobName}");
+        
         calculation._sshService = sshService;
         if (calculation.MetaData != null && calculation.Molecule != null && calculation.GaussianParameters != null)
             calculation.AddPaths();
