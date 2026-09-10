@@ -46,6 +46,15 @@ public class GaussianRegex
     public static readonly Regex JobStateRegex =
         new(@"^(\d+(?:\[\])?\.hpc-batch)\s+.*?\s([QRHB])\s+\S+\s*$", RegexOptions.Multiline);
 
+    public static readonly Regex NImagRegex =
+        new(@"N\s*Imag\s*=\s*(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    public static readonly Regex NormalTerminationRegex =
+        new(@"Normal\s+termination", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    public static readonly Regex ErrorTerminationRegex =
+        new(@"Error\s+termination", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     public static double? MatchDouble(string text, Regex pattern)
     {
         var match = pattern.Match(text);

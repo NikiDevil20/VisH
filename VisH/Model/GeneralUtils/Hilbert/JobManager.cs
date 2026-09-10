@@ -156,50 +156,122 @@ public class JobManager
         _fileTransferService.FileClient.DownloadFile(path, fileStream, downloadCallback);
     }
     
-    public void DownloadFolder(
+    public bool DownloadFolder(
         DirectoryExtension directory,
-        IProgress<DownloadProgress> progress)
+        IProgress<DownloadProgress>? progress = null)
     {
         _fileTransferService.Connect();
         try
         {
-            long totalFolderSize = directory.GetDirectorySize();
-            PathExtension[] files = directory.GetContent();
+            long totalFolderSize = directory.GetDirectorySize(PathType.Cluster);
+            PathExtension[] files = directory.GetContent(PathType.Cluster);
             long bytesFinished = 0;
 
-            foreach (var path in files)
+            var clusterFiles = files.OfType<FileExtension>().ToList();
+            var fileSizes = new Dictionary<string, long>();
+
+            foreach (var file in clusterFiles)
             {
-                if (path is not FileExtension file)
-                    continue;
-                
-                using var fileStream = File.Create(file.GetPath());
+                var localFilePath = file.GetPath(PathType.Local);
+                var localDirectory = Path.GetDirectoryName(localFilePath);
+                if (!string.IsNullOrEmpty(localDirectory) && !Directory.Exists(localDirectory))
+                {
+                    Directory.CreateDirectory(localDirectory);
+                }
+
+                var clusterFilePath = file.GetPath(PathType.Cluster);
+                var fileName = file.GetFileName(PathType.Cluster);
+                long currentFileSize;
+                try
+                {
+                    currentFileSize = _fileTransferService.FileClient.GetAttributes(clusterFilePath).Size;
+                }
+                catch
+                {
+                    currentFileSize = file.GetFileSize(PathType.Cluster);
+                }
+
+                fileSizes[clusterFilePath] = currentFileSize;
+
+                using var fileStream = File.Create(localFilePath);
 
                 progress?.Report(new DownloadProgress(
-                    file.GetFileName(),
-                    file.GetFileSize(PathType.Cluster),
+                    fileName,
+                    currentFileSize,
                     0,
                     totalFolderSize,
                     bytesFinished
                 ));
 
                 DownloadFile(
-                    file.GetPath(PathType.Cluster),
+                    clusterFilePath,
                     fileStream,
                     downloadedBytes =>
                     {
                         long totalDownloaded = bytesFinished + (long)downloadedBytes;
 
-                        progress.Report(new DownloadProgress
-                            (
-                                file.GetFileName(PathType.Cluster),
-                                file.GetFileSize(PathType.Cluster),
-                                (long)downloadedBytes,
-                                totalFolderSize,
-                                totalDownloaded)
-                        );
+                        progress?.Report(new DownloadProgress(
+                            fileName,
+                            currentFileSize,
+                            (long)downloadedBytes,
+                            totalFolderSize,
+                            totalDownloaded
+                        ));
                     });
-                bytesFinished += file.GetFileSize(PathType.Cluster);
+                bytesFinished += currentFileSize;
+
+                progress?.Report(new DownloadProgress(
+                    fileName,
+                    currentFileSize,
+                    currentFileSize,
+                    totalFolderSize,
+                    bytesFinished
+                ));
             }
+
+            bool allFilesDownloaded = clusterFiles.Count > 0 && clusterFiles.All(file =>
+            {
+                var localPath = file.GetPath(PathType.Local);
+                if (!File.Exists(localPath))
+                    return false;
+
+                var clusterPath = file.GetPath(PathType.Cluster);
+                if (fileSizes.TryGetValue(clusterPath, out var expectedSize))
+                {
+                    return new FileInfo(localPath).Length == expectedSize;
+                }
+
+                return true;
+            });
+
+            if (allFilesDownloaded)
+            {
+                foreach (var file in clusterFiles)
+                {
+                    var clusterFilePath = file.GetPath(PathType.Cluster);
+                    if (_fileTransferService.FileClient.Exists(clusterFilePath))
+                    {
+                        _fileTransferService.FileClient.DeleteFile(clusterFilePath);
+                    }
+                }
+
+                try
+                {
+                    var clusterDirPath = directory.GetPath(PathType.Cluster);
+                    if (_fileTransferService.FileClient.Exists(clusterDirPath))
+                    {
+                        _fileTransferService.FileClient.DeleteDirectory(clusterDirPath);
+                    }
+                }
+                catch
+                {
+                    // Ignore directory deletion error if not empty or not supported
+                }
+
+                return true;
+            }
+
+            return false;
         }
         finally
         {

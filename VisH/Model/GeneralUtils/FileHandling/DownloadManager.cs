@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Windows.Input;
 using VisH.Model.GeneralUtils.Hilbert;
 using VisH.ViewModel;
 
@@ -7,6 +8,7 @@ namespace VisH.Model.GeneralUtils.FileHandling;
 public class DownloadManager : ViewModelBase
 {
     private readonly JobManager _jobManager;
+    private readonly SemaphoreSlim _downloadLock = new(1, 1);
 
     public DownloadManager(JobManager jobManager)
     {
@@ -19,8 +21,12 @@ public class DownloadManager : ViewModelBase
         get => _isDownloading;
         set
         {
-            _isDownloading = value;
-            OnPropertyChanged();
+            if (_isDownloading != value)
+            {
+                _isDownloading = value;
+                OnPropertyChanged();
+                CommandManager.InvalidateRequerySuggested();
+            }
         }
     }
     private double _downloadPercentage { get; set; }
@@ -54,21 +60,29 @@ public class DownloadManager : ViewModelBase
         }
     }
     
-    public async Task DownloadFolder(DirectoryExtension directory)
+    public async Task<bool> DownloadFolder(DirectoryExtension directory)
     {
-        IsDownloading = true;
-        DownloadPercentage = 0;
-        CurrentFileName = "";
-        
-        var progress = new Progress<DownloadProgress>(p =>
+        if (IsDownloading)
         {
-            CurrentFileName = $"Downloading {p.CurrentFileName}";
-            DownloadPercentage = 100.0 * p.TotalBytesDownloaded / p.TotalBytes;
-            LocalDownloadPercentage = 100.0 * p.CurrentBytesDownloaded / p.CurrentFileSize;
-        });
+            return false;
+        }
+
+        await _downloadLock.WaitAsync();
         try
         {
-            await Task.Run(() => { _jobManager.DownloadFolder(directory, progress); });
+            IsDownloading = true;
+            DownloadPercentage = 0;
+            CurrentFileName = "";
+            LocalDownloadPercentage = 0;
+            
+            var progress = new Progress<DownloadProgress>(p =>
+            {
+                CurrentFileName = $"Downloading {p.CurrentFileName}";
+                DownloadPercentage = p.TotalBytes > 0 ? 100.0 * p.TotalBytesDownloaded / p.TotalBytes : 0;
+                LocalDownloadPercentage = p.CurrentFileSize > 0 ? 100.0 * p.CurrentBytesDownloaded / p.CurrentFileSize : 0;
+            });
+
+            return await Task.Run(() => _jobManager.DownloadFolder(directory, progress));
         }
         finally
         {
@@ -76,7 +90,7 @@ public class DownloadManager : ViewModelBase
             CurrentFileName = "";
             LocalDownloadPercentage = 100;
             IsDownloading = false;
+            _downloadLock.Release();
         }
     }
-    
 }

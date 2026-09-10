@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Input;
 using VisH.Model;
 using VisH.Model.CalculationObject;
 using VisH.Model.Enums;
@@ -27,6 +28,7 @@ public class StatusBarViewModel : ViewModelBase
             {
                 _selectedCalcstatus = value;
                 OnPropertyChanged();
+                CommandManager.InvalidateRequerySuggested();
             }
         }
     }
@@ -34,7 +36,7 @@ public class StatusBarViewModel : ViewModelBase
     public RelayCommand RefreshCommand => new RelayCommand(execute => RefreshStatus());
     
     public RelayCommand DownloadCommand => new RelayCommand(
-        execute => DownloadSelection(), canExecute => IsSelected());
+        execute => DownloadSelection(), canExecute => CanDownload());
     
     private PathObject[] _pathsOnCluster { get; set; }
     private bool _changeToClusterWasMade { get; set; }
@@ -104,9 +106,6 @@ public class StatusBarViewModel : ViewModelBase
 
     public void RefreshStatus()
     {
-    // var jobFinder = new JobFinder(_sshService, _jobManager);
-    var statusAddedCounter = 0;
-    
     try
     {
         var calcStatuses = new List<CalcStatus>();
@@ -117,26 +116,15 @@ public class StatusBarViewModel : ViewModelBase
         
         var calculationsOnCluster = _jobFinder.GetCalculationsOnCluster();
         
-        foreach (var runningJob in parsedQstat)
+        foreach (var calculation in calculationsOnCluster)
         {
-            var jobId = runningJob.Key;
-            var jobState = runningJob.Value;
-
-            foreach (var calculation in calculationsOnCluster)
+            if (calculation.MetaData?.JobId != null && parsedQstat.TryGetValue(calculation.MetaData.JobId, out var qstatState))
             {
-                if (calculation.MetaData?.JobId == jobId)
-                {
-                    calculation.MetaData.JobState = jobState;
-                    statusAddedCounter += 1;
-                }
+                calculation.RefreshStatus(qstatState);
             }
-        }
-
-        if (statusAddedCounter != calculationsOnCluster.Length)
-        {
-            foreach (var calculationOnCluster in calculationsOnCluster)
+            else
             {
-                calculationOnCluster.RefreshStatus();
+                calculation.RefreshStatus(null);
             }
         }
 
@@ -194,16 +182,40 @@ public class StatusBarViewModel : ViewModelBase
     }
 }
 
-    private bool IsSelected()
+    private bool CanDownload()
     {
-        return SelectedCalcstatus != null;
+        return SelectedCalcstatus?.Calculation?.Paths?.RelativeDirectory != null &&
+               !_fileHandler.DownloadManager.IsDownloading;
     }
 
     private async void DownloadSelection()
     {
-        // if (IsSelected())
-        // {
-        //     await _fileHandler.Download(SelectedCalcstatus.JobPath);
-        // }
+        if (SelectedCalcstatus?.Calculation?.Paths?.RelativeDirectory == null)
+            return;
+
+        try
+        {
+            bool success = await _fileHandler.Download(SelectedCalcstatus.Calculation.Paths.RelativeDirectory);
+            if (success)
+            {
+                MessageBox.Show(
+                    "Job downloaded successfully. The files have been removed from the cluster",
+                    "Download Complete",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+                RefreshStatus();
+            }
+        }
+        catch (Exception e)
+        {
+            MessageBox.Show(
+                $"An error occurred while downloading calculation files.\n" +
+                $"Error: {e.Message}",
+                "Download Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
+            );
+        }
     }
 }

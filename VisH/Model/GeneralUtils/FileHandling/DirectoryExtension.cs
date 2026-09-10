@@ -29,9 +29,12 @@ public class DirectoryExtension : PathExtension
             throw new ArgumentOutOfRangeException(nameof(pathType), pathType, "Invalid path type");
 
         return SshService.ConnectAndExecute(() => SshService.GetClusterContent(fullPath)).Select(entry =>
-            entry.EndsWith('/')
-                ? (PathExtension)new DirectoryExtension(entry, SshService)
-                : new FileExtension(entry, SshService)).ToArray();
+        {
+            var relativePath = GetRelativePath(entry, PathType.Cluster);
+            return entry.EndsWith('/')
+                ? (PathExtension)new DirectoryExtension(relativePath, SshService)
+                : new FileExtension(relativePath, SshService);
+        }).ToArray();
     }
 
     public long GetDirectorySize(PathType pathType = PathType.Local)

@@ -30,10 +30,11 @@ public class FileHandler
         UploadManager = new UploadManager();
     }
     
-    public async Task Download(DirectoryExtension directory)
+    public async Task<bool> Download(DirectoryExtension directory)
     {
-        await DownloadManager.DownloadFolder(directory);
+        bool success = await DownloadManager.DownloadFolder(directory);
         ClusterChanged?.Invoke();
+        return success;
     }
     
     public string[] Upload(Calculation[] calculations)

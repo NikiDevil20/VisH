@@ -67,6 +67,7 @@ public class JobFinder
         
         var pathsOnCluster = _sshService.ConnectAndExecute(() =>
             _jobManager.GetJobsOnCluster());
+        
 
         foreach (var directory in pathsOnCluster)
         {
@@ -98,7 +99,6 @@ public class JobFinder
 
         foreach (var file in files)
         {
-            
             if (file.GetFileName() == jsonName)
             {
                 jsonPath = file.GetPath();
@@ -130,7 +130,6 @@ public class JobFinder
 
     private bool CalculationMatchesPath(string path, Calculation calculationToCheck)
     {
-        Console.WriteLine($"Checking if {calculationToCheck.Paths.RelativeDirectory.GetPath()} == {path}");
         return calculationToCheck.Paths.RelativeDirectory.GetPath() == path;
     }
 }

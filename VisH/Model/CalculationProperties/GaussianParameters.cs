@@ -46,9 +46,18 @@ public class GaussianParameters
         sb.AppendLine($"%NProcShared={NProc}");
         sb.AppendLine("%Chk=gauss.chk");
         sb.AppendLine($"%mem={Memory}GB");
-        sb.AppendLine($"#p {Functional} {BasisSet}");
-        if (Solvent != Solvents.None) sb.Append($" scrf=(smd,solvent={Solvent}) ");
-        sb.AppendLine(Keywords);
+        
+        var routeBuilder = new StringBuilder();
+        routeBuilder.Append($"#p {Functional} {BasisSet}");
+        if (Solvent != Solvents.None)
+        {
+            routeBuilder.Append($" scrf=(smd,solvent={Solvent})");
+        }
+        if (!string.IsNullOrWhiteSpace(Keywords))
+        {
+            routeBuilder.Append($" {Keywords.Trim()}");
+        }
+        sb.AppendLine(routeBuilder.ToString());
 
         return sb.ToString();
     }
@@ -59,8 +68,14 @@ public class GaussianParameters
         sb.AppendLine($"%NProcShared={NProc}");
         sb.AppendLine("%Chk=gauss.chk");
         sb.AppendLine($"%mem={Memory}GB");
-        sb.AppendLine($"#p {Functional} {BasisSet} ");
-        sb.Append(LinkKeywords);
+        
+        var routeBuilder = new StringBuilder();
+        routeBuilder.Append($"#p {Functional} {BasisSet}");
+        if (!string.IsNullOrWhiteSpace(LinkKeywords))
+        {
+            routeBuilder.Append($" {LinkKeywords.Trim()}");
+        }
+        sb.AppendLine(routeBuilder.ToString());
 
         return sb.ToString();
     }
@@ -75,8 +90,8 @@ public class GaussianParameters
         var keywordSelector = new KeywordSelector();
         var keywordsDict = keywordSelector.GetKeywords(bundledParameters);
         
-        Keywords = keywordsDict["keywords"];
-        LinkKeywords = keywordsDict["linkKeywords"];
-        ScanContext = keywordsDict["scanContext"];
+        Keywords = string.IsNullOrWhiteSpace(keywordsDict["keywords"]) ? null : keywordsDict["keywords"];
+        LinkKeywords = string.IsNullOrWhiteSpace(keywordsDict["linkKeywords"]) ? null : keywordsDict["linkKeywords"];
+        ScanContext = string.IsNullOrWhiteSpace(keywordsDict["scanContext"]) ? null : keywordsDict["scanContext"];
     }
 }

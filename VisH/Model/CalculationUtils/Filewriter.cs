@@ -19,16 +19,21 @@ public class Filewriter
     {
         var sb = new StringBuilder();
         
-        sb.AppendLine(_calculation.GaussianParameters.ToString());
-        sb.AppendLine(_calculation.Molecule.ToString());
+        sb.AppendLine(_calculation.GaussianParameters.ToString().TrimEnd());
+        sb.AppendLine();
+        sb.AppendLine(_calculation.Molecule.ToString().TrimEnd());
+        sb.AppendLine();
         
-        if (_calculation.GaussianParameters.LinkKeywords != null)
+        if (!string.IsNullOrWhiteSpace(_calculation.GaussianParameters.LinkKeywords))
         {
-            sb.AppendLine(_calculation.GaussianParameters.ToLink());
+            sb.AppendLine("--Link1--");
+            sb.AppendLine(_calculation.GaussianParameters.ToLink().TrimEnd());
+            sb.AppendLine();
         }
-        else if (_calculation.GaussianParameters.ScanContext != null)
+        else if (!string.IsNullOrWhiteSpace(_calculation.GaussianParameters.ScanContext))
         {
-            sb.AppendLine(_calculation.GaussianParameters.GetScanContext());
+            sb.AppendLine(_calculation.GaussianParameters.GetScanContext().TrimEnd());
+            sb.AppendLine();
         }
 
         return sb.ToString();
@@ -123,6 +128,7 @@ public class Filewriter
     public void WriteGaussianInputFile()
     {
         var content = GetGaussianInputText();
+        content = content.Replace("\r\n", "\n");
         var path = _calculation.Paths.GaussianInputFile.GetPath();
         File.WriteAllText(path, content);
     }

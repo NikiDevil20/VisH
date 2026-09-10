@@ -189,22 +189,100 @@ public class Calculation
     /// Refreshes the status and returns whether the status has changed.
     /// </summary>
     /// <returns>status has changed boolean</returns>
-    public bool RefreshStatus(JobState? jobStateFromQstat=null)
+    public bool RefreshStatus(JobState? jobStateFromQstat = null)
     {
+        if (MetaData == null) return false;
         var oldState = MetaData.JobState;
         
-        // TODO
-        
-        if (oldState is JobState.Failed or JobState.Successful)
+        if (jobStateFromQstat != null)
         {
-            // no need to refresh terminal states.
-            return false;
+            MetaData.JobState = jobStateFromQstat.Value;
+            return oldState != MetaData.JobState;
         }
 
-        var clusterDirectoryContent = Paths.RelativeDirectory.GetContent(PathType.Cluster);
-        
+        if (string.IsNullOrWhiteSpace(MetaData.JobId))
+        {
+            MetaData.JobState = JobState.InPreparation;
+            return oldState != MetaData.JobState;
+        }
 
-        return true;
+        if (Paths?.RelativeDirectory == null)
+        {
+            MetaData.JobState = JobState.Unknown;
+            return oldState != MetaData.JobState;
+        }
+
+        try
+        {
+            var clusterDirectoryContent = Paths.RelativeDirectory.GetContent(PathType.Cluster);
+            if (clusterDirectoryContent == null || clusterDirectoryContent.Length == 0)
+            {
+                MetaData.JobState = JobState.Failed;
+                return oldState != MetaData.JobState;
+            }
+
+            var hasGaussChk = clusterDirectoryContent.Any(f =>
+                string.Equals(f.GetFileName(PathType.Cluster), "gauss.chk", StringComparison.OrdinalIgnoreCase));
+            var hasLg = clusterDirectoryContent.Any(f =>
+                f.GetFileName(PathType.Cluster).EndsWith(".lg", StringComparison.OrdinalIgnoreCase));
+            var hasFchk = clusterDirectoryContent.Any(f =>
+                f.GetFileName(PathType.Cluster).EndsWith(".fchk", StringComparison.OrdinalIgnoreCase));
+            var logFile = clusterDirectoryContent.FirstOrDefault(f =>
+                f.GetFileName(PathType.Cluster).EndsWith(".log", StringComparison.OrdinalIgnoreCase));
+
+            
+            Console.WriteLine($"Calculation: {MetaData?.JobName}");
+
+            if (!hasGaussChk || !hasLg || !hasFchk || logFile == null)
+            {
+                MetaData.JobState = JobState.Failed;
+                return oldState != MetaData.JobState;
+            }
+
+            var logClusterPath = logFile.GetPath(PathType.Cluster);
+            var escapedPath = logClusterPath.Replace("\"", "\\\"");
+            
+            Console.WriteLine($"Log file path: {escapedPath}");
+            
+            var cmd = _sshService.ConnectAndExecute(() =>
+                _sshService.CommandClient.RunCommand($"cat \"{escapedPath}\""));
+
+            var logContent = cmd?.Result ?? string.Empty;
+            
+            Console.WriteLine($"Log content: {logContent}");
+            Console.WriteLine($"Error: {cmd?.Error}");
+
+            var normalTermIndex = logContent.LastIndexOf("Normal termination", StringComparison.OrdinalIgnoreCase);
+            var errorTermIndex = logContent.LastIndexOf("Error termination", StringComparison.OrdinalIgnoreCase);
+
+            Console.WriteLine($"Normal termination: {normalTermIndex}, Error termination: {errorTermIndex}");
+            
+            if (normalTermIndex == -1 || (errorTermIndex != -1 && errorTermIndex > normalTermIndex))
+            {
+                MetaData.JobState = JobState.Failed;
+                return oldState != MetaData.JobState;
+            }
+
+            var nimagMatches = GaussianRegex.NImagRegex.Matches(logContent);
+            if (nimagMatches.Count > 0)
+            {
+                var lastMatch = nimagMatches[^1];
+                if (int.TryParse(lastMatch.Groups[1].Value, out var nimag) && nimag != 0)
+                {
+                    MetaData.JobState = JobState.Imaginary;
+                    return oldState != MetaData.JobState;
+                }
+            }
+
+            MetaData.JobState = JobState.Successful;
+            return oldState != MetaData.JobState;
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Failed to refresh job status for {JobName}", MetaData.JobName);
+            MetaData.JobState = JobState.Unknown;
+            return oldState != MetaData.JobState;
+        }
     }
     
     private static readonly JsonSerializerOptions JsonOptions = new()

@@ -9,5 +9,6 @@ public enum JobState
     Held,
     Begun,
     InPreparation,
-    Unknown
+    Unknown,
+    Imaginary
 }

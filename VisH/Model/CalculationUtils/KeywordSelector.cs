@@ -21,13 +21,21 @@ public class KeywordSelector
         List<string> linkKeywords = new List<string>();
         string? scanContext = null;
         
-        keywords.Add(bundledParameters.OptionalKeywords ?? "");
+        if (!string.IsNullOrWhiteSpace(bundledParameters.OptionalKeywords))
+        {
+            keywords.Add(bundledParameters.OptionalKeywords.Trim());
+        }
 
         switch (_jobType)
         { 
             case JobTypes.GeometryOptimization:
                 keywords = GeometryOptimizationKeywords(keywords);
-                linkKeywords.AddRange(["freq", "geom=AllCheck", "Guess=TCheck", "SCRF=Check", "GenChk", "Test"]);
+                linkKeywords.AddRange(["freq", "geom=AllCheck", "Guess=TCheck"]);
+                if (_solvent != Solvents.None)
+                {
+                    linkKeywords.Add("SCRF=Check");
+                }
+                linkKeywords.AddRange(["GenChk", "Test"]);
                 break;
             case JobTypes.TimeDependant:
                  keywords = TimeDependantKeywords(keywords);
@@ -43,7 +51,7 @@ public class KeywordSelector
                 throw new ArgumentOutOfRangeException(nameof(_jobType), _jobType, "Invalid calculation type");
         }
 
-        var keywordArgument = string.Join(" ", keywords);
+        var keywordArgument = string.Join(" ", keywords.Where(k => !string.IsNullOrWhiteSpace(k)));
         
         var keywordGroups = new Dictionary<string, string>
         {
@@ -57,11 +65,6 @@ public class KeywordSelector
     
     private List<string> GeometryOptimizationKeywords(List<string> keywords)
     {
-        if (_solvent != Solvents.None)
-        {
-            keywords.Add($"scrf(smd,solvent={_solvent})");
-        }
-        
         keywords.Add("opt");
         
         switch (_state)

@@ -42,16 +42,27 @@ public class Paths
 
         _config = Config.Load();
         
-        GetName();
+        var isNewCalculation = string.IsNullOrWhiteSpace(_metaData.JobName);
+        if (isNewCalculation)
+        {
+            GetName();
+        }
         
         var moleculeName = _molecule.MoleculeName;
         var state = _molecule.State.ToString();
-        var jobName = _metaData.JobName;
+        var jobName = _metaData.JobName!;
         
         var relativePath = Path.Combine(moleculeName, state, jobName);
         
-        
-        SetDirectory(relativePath);
+        if (isNewCalculation)
+        {
+            SetDirectory(relativePath);
+        }
+        else
+        {
+            RelativeDirectory = new DirectoryExtension(relativePath, _sshService);
+        }
+
         SetPathsWithoutJobId();
         
         if (_metaData.JobId != null)
@@ -62,6 +73,11 @@ public class Paths
     
     private void GetName()
     {
+        if (!string.IsNullOrWhiteSpace(_metaData.JobName))
+        {
+            return;
+        }
+
         var baseName = _molecule.MoleculeName;
 
         var fullName = NameGenerator.GetCalculationName(
