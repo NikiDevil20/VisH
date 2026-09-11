@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Serilog;
@@ -249,9 +249,6 @@ public class Calculation
 
             var logContent = cmd?.Result ?? string.Empty;
             
-            Console.WriteLine($"Log content: {logContent}");
-            Console.WriteLine($"Error: {cmd?.Error}");
-
             var normalTermIndex = logContent.LastIndexOf("Normal termination", StringComparison.OrdinalIgnoreCase);
             var errorTermIndex = logContent.LastIndexOf("Error termination", StringComparison.OrdinalIgnoreCase);
 
@@ -311,13 +308,34 @@ public class Calculation
         {
             throw new InvalidOperationException("Failed to deserialize calculation from JSON.");
         }
-
-        Console.WriteLine($"Deserialized calculation: {calculation.MetaData?.JobName}");
         
         calculation._sshService = sshService;
         if (calculation.MetaData != null && calculation.Molecule != null && calculation.GaussianParameters != null)
             calculation.AddPaths();
 
         return calculation;
+    }
+
+    public void UpdateFromDownloadedFiles(string resultJsonPath, string lgPath)
+    {
+        if (Results == null)
+        {
+            Results = new Results();
+        }
+
+        if (File.Exists(resultJsonPath))
+        {
+            Results = CalculationResultParser.ApplyLogFile(Results, resultJsonPath);
+        }
+
+        if (MetaData == null)
+        {
+            MetaData = new MetaData();
+        }
+
+        if (File.Exists(lgPath))
+        {
+            MetaData = CalculationResultParser.ApplyLgFile(MetaData, lgPath);
+        }
     }
 }

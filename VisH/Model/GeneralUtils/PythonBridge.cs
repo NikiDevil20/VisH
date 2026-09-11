@@ -20,6 +20,11 @@ public class PythonBridge
 
     public string ExecuteScript(string scriptName, string[] scriptArgs)
     {
+        return ExecuteScriptWithStatus(scriptName, scriptArgs).stdout;
+    }
+
+    public (int exitCode, string stdout, string stderr) ExecuteScriptWithStatus(string scriptName, string[] scriptArgs)
+    {
         string scriptPath = Path.Combine(pythonFolderPath, scriptName);
 
         var psi = new ProcessStartInfo
@@ -38,15 +43,17 @@ public class PythonBridge
         }
         
         using Process process = Process.Start(psi);
-        
+        if (process == null)
+        {
+            return (-1, string.Empty, "Failed to start python process.");
+        }
+
         string output = process.StandardOutput.ReadToEnd();
         string? error =  process.StandardError.ReadToEnd();
         
         process.WaitForExit();
-        
-        if (!string.IsNullOrWhiteSpace(error))
-            return error;
-        return output;
+
+        return (process.ExitCode, output, error ?? string.Empty);
     }
     
 }

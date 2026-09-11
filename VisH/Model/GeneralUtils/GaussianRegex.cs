@@ -29,6 +29,12 @@ public class GaussianRegex
     public static readonly Regex UsedCpuRegex =
         new(@"resources_used\.cpupercent\s*=\s*(\d+)", RegexOptions.Compiled);
 
+    public static readonly Regex UsedNodesRegex =
+        new(@"resources_used\.nodes\s*=\s*(\d+)", RegexOptions.Compiled);
+
+    public static readonly Regex UsedCoresRegex =
+        new(@"resources_used\.ncpus\s*=\s*(\d+)", RegexOptions.Compiled);
+
     public static readonly Regex RamRegex =
         new(@"%mem\s*=\s*(\d+)\s*([KMGT]?B)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);

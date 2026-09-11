@@ -1,6 +1,10 @@
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Input;
+using VisH.Model.CalculationObject;
+using VisH.Model.Enums;
 using VisH.Model.GeneralUtils.Hilbert;
+using VisH.Model.GeneralUtils;
 using VisH.ViewModel;
 
 namespace VisH.Model.GeneralUtils.FileHandling;
@@ -8,6 +12,7 @@ namespace VisH.Model.GeneralUtils.FileHandling;
 public class DownloadManager : ViewModelBase
 {
     private readonly JobManager _jobManager;
+    private readonly PythonBridge _pythonBridge = new();
     private readonly SemaphoreSlim _downloadLock = new(1, 1);
 
     public DownloadManager(JobManager jobManager)
@@ -82,7 +87,13 @@ public class DownloadManager : ViewModelBase
                 LocalDownloadPercentage = p.CurrentFileSize > 0 ? 100.0 * p.CurrentBytesDownloaded / p.CurrentFileSize : 0;
             });
 
-            return await Task.Run(() => _jobManager.DownloadFolder(directory, progress));
+            var success = await Task.Run(() => _jobManager.DownloadFolder(directory, progress));
+            if (success)
+            {
+                UpdateDownloadedCalculation(directory);
+            }
+
+            return success;
         }
         finally
         {
@@ -92,5 +103,56 @@ public class DownloadManager : ViewModelBase
             IsDownloading = false;
             _downloadLock.Release();
         }
+    }
+
+    private void UpdateDownloadedCalculation(DirectoryExtension directory)
+    {
+        var jsonPath = directory.GetContent(PathType.Local)
+            .OfType<FileExtension>()
+            .FirstOrDefault(f => f.GetFileName(PathType.Local).Equals("calculation.json", StringComparison.OrdinalIgnoreCase));
+
+        var logPath = directory.GetContent(PathType.Local)
+            .OfType<FileExtension>()
+            .FirstOrDefault(f => f.GetFileName(PathType.Local).EndsWith(".log", StringComparison.OrdinalIgnoreCase));
+
+        var lgPath = directory.GetContent(PathType.Local)
+            .OfType<FileExtension>()
+            .FirstOrDefault(f => f.GetFileName(PathType.Local).EndsWith(".lg", StringComparison.OrdinalIgnoreCase));
+
+        if (jsonPath is null || logPath is null || lgPath is null)
+        {
+            return;
+        }
+
+        var localDirectory = Path.GetDirectoryName(jsonPath.GetPath(PathType.Local));
+        if (string.IsNullOrWhiteSpace(localDirectory))
+        {
+            return;
+        }
+
+        var scriptResult = _pythonBridge.ExecuteScriptWithStatus("ParseLogfile.py", [logPath.GetPath(PathType.Local), localDirectory]);
+        if (!string.IsNullOrWhiteSpace(scriptResult.stdout) || !string.IsNullOrWhiteSpace(scriptResult.stderr))
+        {
+            Console.WriteLine(scriptResult.stdout);
+            Console.WriteLine(scriptResult.stderr);
+        }
+
+        var resultJsonPath = Path.Combine(localDirectory, "result.json");
+        if (!File.Exists(resultJsonPath))
+        {
+            Console.WriteLine($"Expected result file not found: {resultJsonPath}");
+            return;
+        }
+
+        if (!File.Exists(jsonPath.GetPath(PathType.Local)))
+        {
+            return;
+        }
+
+        var calculation = Calculation.FromJson(jsonPath.GetPath(PathType.Local), null!);
+        calculation.UpdateFromDownloadedFiles(
+            resultJsonPath,
+            lgPath.GetPath(PathType.Local));
+        calculation.SaveCalculation();
     }
 }

@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
 using VisH.Model;
+using VisH.Model.CalculationProperties;
 using VisH.Model.GeneralUtils;
 using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.GeneralUtils.Hilbert;
+using VisH.Model.CalculationObject;
 using VisH.Model.PostRun;
 using VisH.Model.WPFDisplayObjects;
 
@@ -146,14 +148,20 @@ public class OverviewViewModel : ViewModelBase
             return;
         }
 
-        // CalcResults calcResults = _logFileAnalyzer.Run(SelectedPath);
-        //
-        // MoleculeName = calcResults.MetaData.JobName;
-        //
-        // DictToGridItems(SetupMetaData(calcResults.MetaData), MetaDataGridItems);
-        // DictToGridItems(SetupEnergies(calcResults.Energy), EnergiesGridItems);
-        // DictToGridItems(SetupFrequencies(calcResults.Frequency), FrequenciesGridItems);
-        // DictToGridItems(SetupOrbitals(calcResults.Orbitals), OrbitalsGridItems);
+        var calculationJson = SelectedPath.TryGetFileWithEnding(".json");
+        if (calculationJson is null)
+        {
+            ClearProperties();
+            return;
+        }
+
+        var calculation = Calculation.FromJson(calculationJson.WindowsPath, _sshService);
+        MoleculeName = calculation.MetaData?.JobName ?? "";
+
+        DictToGridItems(SetupMetaData(calculation.MetaData), MetaDataGridItems);
+        DictToGridItems(SetupEnergies(calculation.Results), EnergiesGridItems);
+        DictToGridItems(SetupFrequencies(calculation.Results), FrequenciesGridItems);
+        DictToGridItems(SetupOrbitals(calculation.Results), OrbitalsGridItems);
     }
 
 
@@ -166,26 +174,45 @@ public class OverviewViewModel : ViewModelBase
             targetCollection.Add(new DataGridItem(ele.Key, ele.Value));
         }
     }
-    // private Dictionary<string, string> SetupMetaData(MetaData metaData)
-    // {
-    //     return metaData.ToDictionary();
-    // }
-    //
-    // private Dictionary<string, string> SetupEnergies(EnergyResults energyResults)
-    // {
-    //     return energyResults.ToDictionary();
-    // }
-    //
-    // private Dictionary<string, string> SetupFrequencies(Frequency frequency)
-    // {
-    //     return frequency.ToDictionary();
-    // }
-    //
-    // private Dictionary<string, string> SetupOrbitals(Orbitals orbitals)
-    // {
-    //     return orbitals.ToDictionary();
-    //
-    // }
+    private Dictionary<string, string> SetupMetaData(MetaData? metaData)
+    {
+        var dict = new Dictionary<string, string>();
+        if (metaData == null) return dict;
+        dict["JobName"] = metaData.JobName ?? "";
+        dict["JobId"] = metaData.JobId ?? "";
+        dict["Walltime"] = metaData.Ressources.Walltime.ToString();
+        dict["UsedCpu"] = metaData.Ressources.UsedCpu.ToString();
+        dict["UsedMemory"] = metaData.Ressources.UsedMemory.ToString();
+        return dict;
+    }
+
+    private Dictionary<string, string> SetupEnergies(Results? results)
+    {
+        var dict = new Dictionary<string, string>();
+        if (results == null || results.ScfEnergies.Length == 0) return dict;
+        dict["Total Energy"] = results.ScfEnergies[^1].ToString("F6");
+        return dict;
+    }
+
+    private Dictionary<string, string> SetupFrequencies(Results? results)
+    {
+        var dict = new Dictionary<string, string>();
+        if (results == null || results.AllFreqs.Length == 0) return dict;
+        dict["NImag"] = results.AllFreqs.Count(f => f < 0).ToString();
+        dict["Lowest"] = results.AllFreqs.Min().ToString("F2");
+        dict["Highest"] = results.AllFreqs.Max().ToString("F2");
+        return dict;
+    }
+
+    private Dictionary<string, string> SetupOrbitals(Results? results)
+    {
+        var dict = new Dictionary<string, string>();
+        if (results == null || results.MoEnergies.Length <= results.NHomo + 1) return dict;
+        dict["HOMO"] = results.MoEnergies[results.NHomo].ToString("F6");
+        dict["LUMO"] = results.MoEnergies[results.NHomo + 1].ToString("F6");
+        dict["Gap"] = (results.MoEnergies[results.NHomo + 1] - results.MoEnergies[results.NHomo]).ToString("F6");
+        return dict;
+    }
     
     
 }

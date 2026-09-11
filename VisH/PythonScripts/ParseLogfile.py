@@ -1,11 +1,11 @@
-﻿from pathlib import Path
-import cclib
-import sys
+from pathlib import Path
 import json
+import re
+import sys
+import traceback
 
 ATOMIC_SYMBOLS = {
-    1: "H", 2: "He",
-    3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F", 10: "Ne",
+    1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F", 10: "Ne",
     11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar",
     19: "K", 20: "Ca", 21: "Sc", 22: "Ti", 23: "V", 24: "Cr", 25: "Mn", 26: "Fe",
     27: "Co", 28: "Ni", 29: "Cu", 30: "Zn", 31: "Ga", 32: "Ge", 33: "As", 34: "Se",
@@ -23,40 +23,87 @@ ATOMIC_SYMBOLS = {
 }
 
 def parse_logfile(logfile_path):
+    text = Path(logfile_path).read_text(encoding="utf-8", errors="ignore")
     json_dict = {}
-    
-    data = cclib.io.ccread(logfile_path)
-    
-    json_dict["NHomo"] = int(data.homos[0])
-    try:
-        json_dict["AllFreqs"] = data.vibfreqs.tolist()
-    except AttributeError:
-        json_dict["AllFreqs"] = []
-    json_dict["MoEnergies"] = data.moenergies[0].tolist()
-    json_dict["ScfEnergies"] = data.scfenergies.tolist()
-    json_dict["CoordResults"] = coords_to_string(data)
-    json_dict["Version"] = 1
-    
-    return json_dict
-    
-def coords_to_string(data) -> str:
-    coords_list = data.atomcoords
-    numbers_list = data.atomnos
-   
-    molecule = []
-    for i, atom in enumerate(coords_list[-1]):
-        atomnumber = numbers_list[i]
-        atomsymbol = ATOMIC_SYMBOLS[atomnumber]
 
-        line = f"{atomsymbol} {atom[0]:f} {atom[1]:f} {atom[2]:f}"
-        molecule.append(line)
-    
+    json_dict["NHomo"] = parse_nhomo(text)
+    json_dict["AllFreqs"] = parse_frequencies(text)
+    json_dict["MoEnergies"] = parse_mo_energies(text)
+    json_dict["ScfEnergies"] = parse_scf_energies(text)
+    json_dict["CoordResults"] = parse_coordinates(text)
+    json_dict["Version"] = 1
+
+    return json_dict
+
+def parse_nhomo(text):
+    matches = re.findall(r"N\s*Imag\s*=\s*(\d+)", text, re.IGNORECASE)
+    return int(matches[-1]) if matches else 0
+
+def parse_frequencies(text):
+    freqs = []
+    for match in re.findall(r"Frequencies --\s+([-\d.\s]+)", text):
+        freqs.extend(float(value) for value in match.split())
+    return freqs
+
+def parse_scf_energies(text):
+    energies = []
+    for match in re.findall(r"SCF Done:\s+E\([^)]+\)\s+=\s+(-?\d+\.\d+)", text):
+        energies.append(float(match))
+    return energies
+
+def parse_mo_energies(text):
+    matches = re.findall(r"Alpha\s+occ\.\s+eigenvalues\s+--\s+([-\d.\s]+)", text)
+    if not matches:
+        return []
+    values = []
+    for line in matches:
+        values.extend(float(value) for value in line.split())
+    return values
+
+def parse_coordinates(text):
+    blocks = re.findall(
+        r"Standard orientation:\s+.*?-+\s+Center\s+Atomic\s+Atomic\s+Coordinates \(Angstroms\)\s+-+\s+(.*?)\s+-+",
+        text,
+        re.DOTALL
+    )
+    if not blocks:
+        return ""
+
+    last_block = blocks[-1]
+    molecule = []
+    for line in last_block.splitlines():
+        parts = line.split()
+        if len(parts) < 6:
+            continue
+        atomnumber = int(parts[1])
+        atomsymbol = ATOMIC_SYMBOLS.get(atomnumber, "X")
+        x, y, z = parts[3], parts[4], parts[5]
+        molecule.append(f"{atomsymbol} {x} {y} {z}")
+
     return "\n".join(molecule)
 
-logfile = sys.argv[1]
-directory = sys.argv[2]
+if __name__ == "__main__":
+    logfile = sys.argv[1]
+    directory = Path(sys.argv[2])
+    log_path = directory / "parse_logfile_debug.txt"
 
-json_dict = parse_logfile(logfile)
+    try:
+        with open(log_path, "a", encoding="utf-8") as debug:
+            debug.write(f"logfile={logfile}\n")
+            debug.write(f"directory={directory}\n")
+            debug.write("starting parse\n")
 
-with open(Path(directory) / "result.json", "w", encoding="utf-8") as f:
-    json.dump(json_dict, f, indent=2)
+        json_dict = parse_logfile(logfile)
+
+        result_path = directory / "result.json"
+        with open(result_path, "w", encoding="utf-8") as f:
+            json.dump(json_dict, f, indent=2)
+            f.flush()
+
+        with open(log_path, "a", encoding="utf-8") as debug:
+            debug.write(f"result.json written to {result_path}\n")
+            debug.write(f"exists={result_path.exists()}\n")
+    except Exception:
+        with open(log_path, "a", encoding="utf-8") as debug:
+            debug.write(traceback.format_exc())
+        raise
