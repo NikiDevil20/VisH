@@ -26,26 +26,42 @@ public class FileTransferService
         FileClient.Disconnect();
     }
     
+    private static string NormalizeRemotePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        var normalized = path.Replace('\\', '/').Trim();
+        while (normalized.StartsWith('/'))
+        {
+            normalized = normalized[1..];
+        }
+
+        return normalized.Trim('/');
+    }
+
     private void BuildRecursiveDirs(string directoryPath)
     {
-        string[] parts = directoryPath.Split('/');
-        
-        string path = "";
-        
+        var normalizedPath = NormalizeRemotePath(directoryPath);
+        if (string.IsNullOrWhiteSpace(normalizedPath))
+        {
+            return;
+        }
+
+        var parts = normalizedPath.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        string path = string.Empty;
+
         foreach (var part in parts)
         {
-            if (string.IsNullOrWhiteSpace(part))
-            {
-                continue;
-            }
-            path += "/" + part;
+            path = string.IsNullOrEmpty(path) ? part : $"{path}/{part}";
             if (!FileClient.Exists(path))
             {
                 Console.WriteLine($"Creating directory: {path}");
                 FileClient.CreateDirectory(path);
             }
         }
-        
     }
     
     public void UploadFiles(
@@ -54,12 +70,17 @@ public class FileTransferService
         string remoteDirectory)
     {
         Console.WriteLine("FTS");
+        var normalizedRemoteDirectory = NormalizeRemotePath(remoteDirectory);
+        var normalizedRemotePaths = remoteFilePaths
+            .Select(path => NormalizeRemotePath(path))
+            .ToArray();
+
         for (int i = 0; i < localFilePaths.Length; i++)
         {
-            BuildRecursiveDirs(remoteDirectory);
+            BuildRecursiveDirs(normalizedRemoteDirectory);
             var fileStream = File.OpenRead(localFilePaths[i]);
-            Console.WriteLine(remoteFilePaths[i]);
-            FileClient.UploadFile(fileStream, remoteFilePaths[i]);
+            Console.WriteLine(normalizedRemotePaths[i]);
+            FileClient.UploadFile(fileStream, normalizedRemotePaths[i]);
         }
     }
     

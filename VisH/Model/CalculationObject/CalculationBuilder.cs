@@ -1,5 +1,6 @@
 ﻿using VisH.Model.CalculationProperties;
 using VisH.Model.CalculationUtils;
+using VisH.Model.Enums;
 using VisH.Model.GeneralUtils.Hilbert;
 using VisH.Model.PostRun;
 
@@ -31,16 +32,26 @@ public static class CalculationBuilder
     public static Calculation TimeDependant(
         BundledConstructionParameters bundledConstructionParameters,
         string geometryOptimizationJobId,
-        SshService sshService,
-        JobFinder jobFinder)
+        string geometryOptimizationChkPath,
+        SshService sshService)
     {
-        var geometryOptimizationJob = jobFinder.GetCalculationByJobId(geometryOptimizationJobId);
+        if (string.IsNullOrWhiteSpace(geometryOptimizationJobId))
+        {
+            throw new ArgumentException("Geometry optimization job id is required for a time-dependent calculation.", nameof(geometryOptimizationJobId));
+        }
 
-        string optimizedGeometry = "geometryOptimizationJob.Results.Coordinates"; // TODO
-        var molecule = new Molecule(bundledConstructionParameters, atomCoordinates: optimizedGeometry);
-        
+        if (string.IsNullOrWhiteSpace(geometryOptimizationChkPath))
+        {
+            throw new ArgumentException("The geometry optimization checkpoint path is required for a time-dependent calculation.", nameof(geometryOptimizationChkPath));
+        }
+
+        var molecule = new Molecule(bundledConstructionParameters);
         var metaData = new MetaData();
-        var gaussianParameters = new GaussianParameters(bundledConstructionParameters);
+        var gaussianParameters = new GaussianParameters(bundledConstructionParameters)
+        {
+            OldChkPath = geometryOptimizationChkPath,
+            DependencyJobId = geometryOptimizationJobId
+        };
 
         var calculation = new Calculation(sshService);
         calculation.AddGaussianParameters(gaussianParameters);

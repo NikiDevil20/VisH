@@ -39,33 +39,52 @@ public class MenuBarViewModel : ViewModelBase
         
         BundledConstructionParameters[] allBundledParameters = window.Result;
         
-        List<Calculation> calculations = new List<Calculation>();
+        List<Calculation> calculationsToSubmit = new();
 
         foreach (var bundledParameters in allBundledParameters)
         {
             switch (bundledParameters.JobType)
             {
                 case JobTypes.GeometryOptimization:
-                    var calculation = CalculationBuilder.GeometryOptimization(bundledParameters, _sshService);
-                    calculations.Add(calculation);
+                    calculationsToSubmit.Add(CalculationBuilder.GeometryOptimization(bundledParameters, _sshService));
                     break;
                 case JobTypes.TimeDependant:
+                    var geometryOptimization = CalculationBuilder.GeometryOptimization(
+                        bundledParameters with { JobType = JobTypes.GeometryOptimization },
+                        _sshService);
+
+                    var geometryJobIds = _fileHandler.Upload([geometryOptimization]);
+                    var geometryJobId = geometryJobIds.FirstOrDefault()
+                        ?? throw new InvalidOperationException("Geometry optimization job submission failed.");
+                    geometryOptimization.MetaData.JobId = geometryJobId;
+                    geometryOptimization.Molecule.DrawSvg(geometryOptimization.Paths.RelativeDirectory.GetPath(), new PythonBridge());
+                    geometryOptimization.SaveCalculation();
+
                     var timeDependentCalculation = CalculationBuilder.TimeDependant(
-                        bundledParameters, bundledParameters.GeometryOptimizationJobId, _sshService, _jobFinder);
-                    calculations.Add(timeDependentCalculation);
+                        bundledParameters,
+                        geometryJobId,
+                        geometryOptimization.Paths.ChkFile.GetPath(PathType.Cluster),
+                        _sshService);
+                    calculationsToSubmit.Add(timeDependentCalculation);
                     break;
                 default:
                     throw new NotImplementedException("Unsupported job type");
             }
         }
-        
-        var jobIds = _fileHandler.Upload(calculations.ToArray());
 
-        for (int i = 0; i < calculations.Count; i++)
+        if (calculationsToSubmit.Count == 0)
         {
-            calculations[i].MetaData.JobId = jobIds[i];
-            calculations[i].Molecule.DrawSvg(calculations[i].Paths.RelativeDirectory.GetPath(), new PythonBridge());
-            calculations[i].SaveCalculation();
+            return;
+        }
+
+        var jobIds = _fileHandler.Upload(calculationsToSubmit.ToArray());
+
+        for (int i = 0; i < calculationsToSubmit.Count; i++)
+        {
+            var calculation = calculationsToSubmit[i];
+            calculation.MetaData.JobId = jobIds[i];
+            calculation.Molecule.DrawSvg(calculation.Paths.RelativeDirectory.GetPath(), new PythonBridge());
+            calculation.SaveCalculation();
         }
         
     }

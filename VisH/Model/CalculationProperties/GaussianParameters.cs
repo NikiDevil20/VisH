@@ -19,6 +19,8 @@ public class GaussianParameters
     public string? Keywords { get; set; }
     public string? LinkKeywords { get; set; }
     public string? ScanContext { get; set; }
+    public string? OldChkPath { get; set; }
+    public string? DependencyJobId { get; set; }
     
     [JsonConstructor]
     public GaussianParameters()
@@ -38,12 +40,19 @@ public class GaussianParameters
         Keywords = null;
         LinkKeywords = null;
         ScanContext = null;
+        OldChkPath = null;
+        DependencyJobId = null;
     }
     
     public override string ToString()
     {
+        var cfg = Config.Load();
         var sb = new StringBuilder();
         sb.AppendLine($"%NProcShared={NProc}");
+        if (!string.IsNullOrWhiteSpace(OldChkPath))
+        {
+            sb.AppendLine($"%oldchk=/home/{cfg.ClusterUsername}/{OldChkPath}");
+        }
         sb.AppendLine("%Chk=gauss.chk");
         sb.AppendLine($"%mem={Memory}GB");
         
@@ -64,8 +73,13 @@ public class GaussianParameters
 
     public string ToLink()
     {
+        var cfg = Config.Load();
         var sb = new StringBuilder();
         sb.AppendLine($"%NProcShared={NProc}");
+        if (!string.IsNullOrWhiteSpace(OldChkPath))
+        {
+            sb.AppendLine($"%oldchk=/home/{cfg.ClusterUsername}/{OldChkPath}");
+        }
         sb.AppendLine("%Chk=gauss.chk");
         sb.AppendLine($"%mem={Memory}GB");
         

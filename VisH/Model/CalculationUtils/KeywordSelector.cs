@@ -92,12 +92,12 @@ public class KeywordSelector
         switch (_state)
         {
             case State.S0:
-                break;
-            
             case State.S1 or State.S2 or State.S3:
+                keywords.Add("TD=(NStates=10)");
                 break;
             
             case State.T1 or State.T2 or State.T3:
+                keywords.Add("TD=(NStates=10,Triplets)");
                 break;
             
             default:

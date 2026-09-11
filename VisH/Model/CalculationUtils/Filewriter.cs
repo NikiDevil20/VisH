@@ -3,6 +3,7 @@ using System.Text;
 using VisH.Model.CalculationObject;
 using VisH.Model.CalculationProperties;
 using VisH.Model.Enums;
+using VisH.Model.GeneralUtils;
 
 namespace VisH.Model.CalculationUtils;
 
@@ -42,6 +43,7 @@ public class Filewriter
     private string GetGstartText()
     {
         var sb = new StringBuilder();
+        var cfg = Config.Load();
         
         string walltime =
             $"{(int)_calculation.GaussianParameters.MaxWalltime.TotalHours:00}" +
@@ -53,11 +55,15 @@ public class Filewriter
                        $":mem={_calculation.GaussianParameters.Memory + 2}GB");
          sb.AppendLine($"#PBS -l walltime={walltime}");
          sb.AppendLine("#PBS -r n");
+         if (!string.IsNullOrWhiteSpace(_calculation.GaussianParameters.DependencyJobId))
+         {
+             sb.AppendLine($"#PBS -W depend=afterok:{_calculation.GaussianParameters.DependencyJobId}");
+         }
          sb.AppendLine($"#PBS -N {_calculation.MetaData.JobName}P");
          sb.AppendLine("#PBS -A OC1M\n");
 
          sb.AppendLine($"GaussianInputFilename={_calculation.Paths.GaussianInputFile.GetFileName()}");
-         sb.AppendLine($"WORKDIR={_calculation.Paths.RelativeDirectory.GetPath(PathType.Cluster)}");
+         sb.AppendLine($"WORKDIR=/home/{cfg.ClusterUsername}/{_calculation.Paths.RelativeDirectory.GetPath(PathType.Cluster)}");
 
          string staticText = """
                              FileBasename=$(basename $GaussianInputFilename)
