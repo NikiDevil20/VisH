@@ -23,64 +23,69 @@ ATOMIC_SYMBOLS = {
 }
 
 def parse_logfile(logfile_path):
-    text = Path(logfile_path).read_text(encoding="utf-8", errors="ignore")
     json_dict = {}
+    nhomo = 0
+    freqs = []
+    mo_energies = []
+    scf_energies = []
+    coord_block = []
 
-    json_dict["NHomo"] = parse_nhomo(text)
-    json_dict["AllFreqs"] = parse_frequencies(text)
-    json_dict["MoEnergies"] = parse_mo_energies(text)
-    json_dict["ScfEnergies"] = parse_scf_energies(text)
-    json_dict["CoordResults"] = parse_coordinates(text)
+    in_orientation = False
+    skip_orientation_headers = 0
+    current_orientation = []
+
+    with open(logfile_path, "r", encoding="utf-8", errors="ignore") as logfile:
+        for raw_line in logfile:
+            line = raw_line.rstrip("\n")
+
+            nhomo_match = re.search(r"N\s*Imag\s*=\s*(\d+)", line, re.IGNORECASE)
+            if nhomo_match:
+                nhomo = int(nhomo_match.group(1))
+
+            freq_match = re.search(r"Frequencies --\s+([-\d.\s]+)", line)
+            if freq_match:
+                freqs.extend(float(value) for value in freq_match.group(1).split())
+
+            scf_match = re.search(r"SCF Done:\s+E\([^)]+\)\s+=\s+(-?\d+\.\d+)", line)
+            if scf_match:
+                scf_energies.append(float(scf_match.group(1)))
+
+            mo_match = re.search(r"Alpha\s+occ\.\s+eigenvalues\s+--\s+([-\d.\s]+)", line)
+            if mo_match:
+                mo_energies.extend(float(value) for value in mo_match.group(1).split())
+
+            if "Standard orientation:" in line:
+                in_orientation = True
+                skip_orientation_headers = 5
+                current_orientation = []
+                continue
+
+            if in_orientation:
+                if skip_orientation_headers > 0:
+                    skip_orientation_headers -= 1
+                    continue
+
+                if re.match(r"\s*-+\s*$", line):
+                    if current_orientation:
+                        coord_block = current_orientation
+                    in_orientation = False
+                    continue
+
+                parts = line.split()
+                if len(parts) >= 6:
+                    atomnumber = int(parts[1])
+                    atomsymbol = ATOMIC_SYMBOLS.get(atomnumber, "X")
+                    x, y, z = parts[3], parts[4], parts[5]
+                    current_orientation.append(f"{atomsymbol} {x} {y} {z}")
+
+    json_dict["NHomo"] = nhomo
+    json_dict["AllFreqs"] = freqs
+    json_dict["MoEnergies"] = mo_energies
+    json_dict["ScfEnergies"] = scf_energies
+    json_dict["CoordResults"] = "\n".join(coord_block)
     json_dict["Version"] = 1
 
     return json_dict
-
-def parse_nhomo(text):
-    matches = re.findall(r"N\s*Imag\s*=\s*(\d+)", text, re.IGNORECASE)
-    return int(matches[-1]) if matches else 0
-
-def parse_frequencies(text):
-    freqs = []
-    for match in re.findall(r"Frequencies --\s+([-\d.\s]+)", text):
-        freqs.extend(float(value) for value in match.split())
-    return freqs
-
-def parse_scf_energies(text):
-    energies = []
-    for match in re.findall(r"SCF Done:\s+E\([^)]+\)\s+=\s+(-?\d+\.\d+)", text):
-        energies.append(float(match))
-    return energies
-
-def parse_mo_energies(text):
-    matches = re.findall(r"Alpha\s+occ\.\s+eigenvalues\s+--\s+([-\d.\s]+)", text)
-    if not matches:
-        return []
-    values = []
-    for line in matches:
-        values.extend(float(value) for value in line.split())
-    return values
-
-def parse_coordinates(text):
-    blocks = re.findall(
-        r"Standard orientation:\s+.*?-+\s+Center\s+Atomic\s+Atomic\s+Coordinates \(Angstroms\)\s+-+\s+(.*?)\s+-+",
-        text,
-        re.DOTALL
-    )
-    if not blocks:
-        return ""
-
-    last_block = blocks[-1]
-    molecule = []
-    for line in last_block.splitlines():
-        parts = line.split()
-        if len(parts) < 6:
-            continue
-        atomnumber = int(parts[1])
-        atomsymbol = ATOMIC_SYMBOLS.get(atomnumber, "X")
-        x, y, z = parts[3], parts[4], parts[5]
-        molecule.append(f"{atomsymbol} {x} {y} {z}")
-
-    return "\n".join(molecule)
 
 if __name__ == "__main__":
     logfile = sys.argv[1]
