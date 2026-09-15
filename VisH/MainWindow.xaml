@@ -9,6 +9,7 @@
 
 
         mc:Ignorable="d" WindowStyle="None"
+        Icon="pack://application:,,,/Assets/Vish_Logo_Multiple.ico"
         Title="VisH" Height="720" Width="1280">
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0" CaptionHeight="0"></WindowChrome>
@@ -71,4 +72,3 @@
         
     </Grid>
 </Window>
-

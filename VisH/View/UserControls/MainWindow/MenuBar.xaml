@@ -28,12 +28,12 @@
         
         
             
-        <TextBlock Grid.Row="0" Grid.Column="0" Padding="20,5,0,0" HorizontalAlignment="Left"
-                   VerticalAlignment="Center" Foreground="White" FontSize="32" FontFamily="Arial">
-            <TextBlock.Text>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+            <Image Width="32" Height="32" Source="pack://application:,,,/Assets/Vish_Logo_Multiple.ico" Stretch="Uniform" />
+            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Foreground="White" FontSize="32" FontFamily="Arial">
                 VisH
-            </TextBlock.Text>
-        </TextBlock>
+            </TextBlock>
+        </StackPanel>
         
         <Grid Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="15, 0, 0, 0">
             <Grid.ColumnDefinitions>
@@ -86,4 +86,3 @@
             
     </Grid>
 </UserControl>
-
