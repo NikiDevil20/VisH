@@ -35,6 +35,12 @@ public class OverviewViewModel : ViewModelBase
         get => _moleculeName;
         set => SetProperty(ref _moleculeName, value);
     }
+    private bool _hasValidSelection;
+    public bool HasValidSelection
+    {
+        get => _hasValidSelection;
+        set => SetProperty(ref _hasValidSelection, value);
+    }
     private PathObject? SelectedPath { get; set; }
     private TreeNode? _selectedNode;
     public TreeNode? SelectedNode 
@@ -138,13 +144,17 @@ public class OverviewViewModel : ViewModelBase
     private void DisplayProperties()
     {
         if (SelectedPath is null)
+        {
+            HasValidSelection = false;
             return;
+        }
         
         SetMoleculeImage(SelectedPath);
         
         if (!PropertiesPresent())
         {
             ClearProperties();
+            HasValidSelection = false;
             return;
         }
 
@@ -152,6 +162,7 @@ public class OverviewViewModel : ViewModelBase
         if (calculationJson is null)
         {
             ClearProperties();
+            HasValidSelection = false;
             return;
         }
 
@@ -162,6 +173,7 @@ public class OverviewViewModel : ViewModelBase
         DictToGridItems(SetupEnergies(calculation.Results), EnergiesGridItems);
         DictToGridItems(SetupFrequencies(calculation.Results), FrequenciesGridItems);
         DictToGridItems(SetupOrbitals(calculation.Results), OrbitalsGridItems);
+        HasValidSelection = true;
     }
 
 
