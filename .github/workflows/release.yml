@@ -28,6 +28,16 @@ jobs:
         shell: powershell
         run: |
           python -c "import rdkit, cclib, numpy, scipy, pandas, matplotlib, PIL, reportlab; print('Alle Pakete OK')"
+          
+      - name: Install conda-pack
+        shell: powershell
+        run: |
+          python -m pip install conda-pack
+
+      - name: Pack Python environment
+        shell: powershell
+        run: |
+          conda-pack -n VisH -o python-runtime.tar.gz
 
       - name: Build VisH
         run: dotnet publish VisH/VisH.csproj -c Release -r win-x64 --self-contained true -o publish
