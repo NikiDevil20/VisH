@@ -34,5 +34,6 @@ public class MainWindowViewModel
         MenuBarViewModel = new MenuBarViewModel(FileHandler, sshService, jobFinder);
         
         DownloadManager = FileHandler.DownloadManager;
+        
     }
 }
