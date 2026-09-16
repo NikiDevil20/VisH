@@ -1,0 +1,16 @@
+﻿name: VisH
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.12
+  - cclib
+  - matplotlib=3.11
+  - numpy
+  - pandas
+  - rdkit
+  - scipy
+  - pillow
+  - pycairo
+  - reportlab
+  - rlpycairo

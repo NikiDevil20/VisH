@@ -19,6 +19,13 @@ venv/
 *.sln.DotSettings.user
 
 # =========================
+# Python
+# =========================
+
+VisH/PythonScripts/venv/
+VisH/PythonScripts/__pycache__/
+
+# =========================
 
 # Visual Studio
 
