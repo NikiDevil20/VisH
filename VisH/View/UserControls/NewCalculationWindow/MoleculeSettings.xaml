@@ -42,7 +42,7 @@
                 
                 
                 <ComboBox 
-                    ItemsSource="{Binding States}"
+                    ItemsSource="{Binding StateCollection}"
                     SelectedItem="{Binding SelectedState}"
                     Margin="10, 0"
                     ></ComboBox>

@@ -2,7 +2,10 @@ using System.Configuration;
 using System.Data;
 using System.Windows;
 using Serilog;
-using VisH.Model.Configs;
+using VisH.Model.GeneralUtils;
+using VisH.Model.GeneralUtils.Hilbert;
+using VisH.View.Windows;
+using VisH.View.Windows.SettingsWindow;
 
 namespace VisH;
 
@@ -13,7 +16,25 @@ public partial class App : Application
 { 
     protected override void OnStartup(StartupEventArgs e)
     {
-        var config = Config.Load();
+        base.OnStartup(e);
+
+        Config? config = null;
+        string validationError;
+        try
+        {
+            config = Config.Load();
+            if (!SshService.TryValidateConfiguration(config, out validationError))
+            {
+                OpenInvalidConfigurationWindow(validationError);
+                return;
+            }
+        }
+        catch (Exception exception)
+        {
+            OpenInvalidConfigurationWindow(exception.Message);
+            return;
+        }
+
         var logPath = config.LocalRechnungenPath + "\\log-.txt";
         
         Log.Logger = new LoggerConfiguration()
@@ -24,8 +45,23 @@ public partial class App : Application
                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message:lj}{NewLine}{Exception}"
             )
             .CreateLogger();
-        
-        base.OnStartup(e);
+
+        try
+        {
+            // Create the application-wide SSH service once and pass it through the object graph.
+            new MainWindow(new SshService()).Show();
+        }
+        catch (Exception exception)
+        {
+            OpenInvalidConfigurationWindow(exception.Message);
+        }
+    }
+
+    private static void OpenInvalidConfigurationWindow(string reason)
+    {
+        string message = "Please create a valid configuration.";
+        if (!string.IsNullOrWhiteSpace(reason)) message += "\n\n" + reason;
+        new SettingsWindow(message).Show();
     }
     
     protected override void OnExit(ExitEventArgs e)

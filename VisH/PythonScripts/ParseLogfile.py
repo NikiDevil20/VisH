@@ -1,11 +1,11 @@
-﻿from pathlib import Path
-import cclib
-import sys
+from pathlib import Path
 import json
+import re
+import sys
+import traceback
 
 ATOMIC_SYMBOLS = {
-    1: "H", 2: "He",
-    3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F", 10: "Ne",
+    1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F", 10: "Ne",
     11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar",
     19: "K", 20: "Ca", 21: "Sc", 22: "Ti", 23: "V", 24: "Cr", 25: "Mn", 26: "Fe",
     27: "Co", 28: "Ni", 29: "Cu", 30: "Zn", 31: "Ga", 32: "Ge", 33: "As", 34: "Se",
@@ -24,39 +24,91 @@ ATOMIC_SYMBOLS = {
 
 def parse_logfile(logfile_path):
     json_dict = {}
-    
-    data = cclib.io.ccread(logfile_path)
-    
-    json_dict["NHomo"] = int(data.homos[0])
-    try:
-        json_dict["AllFreqs"] = data.vibfreqs.tolist()
-    except AttributeError:
-        json_dict["AllFreqs"] = []
-    json_dict["MoEnergies"] = data.moenergies[0].tolist()
-    json_dict["ScfEnergies"] = data.scfenergies.tolist()
-    json_dict["CoordResults"] = coords_to_string(data)
+    nhomo = 0
+    freqs = []
+    mo_energies = []
+    scf_energies = []
+    coord_block = []
+
+    in_orientation = False
+    skip_orientation_headers = 0
+    current_orientation = []
+
+    with open(logfile_path, "r", encoding="utf-8", errors="ignore") as logfile:
+        for raw_line in logfile:
+            line = raw_line.rstrip("\n")
+
+            nhomo_match = re.search(r"N\s*Imag\s*=\s*(\d+)", line, re.IGNORECASE)
+            if nhomo_match:
+                nhomo = int(nhomo_match.group(1))
+
+            freq_match = re.search(r"Frequencies --\s+([-\d.\s]+)", line)
+            if freq_match:
+                freqs.extend(float(value) for value in freq_match.group(1).split())
+
+            scf_match = re.search(r"SCF Done:\s+E\([^)]+\)\s+=\s+(-?\d+\.\d+)", line)
+            if scf_match:
+                scf_energies.append(float(scf_match.group(1)))
+
+            mo_match = re.search(r"Alpha\s+occ\.\s+eigenvalues\s+--\s+([-\d.\s]+)", line)
+            if mo_match:
+                mo_energies.extend(float(value) for value in mo_match.group(1).split())
+
+            if "Standard orientation:" in line:
+                in_orientation = True
+                skip_orientation_headers = 5
+                current_orientation = []
+                continue
+
+            if in_orientation:
+                if skip_orientation_headers > 0:
+                    skip_orientation_headers -= 1
+                    continue
+
+                if re.match(r"\s*-+\s*$", line):
+                    if current_orientation:
+                        coord_block = current_orientation
+                    in_orientation = False
+                    continue
+
+                parts = line.split()
+                if len(parts) >= 6:
+                    atomnumber = int(parts[1])
+                    atomsymbol = ATOMIC_SYMBOLS.get(atomnumber, "X")
+                    x, y, z = parts[3], parts[4], parts[5]
+                    current_orientation.append(f"{atomsymbol} {x} {y} {z}")
+
+    json_dict["NHomo"] = nhomo
+    json_dict["AllFreqs"] = freqs
+    json_dict["MoEnergies"] = mo_energies
+    json_dict["ScfEnergies"] = scf_energies
+    json_dict["CoordResults"] = "\n".join(coord_block)
     json_dict["Version"] = 1
-    
+
     return json_dict
-    
-def coords_to_string(data) -> str:
-    coords_list = data.atomcoords
-    numbers_list = data.atomnos
-   
-    molecule = []
-    for i, atom in enumerate(coords_list[-1]):
-        atomnumber = numbers_list[i]
-        atomsymbol = ATOMIC_SYMBOLS[atomnumber]
 
-        line = f"{atomsymbol} {atom[0]:f} {atom[1]:f} {atom[2]:f}"
-        molecule.append(line)
-    
-    return "\n".join(molecule)
+if __name__ == "__main__":
+    logfile = sys.argv[1]
+    directory = Path(sys.argv[2])
+    log_path = directory / "parse_logfile_debug.txt"
 
-logfile = sys.argv[1]
-directory = sys.argv[2]
+    try:
+        with open(log_path, "a", encoding="utf-8") as debug:
+            debug.write(f"logfile={logfile}\n")
+            debug.write(f"directory={directory}\n")
+            debug.write("starting parse\n")
 
-json_dict = parse_logfile(logfile)
+        json_dict = parse_logfile(logfile)
 
-with open(Path(directory) / "result.json", "w", encoding="utf-8") as f:
-    json.dump(json_dict, f, indent=2)
+        result_path = directory / "result.json"
+        with open(result_path, "w", encoding="utf-8") as f:
+            json.dump(json_dict, f, indent=2)
+            f.flush()
+
+        with open(log_path, "a", encoding="utf-8") as debug:
+            debug.write(f"result.json written to {result_path}\n")
+            debug.write(f"exists={result_path.exists()}\n")
+    except Exception:
+        with open(log_path, "a", encoding="utf-8") as debug:
+            debug.write(traceback.format_exc())
+        raise

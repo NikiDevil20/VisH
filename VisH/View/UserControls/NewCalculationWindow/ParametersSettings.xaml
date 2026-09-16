@@ -36,13 +36,13 @@
                 </Grid.ColumnDefinitions>
                 
                 <ComboBox 
-                    ItemsSource="{Binding Functionals}"
+                    ItemsSource="{Binding FunctionalCollection}"
                     SelectedItem="{Binding SelectedFunctional}"
                     Margin="10, 0"
                 ></ComboBox>
                 
                 <ComboBox Grid.Column="1" 
-                    ItemsSource="{Binding BasisSets}"
+                    ItemsSource="{Binding BasisSetCollection}"
                     SelectedItem="{Binding SelectedBasisSet}"
                     Margin="10, 0"
                 ></ComboBox>
@@ -62,13 +62,13 @@
                 </Grid.ColumnDefinitions>
                 
                 <ComboBox 
-                    ItemsSource="{Binding CalcTypes}"
+                    ItemsSource="{Binding CalcTypeCollection}"
                     SelectedItem="{Binding SelectedCalcType}"
                     Margin="10, 0"
                 ></ComboBox>
                 
                 <ComboBox Grid.Column="1" 
-                          ItemsSource="{Binding Solvents}"
+                          ItemsSource="{Binding SolventCollection}"
                           SelectedItem="{Binding SelectedSolvent}"
                           Margin="10, 0"
                 ></ComboBox>
