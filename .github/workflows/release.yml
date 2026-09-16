@@ -47,3 +47,15 @@ jobs:
 
       - name: Build VisH
         run: dotnet publish VisH/VisH.csproj -c Release -r win-x64 --self-contained true -o publish
+        
+      - name: Verify publish directory
+        shell: powershell
+        run: |
+          Write-Host "VisH:"
+          Test-Path publish\VisH.exe
+
+          Write-Host "Python:"
+          Test-Path publish\Python\python.exe
+
+          Write-Host "Python scripts:"
+          Test-Path publish\PythonScripts\SmilesValidation.py
