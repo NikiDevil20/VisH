@@ -38,6 +38,12 @@ jobs:
         shell: powershell
         run: |
           conda-pack -n VisH -o python-runtime.tar.gz
+          
+      - name: Extract Python runtime
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force publish\Python | Out-Null
+          tar -xzf python-runtime.tar.gz -C publish\Python
 
       - name: Build VisH
         run: dotnet publish VisH/VisH.csproj -c Release -r win-x64 --self-contained true -o publish
