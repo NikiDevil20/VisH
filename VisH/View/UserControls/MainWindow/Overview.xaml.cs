@@ -2,11 +2,10 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using VisH.Model;
-using VisH.Model.Configs;
-using VisH.Model.FileHandling;
+using VisH.Model.WPFDisplayObjects;
 using VisH.ViewModel;
 
-namespace VisH.View.UserControls;
+namespace VisH.View.UserControls.MainWindow;
 
 public partial class Overview : UserControl
 {

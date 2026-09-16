@@ -28,12 +28,12 @@
         
         
             
-        <TextBlock Grid.Row="0" Grid.Column="0" Padding="20,5,0,0" HorizontalAlignment="Left"
-                   VerticalAlignment="Center" Foreground="White" FontSize="32" FontFamily="Arial">
-            <TextBlock.Text>
-                Gaussian GUI
-            </TextBlock.Text>
-        </TextBlock>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+            <Image Width="32" Height="32" Source="pack://application:,,,/Assets/Vish_Logo_Multiple.ico" Stretch="Uniform" />
+            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Foreground="White" FontSize="32" FontFamily="Arial">
+                VisH
+            </TextBlock>
+        </StackPanel>
         
         <Grid Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="15, 0, 0, 0">
             <Grid.ColumnDefinitions>
@@ -43,7 +43,8 @@
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
-            <Button Grid.Column="0" Content="Settings" Margin="5" Padding="10, 2, 10, 2"></Button>
+            <Button Grid.Column="0" Content="Settings" Margin="5" Padding="10, 2, 10, 2"
+                    Command="{Binding SettingsCommand}" />
             
             <Button Grid.Column="1" Content="Help" Margin="5" Padding="10, 2, 10, 2"></Button>
             
@@ -85,4 +86,3 @@
             
     </Grid>
 </UserControl>
-
