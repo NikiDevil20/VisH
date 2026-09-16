@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
+        <ApplicationIcon>Assets\Vish_Logo_Multiple.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,10 +24,7 @@
 
     <ItemGroup>
       <Resource Include="Assets\FileNotFound.png" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="PythonScripts\venv\" />
+      <Resource Include="Assets\Vish_Logo_Multiple.ico" />
     </ItemGroup>
 
     <ItemGroup>
@@ -57,4 +55,16 @@
       </Page>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="PythonScripts\*.py">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="PythonRuntime\**\*">
+          <Link>Python\%(RecursiveDir)%(Filename)%(Extension)</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 </Project>

@@ -12,9 +12,9 @@ public class PythonBridge
     public PythonBridge()
     {
         // string baseDir = AppContext.BaseDirectory;
-        string baseDir = @"C:\Users\nikla\RiderProjects\VisH\VisH";
+        string baseDir = AppContext.BaseDirectory;
         pythonFolderPath = Path.Combine(baseDir, "PythonScripts");
-        pythonExePath = Path.Combine(pythonFolderPath, "venv",  "python.exe");
+        pythonExePath = Path.Combine(baseDir, "Python", "python.exe");
         
     }
 
@@ -52,7 +52,7 @@ public class PythonBridge
         string? error =  process.StandardError.ReadToEnd();
         
         process.WaitForExit();
-
+        
         return (process.ExitCode, output, error ?? string.Empty);
     }
     

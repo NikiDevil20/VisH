@@ -24,6 +24,7 @@ venv/
 
 VisH/PythonScripts/venv/
 VisH/PythonScripts/__pycache__/
+VisH/PythonRuntime/
 
 # =========================
 
