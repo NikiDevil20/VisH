@@ -50,6 +50,12 @@ VisH/PythonRuntime/
 packages/
 
 # =========================
+# Build artifacts
+# =========================
+publish/
+installer/VisH-Setup.exe
+
+# =========================
 
 # Logs / temporary files
 
