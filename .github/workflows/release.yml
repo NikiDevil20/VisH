@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - 'v*'
+      
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -79,4 +82,8 @@ jobs:
           name: VisH-Installer
           path: installer/VisH-Setup.exe
           
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: installer/VisH-Setup.exe
       
