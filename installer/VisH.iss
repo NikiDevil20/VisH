@@ -1,6 +1,8 @@
 #define MyAppName "VisH"
+#ifndef MyAppVersion
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "Niklas"
+#endif
+#define MyAppPublisher "Niklas Abe"
 #define MyAppExeName "VisH.exe"
 
 [Setup]
