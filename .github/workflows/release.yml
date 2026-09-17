@@ -68,6 +68,25 @@ jobs:
       - name: Build installer
         shell: powershell
         run: |
+          Write-Host "Current directory:"
+          Get-Location
+
+          Write-Host "Installer script:"
+          Test-Path "VisH\installer\VisH.iss"
+
+          Write-Host "Publish directory:"
+          Test-Path "publish"
+
+          Write-Host "Publish contents:"
+          Get-ChildItem "publish" | Select-Object Name
+
+          Write-Host "Python:"
+          Test-Path "publish\Python\python.exe"
+
+          Write-Host "VisH:"
+          Test-Path "publish\VisH.exe"
+
+          Write-Host "Running Inno Setup..."
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "VisH\installer\VisH.iss"
           
       
