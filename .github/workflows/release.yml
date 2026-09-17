@@ -59,3 +59,10 @@ jobs:
 
           Write-Host "Python scripts:"
           Test-Path publish\PythonScripts\SmilesValidation.py
+          
+      - name: Install Inno Setup
+        shell: powershell
+        run: |
+          choco install innosetup -y --no-progress
+          
+      
