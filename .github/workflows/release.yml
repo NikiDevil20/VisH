@@ -72,7 +72,7 @@ jobs:
           Get-Location
 
           Write-Host "Installer script:"
-          Test-Path "VisH\installer\VisH.iss"
+          Test-Path "installer\VisH.iss"
 
           Write-Host "Publish directory:"
           Test-Path "publish"
@@ -87,6 +87,6 @@ jobs:
           Test-Path "publish\VisH.exe"
 
           Write-Host "Running Inno Setup..."
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "VisH\installer\VisH.iss"
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "installer\VisH.iss"
           
       
