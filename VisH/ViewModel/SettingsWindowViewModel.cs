@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Windows;
 using Microsoft.Win32;
+using Serilog;
 using VisH.Model.GeneralUtils;
 
 namespace VisH.ViewModel;
@@ -89,8 +90,20 @@ public class SettingsWindowViewModel : ViewModelBase
     private void ApplyConfiguration()
     {
         if (!TryBuildConfig(out Config? config)) return;
-        _activeConfig = config;
-        WriteJson(ConfigFilePath, config);
+        try
+        {
+            _activeConfig = config;
+            WriteJson(ConfigFilePath, config);
+        }
+        catch (Exception exception)
+        {
+            Log.Error(exception, "Failed to apply configuration. Target file: {ConfigFilePath}", ConfigFilePath);
+            MessageBox.Show(
+                $"Could not apply configuration:\n{exception.Message}",
+                "Configuration error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 
     private void SaveConfiguration()
@@ -103,14 +116,31 @@ public class SettingsWindowViewModel : ViewModelBase
             ClusterUsername = Username.Trim(),
             SshKeyPath = SshKeyFilePath.Trim()
         };
-        WriteJson(path, preset);
-        _activeConfig = config;
-        WriteJson(ConfigFilePath, config);
+        try
+        {
+            WriteJson(path, preset);
+            _activeConfig = config;
+            WriteJson(ConfigFilePath, config);
 
-        ConfigPreset? old = SavedConfigurations.FirstOrDefault(p => p.Name.Equals(preset.Name, StringComparison.OrdinalIgnoreCase));
-        if (old == null) SavedConfigurations.Add(preset);
-        else SavedConfigurations[SavedConfigurations.IndexOf(old)] = preset;
-        SelectedConfiguration = preset;
+            ConfigPreset? old = SavedConfigurations.FirstOrDefault(p => p.Name.Equals(preset.Name, StringComparison.OrdinalIgnoreCase));
+            if (old == null) SavedConfigurations.Add(preset);
+            else SavedConfigurations[SavedConfigurations.IndexOf(old)] = preset;
+            SelectedConfiguration = preset;
+        }
+        catch (Exception exception)
+        {
+            Log.Error(
+                exception,
+                "Failed to save configuration preset '{PresetName}'. Preset file: {PresetPath}, Config file: {ConfigFilePath}",
+                preset.Name,
+                path,
+                ConfigFilePath);
+            MessageBox.Show(
+                $"Could not save configuration:\n{exception.Message}",
+                "Configuration error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 
     private bool TryBuildConfig(out Config? config)

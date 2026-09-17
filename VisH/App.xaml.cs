@@ -1,5 +1,3 @@
-using System.Configuration;
-using System.Data;
 using System.IO;
 using System.Windows;
 using Serilog;
@@ -36,7 +34,12 @@ public partial class App : Application
             return;
         }
 
-        var logPath = config.LocalRechnungenPath + "\\log-.txt";
+        string appDataDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "VisH");
+        string logDirectory = Path.Combine(appDataDirectory, "logs");
+        Directory.CreateDirectory(logDirectory);
+        string logPath = Path.Combine(logDirectory, "log-.txt");
         
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
