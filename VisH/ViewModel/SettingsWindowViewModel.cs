@@ -11,7 +11,7 @@ namespace VisH.ViewModel;
 public class SettingsWindowViewModel : ViewModelBase
 {
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
-    private readonly string _dataDirectory = Path.Combine(AppContext.BaseDirectory, "Data");
+    private readonly string _dataDirectory = Config.UserDataDirectory;
     private string _configurationName = string.Empty;
     private string _workingDirectory = string.Empty;
     private string _username = string.Empty;
