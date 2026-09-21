@@ -10,7 +10,8 @@
 
         mc:Ignorable="d" WindowStyle="None"
         Icon="pack://application:,,,/Assets/Vish_Logo_Multiple.ico"
-        Title="VisH" Height="720" Width="1280">
+        Title="VisH" Height="720" Width="1280"
+        MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0" CaptionHeight="0"></WindowChrome>
     </WindowChrome.WindowChrome>

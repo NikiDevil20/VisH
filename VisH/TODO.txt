@@ -1,3 +1,2 @@
-﻿- Alle basissätze und funktionale und Lömis
-- Abgeschnitten beim Maximieren
+﻿- Abgeschnitten beim Maximieren
 - Optionale Parameter wie opt=tight, int= für integrationsgitter etc per checkbox
