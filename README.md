@@ -22,7 +22,7 @@ The application simplifies the preparation and submission of quantum-chemical ca
 
 VisH is distributed as a Windows installer through the project's GitHub Releases.
 
-1. Open the **Releases** section of the repository.
+1. Open the **[Releases](https://github.com/NikiDevil20/VisH/releases)** section of the repository.
 2. Download the latest VisH installer.
 3. Run the installer and follow the installation instructions.
 4. Start VisH after installation. When launching for the first time, a setup window opens.
@@ -43,7 +43,7 @@ username@storage.hpc.rz.uni-duesseldorf.de
 
 ### 1. Check whether an SSH key already exists
 
-Open [PowerShell](https://docs.microsoft.com/en-us/powershell/) and check your `.ssh` directory:
+Open [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.6) and check your `.ssh` directory:
 
 ```powershell
 Get-ChildItem $env:USERPROFILE\.ssh
@@ -153,4 +153,5 @@ Python and the required dependencies are distributed with VisH and are installed
 
 1. Add result analysis for absorption and emission calculations.
 2. Add potential-energy scans as a new calculation type.
-3. Advanced settings in job creation
+3. Advanced settings in job creation.
+4. Directly open results in Avogadro, iQmol...
