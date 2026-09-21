@@ -2,8 +2,14 @@
 
 public enum Solvents
 {
+    Acetone,
+    Acetonitril,
+    Benzene,
+    Chloroform,
+    CycloHexane,
     Dichloromethane,
-    Toluene,
     Tetrahydrofurane,
+    Toluene,
+    Water,
     None
 }
