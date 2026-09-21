@@ -71,7 +71,7 @@
                     Width="30" Height="30" FontSize="12" Foreground="White" Background="Transparent"
                     BorderBrush="Transparent" BorderThickness="0"></Button>
             
-            <Button Name="MaximizeBtn" Grid.Column="1" Content="??" Click="MaximizeBtn_OnClick" Margin="5"
+            <Button Name="MaximizeBtn" Grid.Column="1" Content="🗖" Click="MaximizeBtn_OnClick" Margin="5"
                     Width="30" Height="30" FontSize="12" Foreground="White" Background="Transparent"
                     BorderBrush="Transparent" BorderThickness="0"></Button>
             
