@@ -57,7 +57,7 @@ public class GaussianParameters
         sb.AppendLine($"%mem={Memory}GB");
         
         var routeBuilder = new StringBuilder();
-        routeBuilder.Append($"#p {Functional} {BasisSet}");
+        routeBuilder.Append($"#p {Functional} {BasisSetsParser.ToString(BasisSet)}");
         if (Solvent != Solvents.None)
         {
             routeBuilder.Append($" scrf=(smd,solvent={Solvent})");
@@ -84,7 +84,7 @@ public class GaussianParameters
         sb.AppendLine($"%mem={Memory}GB");
         
         var routeBuilder = new StringBuilder();
-        routeBuilder.Append($"#p {Functional} {BasisSet}");
+        routeBuilder.Append($"#p {Functional} {BasisSetsParser.ToString(BasisSet)}");
         if (!string.IsNullOrWhiteSpace(LinkKeywords))
         {
             routeBuilder.Append($" {LinkKeywords.Trim()}");

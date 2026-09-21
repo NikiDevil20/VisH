@@ -198,7 +198,7 @@ public class NewCalcViewModel : ViewModelBase
     {
         SelectedState = State.S0;
         SelectedCharge = Charges[3];
-        SelectedFunctional = Functionals.wb97xd;
+        SelectedFunctional = Functionals.wB97XD;
         SelectedBasisSet = BasisSets.def2svp;
         SelectedCalcType = JobTypes.GeometryOptimization;
         SelectedSolvent = Solvents.Dichloromethane;
@@ -214,7 +214,7 @@ public class NewCalcViewModel : ViewModelBase
             State: SelectedState ?? State.S0,
             Memory: int.Parse(Ram ?? "8"),
             NProcs: int.Parse(NCores ?? "2"),
-            Functional: SelectedFunctional ?? Functionals.wb97xd,
+            Functional: SelectedFunctional ?? Functionals.wB97XD,
             BasisSet: SelectedBasisSet ?? BasisSets.def2svp,
             JobType: SelectedCalcType ?? JobTypes.GeometryOptimization,
             Solvent: SelectedSolvent ?? Solvents.None,
