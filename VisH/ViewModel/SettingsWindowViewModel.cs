@@ -152,6 +152,16 @@ public class SettingsWindowViewModel : ViewModelBase
             return false;
         }
 
+        if (Config.IsPlaceholderValue(WorkingDirectory) || Config.IsPlaceholderValue(Username) || Config.IsPlaceholderValue(SshKeyFilePath))
+        {
+            MessageBox.Show(
+                "Please replace all placeholder values with your actual working directory, username, and SSH key before saving.",
+                "Placeholder Values Detected",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return false;
+        }
+
         Config current = _activeConfig ?? ReadConfig();
         string username = Username.Trim();
         config = new Config

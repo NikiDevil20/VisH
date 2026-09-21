@@ -1,8 +1,8 @@
 ﻿{
-  "LocalRechnungenPath": "C:\\Users\\nikla\\OneDrive - Heinrich-Heine-Universitat Dusseldorf\\Dokumente\\Rechnungen",
-  "ClusterRechnungenPath": "/home/niabe100/Rechnungen",
-  "ClusterUsername": "niabe100",
+  "LocalRechnungenPath": "C:\\Users\\<Username>\\Documents\\Rechnungen",
+  "ClusterRechnungenPath": "/home/<ClusterUsername>/Rechnungen",
+  "ClusterUsername": "<ClusterUsername>",
   "Cluster": "hpc.rz.uni-duesseldorf.de",
   "Storage": "storage.hpc.rz.uni-duesseldorf.de",
-  "SshKeyPath": "C:\\Users\\nikla\\.ssh\\id_ed25519"
+  "SshKeyPath": "C:\\Users\\<Username>\\.ssh\\id_ed25519"
 }

@@ -23,6 +23,11 @@ public class SshService
 
     public static bool TryValidateConfiguration(Config config, out string error)
     {
+        if (config.ContainsPlaceholders(out error))
+        {
+            return false;
+        }
+
         if (string.IsNullOrWhiteSpace(config.LocalRechnungenPath) ||
             !Directory.Exists(config.LocalRechnungenPath))
         {

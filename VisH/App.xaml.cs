@@ -22,6 +22,12 @@ public partial class App : Application
         try
         {
             config = Config.Load();
+            if (config.ContainsPlaceholders(out string placeholderError))
+            {
+                OpenInvalidConfigurationWindow(placeholderError, isPlaceholderPrompt: true);
+                return;
+            }
+
             if (!SshService.TryValidateConfiguration(config, out validationError))
             {
                 OpenInvalidConfigurationWindow(validationError);
@@ -70,9 +76,20 @@ public partial class App : Application
         || exception is ArgumentException
         || exception is IOException;
 
-    private static void OpenInvalidConfigurationWindow(string reason)
+    private static void OpenInvalidConfigurationWindow(string reason, bool isPlaceholderPrompt = false)
     {
-        string message = "Please create a valid configuration.";
+        if (isPlaceholderPrompt)
+        {
+            MessageBox.Show(
+                "VisH has detected default placeholder paths/credentials.\n\nPlease update your settings with your actual local working directory, cluster username, and SSH key before continuing.",
+                "Configuration Required",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
+        string message = isPlaceholderPrompt
+            ? "Default placeholder paths detected. Please configure your settings below."
+            : "Please create a valid configuration.";
         if (!string.IsNullOrWhiteSpace(reason)) message += "\n\n" + reason;
         new SettingsWindow(message).Show();
     }

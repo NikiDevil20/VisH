@@ -1,1 +1,2 @@
-﻿
+﻿- Alle basissätze und funktionale und Lömis
+- Standardpfade entfernen
