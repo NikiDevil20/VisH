@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 using VisH.Model.CalculationUtils;
 using VisH.Model.Enums;
 using VisH.Model.GeneralUtils;
-using VisH.Model.Parameters;
 
 namespace VisH.Model.CalculationProperties;
 
@@ -98,8 +97,6 @@ public class Molecule
         string[] pythonArguments = [SmilesString, direcotryPath];
         
         string output = pythonBridge.ExecuteScript(scriptName, pythonArguments);
-        Console.WriteLine(output);
-
     }
 
     public static bool IsValidSmiles(string smilesString)

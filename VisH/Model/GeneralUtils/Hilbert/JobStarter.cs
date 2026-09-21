@@ -29,8 +29,6 @@ public class JobStarter
         
         var cmd = _sshService.CommandClient.RunCommand(fullCommand);
         
-        Console.WriteLine(cmd.Result);
-        
         if (cmd.Error != "")
         {
             var ex = new Exception($"Error occurred while running job: {cmd.Error}");

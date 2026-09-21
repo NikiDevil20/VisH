@@ -9,7 +9,6 @@ namespace VisH.Model.GeneralUtils.FileHandling;
 public class FileHandler
 {
     public DownloadManager DownloadManager { get; set; }
-    public UploadManager UploadManager { get; set; }
     
     private SshService _sshService;
     private FileTransferService _fileTransferService;
@@ -27,7 +26,6 @@ public class FileHandler
         _fileTransferService = fileTransferService;
         _jobStarter = jobStarter;
         DownloadManager = new DownloadManager(jobManager);
-        UploadManager = new UploadManager();
     }
     
     public async Task<bool> Download(DirectoryExtension directory)

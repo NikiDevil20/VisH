@@ -14,9 +14,6 @@ public class SshService
             throw new InvalidOperationException(error);
 
         var key = new PrivateKeyFile(cfg.SshKeyPath);
-        Console.WriteLine(cfg.Cluster);
-        Console.WriteLine(cfg.ClusterUsername);
-        Console.WriteLine(cfg.SshKeyPath);
         
         CommandClient = new SshClient(cfg.Cluster, cfg.ClusterUsername, key);
     }

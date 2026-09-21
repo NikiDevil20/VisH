@@ -6,7 +6,6 @@ using VisH.Model.CalculationUtils;
 using VisH.Model.Enums;
 using VisH.Model.GeneralUtils.Enums;
 using VisH.Model.GeneralUtils.FileHandling;
-using VisH.Model.Parameters;
 
 namespace VisH.ViewModel;
 

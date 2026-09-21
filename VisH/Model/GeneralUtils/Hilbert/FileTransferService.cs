@@ -57,8 +57,7 @@ public class FileTransferService
         {
             path = string.IsNullOrEmpty(path) ? part : $"{path}/{part}";
             if (!FileClient.Exists(path))
-            {
-                Console.WriteLine($"Creating directory: {path}");
+            { 
                 FileClient.CreateDirectory(path);
             }
         }
@@ -69,7 +68,6 @@ public class FileTransferService
         string[] remoteFilePaths,
         string remoteDirectory)
     {
-        Console.WriteLine("FTS");
         var normalizedRemoteDirectory = NormalizeRemotePath(remoteDirectory);
         var normalizedRemotePaths = remoteFilePaths
             .Select(path => NormalizeRemotePath(path))

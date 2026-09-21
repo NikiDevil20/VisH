@@ -38,7 +38,6 @@ public class StatusBarViewModel : ViewModelBase
     public RelayCommand DownloadCommand => new RelayCommand(
         execute => DownloadSelection(), canExecute => CanDownload());
     
-    private PathObject[] _pathsOnCluster { get; set; }
     private bool _changeToClusterWasMade { get; set; }
     
     

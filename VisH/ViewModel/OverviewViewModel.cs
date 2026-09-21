@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using VisH.Model;
 using VisH.Model.CalculationProperties;
+using VisH.Model.Enums;
 using VisH.Model.GeneralUtils;
 using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.GeneralUtils.Hilbert;
@@ -41,7 +43,7 @@ public class OverviewViewModel : ViewModelBase
         get => _hasValidSelection;
         set => SetProperty(ref _hasValidSelection, value);
     }
-    private PathObject? SelectedPath { get; set; }
+    private DirectoryExtension? SelectedPath { get; set; }
     private TreeNode? _selectedNode;
     public TreeNode? SelectedNode 
     { 
@@ -56,7 +58,8 @@ public class OverviewViewModel : ViewModelBase
                 return;
             }
             
-            SelectedPath = new PathObject(value.FullPath, sshService: _sshService, jobManager: _jobManager);
+            var relativePath = new DirectoryExtension("", _sshService).GetRelativePath(value.FullPath, PathType.Local);
+            SelectedPath = new DirectoryExtension(relativePath, _sshService);
             RefreshSelection();
             OnPropertyChanged();
         }
@@ -81,12 +84,26 @@ public class OverviewViewModel : ViewModelBase
         DisplayProperties();
     }
 
+    private FileExtension? TryGetFileWithEnding(DirectoryExtension? directory, string ending)
+    {
+        if (directory is null)
+            return null;
+
+        var fullPath = directory.GetPath(PathType.Local);
+        if (!Directory.Exists(fullPath))
+            return null;
+
+        return directory.GetContent(PathType.Local)
+            .OfType<FileExtension>()
+            .FirstOrDefault(f => f.GetFileName(PathType.Local).EndsWith(ending, StringComparison.OrdinalIgnoreCase));
+    }
+
     private bool StructurePresent()
     {
         if (SelectedPath is null)
             return false;
 
-        if (SelectedPath.TryGetFileWithEnding(".png") is null)
+        if (TryGetFileWithEnding(SelectedPath, ".png") is null)
         {
             return false;
         }
@@ -98,21 +115,20 @@ public class OverviewViewModel : ViewModelBase
         if (SelectedPath is null)
             return false;
         
-        if (SelectedPath.TryGetFileWithEnding(".log") is null || SelectedPath.TryGetFileWithEnding(".lg") is null)
+        if (TryGetFileWithEnding(SelectedPath, ".log") is null || TryGetFileWithEnding(SelectedPath, ".lg") is null)
         {
-            Console.WriteLine(".log and .lg files not present.");
             return false;
         }
 
         return true;
     }
     
-    private void SetMoleculeImage(PathObject directory)
+    private void SetMoleculeImage(DirectoryExtension directory)
     {
         if (StructurePresent())
         {
-            var pngFile = directory.TryGetFileWithEnding(".png");
-            MoleculeImage = pngFile.WindowsPath;
+            var pngFile = TryGetFileWithEnding(directory, ".png");
+            MoleculeImage = pngFile?.GetPath(PathType.Local) ?? "/VisH;component/Assets/FileNotFound.png";
         }
         else
         {
@@ -158,7 +174,7 @@ public class OverviewViewModel : ViewModelBase
             return;
         }
 
-        var calculationJson = SelectedPath.TryGetFileWithEnding(".json");
+        var calculationJson = TryGetFileWithEnding(SelectedPath, ".json");
         if (calculationJson is null)
         {
             ClearProperties();
@@ -166,7 +182,7 @@ public class OverviewViewModel : ViewModelBase
             return;
         }
 
-        var calculation = Calculation.FromJson(calculationJson.WindowsPath, _sshService);
+        var calculation = Calculation.FromJson(calculationJson.GetPath(PathType.Local), _sshService);
         MoleculeName = calculation.MetaData?.JobName ?? "";
 
         DictToGridItems(SetupMetaData(calculation.MetaData), MetaDataGridItems);
