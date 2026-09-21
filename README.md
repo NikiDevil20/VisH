@@ -92,16 +92,6 @@ ssh username@storage.hpc.rz.uni-duesseldorf.de
 
 If the key is configured correctly, SSH should authenticate without asking for your cluster password.
 
-### 4. Configure the SSH key in VisH
-
-Set the path to your private key in `config.json`:
-
-```json
-"SshKeyPath": "C:\\Users\\your_username\\.ssh\\id_ed25519"
-```
-
-The private key remains on your local computer and is used by VisH for SSH authentication.
-
 ## Calculation Workflows
 
 VisH supports different types of Gaussian calculations.
@@ -155,4 +145,12 @@ VisH uses several Python scripts internally:
 * `ParseLogfile.py`: Extracts information from Gaussian `.log` files using `cclib`.
 * `DrawPngFromSmiles.py`: Generates PNG images of molecular structures.
 * `DrawSvgFromSmiles.py`: Generates SVG images of molecular structures.
-* `SmilesVal
+* `SmilesValidation.py: Validates SMILES strings.
+
+Python and the required dependencies are distributed with VisH and are installed/configured automatically. No separate Python environment is required for normal use.
+
+## Roadmap
+
+1. Add result analysis for absorption and emission calculations.
+2. Add potential-energy scans as a new calculation type.
+3. Advanced settings in job creation
