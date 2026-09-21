@@ -2,7 +2,9 @@
 
 public enum Functionals
 {
-    b3lyp,
-    pbe0pbe,
-    wb97xd
+    B3LYP,
+    PBE1PBE,
+    wB97XD,
+    M06,
+    M062X
 }
