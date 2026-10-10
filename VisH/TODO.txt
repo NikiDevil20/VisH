@@ -1,2 +1,3 @@
 ﻿- Abgeschnitten beim Maximieren
 - Optionale Parameter wie opt=tight, int= für integrationsgitter etc per checkbox
+- Jemand hat vergessen, in die TD excited State Rechnungen "root=..." reinzuschreiben...
