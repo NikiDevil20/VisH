@@ -58,10 +58,10 @@ public class GaussianParameters
         
         var routeBuilder = new StringBuilder();
         routeBuilder.Append($"#p {Functional} {BasisSetsParser.ToString(BasisSet)}");
-        if (Solvent != Solvents.None)
-        {
-            routeBuilder.Append($" scrf=(smd,solvent={Solvent})");
-        }
+        // if (Solvent != Solvents.None)
+        // {
+        //     routeBuilder.Append($" scrf=(smd,solvent={Solvent})");
+        // }
         if (!string.IsNullOrWhiteSpace(Keywords))
         {
             routeBuilder.Append($" {Keywords.Trim()}");

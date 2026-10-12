@@ -22,63 +22,58 @@
         
         
         <!-- Content -->
-        <TabControl Grid.Row="1" HorizontalAlignment="Stretch">
-            <TabControl.Resources>
-                <Style TargetType="TabPanel">
-                    <Setter Property="Grid.IsSharedSizeScope" Value="True"/>
-                </Style>
-            </TabControl.Resources>
-
-            <TabControl.Template>
-                <ControlTemplate TargetType="TabControl">
-                    <Grid KeyboardNavigation.TabNavigation="Local">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <UniformGrid
-                            Grid.Row="0"
-                            Rows="1"
-                            IsItemsHost="True"/>
-
-                        <Border Grid.Row="1"
-                                BorderThickness="1"
-                                BorderBrush="Gray">
-                            <ContentPresenter
-                                ContentSource="SelectedContent"/>
-                        </Border>
-                    </Grid>
-                </ControlTemplate>
-            </TabControl.Template>
-            
-            <TabControl.ItemContainerStyle>
-                <Style TargetType="TabItem">
-                    <Setter Property="FontSize" Value="16"/>
-                    <Setter Property="FontWeight" Value="SemiBold"/>
-                    <Setter Property="Padding" Value="20, 8"></Setter>
-                </Style>
-            </TabControl.ItemContainerStyle>
-            
-            <!-- <TabItem Header="General"> -->
-            <!--      -->
-            <!--      -->
-            <!-- </TabItem> -->
-            
-            
-            <TabItem Header="Molecule">
-                <newCalculationWindow:MoleculeSettings></newCalculationWindow:MoleculeSettings>
-                
-            </TabItem>
-            
-            <TabItem Header="Gaussian">
-                <newCalculationWindow:ParametersSettings></newCalculationWindow:ParametersSettings>
-                
-            </TabItem>
-            
-            
-        </TabControl>
+        <!-- <TabControl Grid.Row="1" HorizontalAlignment="Stretch"> -->
+        <!--     <TabControl.Resources> -->
+        <!--         <Style TargetType="TabPanel"> -->
+        <!--             <Setter Property="Grid.IsSharedSizeScope" Value="True"/> -->
+        <!--         </Style> -->
+        <!--     </TabControl.Resources> -->
+        <!-- -->
+        <!--     <TabControl.Template> -->
+        <!--         <ControlTemplate TargetType="TabControl"> -->
+        <!--             <Grid KeyboardNavigation.TabNavigation="Local"> -->
+        <!--                 <Grid.RowDefinitions> -->
+        <!--                     <RowDefinition Height="Auto"/> -->
+        <!--                     <RowDefinition Height="*"/> -->
+        <!--                 </Grid.RowDefinitions> -->
+        <!-- -->
+        <!--                 <UniformGrid -->
+        <!--                     Grid.Row="0" -->
+        <!--                     Rows="1" -->
+        <!--                     IsItemsHost="True"/> -->
+        <!-- -->
+        <!--                 <Border Grid.Row="1" -->
+        <!--                         BorderThickness="1" -->
+        <!--                         BorderBrush="Gray"> -->
+        <!--                     <ContentPresenter -->
+        <!--                         ContentSource="SelectedContent"/> -->
+        <!--                 </Border> -->
+        <!--             </Grid> -->
+        <!--         </ControlTemplate> -->
+        <!--     </TabControl.Template> -->
+        <!--      -->
+        <!--     <TabControl.ItemContainerStyle> -->
+        <!--         <Style TargetType="TabItem"> -->
+        <!--             <Setter Property="FontSize" Value="16"/> -->
+        <!--             <Setter Property="FontWeight" Value="SemiBold"/> -->
+        <!--             <Setter Property="Padding" Value="20, 8"></Setter> -->
+        <!--         </Style> -->
+        <!--     </TabControl.ItemContainerStyle>             -->
+        <!--      -->
+        <!--     <TabItem Header="Molecule"> -->
+        <!--         <newCalculationWindow:MoleculeSettings></newCalculationWindow:MoleculeSettings> -->
+        <!--          -->
+        <!--     </TabItem> -->
+        <!--      -->
+        <!--     <TabItem Header="Gaussian"> -->
+        <!--         <newCalculationWindow:ParametersSettings></newCalculationWindow:ParametersSettings> -->
+        <!--          -->
+        <!--     </TabItem> -->
+        <!--      -->
+        <!--      -->
+        <!-- </TabControl> -->
         
+        <newCalculationWindow:MoleculeSettings Grid.Row="1"></newCalculationWindow:MoleculeSettings>
         
         <!-- Bottom -->
         <Border Grid.Row="2" Background="#006DB3">

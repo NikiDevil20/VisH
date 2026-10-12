@@ -5,31 +5,42 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:VisH.View.UserControls.NewCalculationWindow"
              xmlns:userControls="clr-namespace:VisH.View.UserControls"
+             xmlns:enums="clr-namespace:VisH.Model.Enums"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="600">
         
+    <UserControl.Resources>
+        <enums:BasisSetToStringConverter x:Key="BasisSetToStringConverter" />
+    </UserControl.Resources>
         
     <StackPanel >
-        <GroupBox VerticalAlignment="Top" Header="Molecule Name" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
-                  Padding="5">
-        
-            <userControls:CustomTextInput Placeholder="molecule name" Text="{Binding MoleculeName}" 
-                                          Margin="5"></userControls:CustomTextInput>
-        
-        </GroupBox>
-        
-        <GroupBox VerticalAlignment="Top" Header="Coordinates" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
+        <GroupBox VerticalAlignment="Top" Header="Molecule Name and SMILES" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
                   Padding="5">
             <StackPanel>
+                <userControls:CustomTextInput Placeholder="molecule name" Text="{Binding MoleculeName}" 
+                                              Margin="5"></userControls:CustomTextInput>
                 
                 <userControls:CustomTextInput Placeholder="SMILES" Text="{Binding SmilesString}" 
-                                              Margin="5" Grid.Row="0"></userControls:CustomTextInput>
-            
-                <userControls:CustomTextInput Placeholder="Job ID" Text="{Binding JobId}" 
                                               Margin="5" Grid.Row="1"></userControls:CustomTextInput>
                 
             </StackPanel>
+            
+                
+        
         </GroupBox>
+        
+        <!-- <GroupBox VerticalAlignment="Top" Header="SMILES" Margin="10" BorderBrush="#006DB3" BorderThickness="2"  -->
+        <!--           Padding="5"> -->
+        <!--     <StackPanel> -->
+        <!--          -->
+        <!--         <userControls:CustomTextInput Placeholder="SMILES" Text="{Binding SmilesString}"  -->
+        <!--                                       Margin="5" Grid.Row="0"></userControls:CustomTextInput> -->
+        <!--      -->
+        <!--         ~1~ <userControls:CustomTextInput Placeholder="Job ID" Text="{Binding JobId}"  @1@ -->
+        <!--         ~1~                               Margin="5" Grid.Row="1"></userControls:CustomTextInput> @1@ -->
+        <!--          -->
+        <!--     </StackPanel> -->
+        <!-- </GroupBox> -->
         
         <GroupBox VerticalAlignment="Top" Header="State and Charge" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
                   Padding="5">
@@ -54,6 +65,82 @@
                 ></ComboBox>
             </Grid>
         </GroupBox>
+        
+        <GroupBox VerticalAlignment="Top" Header="CPUs and RAM" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
+                  Padding="5">
+        
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                
+                <userControls:CustomTextInput Placeholder="NCores" Text="{Binding NCores}" 
+                                              Margin="5"></userControls:CustomTextInput>
+                <userControls:CustomTextInput Grid.Column="1" Placeholder="RAM" Text="{Binding Ram}" 
+                                              Margin="5"></userControls:CustomTextInput>
+            </Grid>
+            
+        
+        </GroupBox>
+        
+        <GroupBox VerticalAlignment="Top" Header="Functional and Basis set" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
+                  Padding="5">
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                
+                <ComboBox 
+                    ItemsSource="{Binding FunctionalCollection}"
+                    SelectedItem="{Binding SelectedFunctional}"
+                    Margin="10, 0"
+                ></ComboBox>
+                
+                <ComboBox Grid.Column="1" 
+                    ItemsSource="{Binding BasisSetCollection}"
+                    SelectedItem="{Binding SelectedBasisSet}"
+                    Margin="10, 0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource BasisSetToStringConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                
+                
+            </Grid>
+            
+        </GroupBox>
+        
+        <GroupBox VerticalAlignment="Top" Header="Type and Solvent" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
+                  Padding="5">
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                
+                <ComboBox 
+                    ItemsSource="{Binding CalcTypeCollection}"
+                    SelectedItem="{Binding SelectedCalcType}"
+                    Margin="10, 0"
+                ></ComboBox>
+                
+                <ComboBox Grid.Column="1" 
+                          ItemsSource="{Binding SolventCollection}"
+                          SelectedItem="{Binding SelectedSolvent}"
+                          Margin="10, 0"
+                ></ComboBox>
+                
+                
+            </Grid>
+            
+        </GroupBox>
+        
     </StackPanel>
         
 </UserControl>

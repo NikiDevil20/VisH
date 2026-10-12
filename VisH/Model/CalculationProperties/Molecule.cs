@@ -48,7 +48,7 @@ public class Molecule
             _ => throw new ArgumentOutOfRangeException(nameof(State), State.ToString(), null)
         };
         
-        return $"{MoleculeName}\r\n\n{Charge} {multiplicity}\r\n{CoordsToString()}";
+        return $"\n {MoleculeName}\n\n{Charge} {multiplicity}\n{CoordsToString()}";
     }
 
     private string CoordsToString()

@@ -65,16 +65,16 @@ public class KeywordSelector
     
     private List<string> GeometryOptimizationKeywords(List<string> keywords)
     {
-        keywords.Add("opt");
-        
         switch (_state)
         {
             case State.S0:
-                keywords.Add("pop=full");
-                keywords.Add("GFInput");
+                keywords.Add($"scrf=(smd,solvent={_solvent})");
+                keywords.Add("opt scf=xqc pop=full GFInput");
                 break;
             
             case State.S1 or State.S2 or State.S3:
+                keywords.Add($"scrf=(smd,solvent={_solvent})");
+                keywords.Add("opt scf=xqc TD=(singlet,NStates=6,root=1)");
                 break;
             
             case State.T1 or State.T2 or State.T3:
@@ -92,8 +92,12 @@ public class KeywordSelector
         switch (_state)
         {
             case State.S0:
+                keywords.Add($"scrf=(smd,solvent={_solvent},correctedLR)");
+                keywords.Add("TD=(singlet,NStates=25,root=1) geom=check guess=read");
+                break;
             case State.S1 or State.S2 or State.S3:
-                keywords.Add("TD=(NStates=10)");
+                keywords.Add($"scrf=(smd,solvent={_solvent},ExternalIteration,correctedLR)");
+                keywords.Add("TD=(singlet,NStates=6,root=1) geom=check guess=read");
                 break;
             
             case State.T1 or State.T2 or State.T3:
