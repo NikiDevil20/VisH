@@ -10,6 +10,9 @@ namespace VisH.Model.CalculationUtils;
 public class Filewriter
 {
     private readonly Calculation _calculation;
+
+    private static string NormalizeUnixLineEndings(string content) =>
+        content.Replace("\r\n", "\n").Replace("\r", "\n");
     
     public Filewriter(Calculation calculation)
     {
@@ -21,15 +24,41 @@ public class Filewriter
         var sb = new StringBuilder();
         
         sb.AppendLine(_calculation.GaussianParameters.ToString().TrimEnd());
-        sb.AppendLine();
-        sb.AppendLine(_calculation.Molecule.ToString().TrimEnd());
+        if (_calculation.GaussianParameters.Jobtype == JobTypes.GeometryOptimization)
+        {
+            sb.AppendLine(_calculation.Molecule.ToString().TrimEnd());
+        }
+        else
+        {
+            var multiplicity = _calculation.Molecule.State switch
+            {
+                State.S0 or State.S1 or State.S2 or State.S3 => "1",
+                State.T1 or State.T2 or State.T3 => "3",
+                _ => throw new ArgumentOutOfRangeException(nameof(State), _calculation.Molecule.State.ToString(), null)
+            };
+            
+            sb.AppendLine($"\n{_calculation.Molecule.MoleculeName}\n\n {_calculation.Molecule.Charge} {multiplicity}");
+            
+        }
         sb.AppendLine();
         
         if (!string.IsNullOrWhiteSpace(_calculation.GaussianParameters.LinkKeywords))
         {
             sb.AppendLine("--Link1--");
             sb.AppendLine(_calculation.GaussianParameters.ToLink().TrimEnd());
-            sb.AppendLine();
+            if (_calculation.GaussianParameters.Jobtype == JobTypes.GeometryOptimization)
+            {
+                sb.AppendLine();
+                var multiplicity = _calculation.Molecule.State switch
+                {
+                    State.S0 or State.S1 or State.S2 or State.S3 => "1",
+                    State.T1 or State.T2 or State.T3 => "3",
+                    _ => throw new ArgumentOutOfRangeException(nameof(State), _calculation.Molecule.State.ToString(), null)
+                };
+            
+                sb.AppendLine($"{_calculation.Molecule.MoleculeName}\n\n{_calculation.Molecule.Charge} {multiplicity}");
+                sb.AppendLine();
+            }
         }
         else if (!string.IsNullOrWhiteSpace(_calculation.GaussianParameters.ScanContext))
         {
@@ -127,16 +156,16 @@ public class Filewriter
                              """;
          sb.AppendLine(staticText);
          string content = sb.ToString();
-         content = content.Replace("\r\n", "\n");
+         content = NormalizeUnixLineEndings(content);
          return content;
     }
 
     public void WriteGaussianInputFile()
     {
         var content = GetGaussianInputText();
-        content = content.Replace("\r\n", "\n");
+        content = NormalizeUnixLineEndings(content);
         var path = _calculation.Paths.GaussianInputFile.GetPath();
-        File.WriteAllText(path, content);
+        File.WriteAllText(path, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
     }
 
     public void WriteGstartFile()
