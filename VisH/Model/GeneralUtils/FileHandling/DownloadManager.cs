@@ -152,7 +152,8 @@ public class DownloadManager : ViewModelBase
         var calculation = Calculation.FromJson(jsonPath.GetPath(PathType.Local), null!);
         calculation.UpdateFromDownloadedFiles(
             resultJsonPath,
-            lgPath.GetPath(PathType.Local));
+            lgPath.GetPath(PathType.Local),
+            logPath.GetPath(PathType.Local));
         calculation.SaveCalculation();
     }
 }

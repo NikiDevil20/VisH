@@ -25,6 +25,15 @@ public class OverviewViewModel : ViewModelBase
     public ObservableCollection<DataGridItem> EnergiesGridItems { get; } = [];
     public ObservableCollection<DataGridItem> FrequenciesGridItems { get; } = [];
     public ObservableCollection<DataGridItem> OrbitalsGridItems{ get; } = [];
+    private bool _isSpectrumVisible;
+    public bool IsSpectrumVisible
+    {
+        get => _isSpectrumVisible;
+        private set => SetProperty(ref _isSpectrumVisible, value);
+    }
+    public double[] SpectrumWavelengths { get; private set; } = [];
+    public double[] SpectrumIntensities { get; private set; } = [];
+    public string SpectrumType { get; private set; } = string.Empty;
     private string _moleculeImage = "";
     public string MoleculeImage
     {
@@ -142,6 +151,10 @@ public class OverviewViewModel : ViewModelBase
         EnergiesGridItems.Clear();
         FrequenciesGridItems.Clear();
         OrbitalsGridItems.Clear();
+        SpectrumWavelengths = [];
+        SpectrumIntensities = [];
+        SpectrumType = string.Empty;
+        IsSpectrumVisible = false;
     }
 
     private void SetupTreeview()
@@ -189,7 +202,48 @@ public class OverviewViewModel : ViewModelBase
         DictToGridItems(SetupEnergies(calculation.Results), EnergiesGridItems);
         DictToGridItems(SetupFrequencies(calculation.Results), FrequenciesGridItems);
         DictToGridItems(SetupOrbitals(calculation.Results), OrbitalsGridItems);
+        SetSpectrum(calculation);
         HasValidSelection = true;
+    }
+
+    private void SetSpectrum(Calculation calculation)
+    {
+        var peaks = calculation.Results?.Peaks;
+        if (calculation.GaussianParameters?.Jobtype != JobTypes.TimeDependant ||
+            peaks is null || peaks.Count == 0)
+        {
+            SpectrumWavelengths = [];
+            SpectrumIntensities = [];
+            SpectrumType = string.Empty;
+            IsSpectrumVisible = false;
+            return;
+        }
+
+        var minimum = peaks.Min(peak => peak.Wavelength) - 5;
+        var maximum = peaks.Max(peak => peak.Wavelength) + 25;
+        var wavelengths = new SortedSet<double>();
+        for (var wavelength = minimum; wavelength <= maximum; wavelength += 0.1)
+        {
+            wavelengths.Add(wavelength);
+        }
+
+        // foreach (var peak in peaks)
+        // {
+        //     wavelengths.Add(peak.Wavelength);
+        // }
+
+        var peakWavelengths = peaks.Select(peak => peak.Wavelength).ToArray();
+        var oscillatorStrengths = peaks.Select(peak => peak.OscillatorStrength).ToArray();
+        var spectrum = new SpectrumCalculator().CalculateSpectrum(
+            wavelengths.ToArray(), peakWavelengths, oscillatorStrengths);
+
+        SpectrumWavelengths = spectrum.Keys.ToArray();
+        SpectrumIntensities = spectrum.Values.ToArray();
+        SpectrumType = calculation.Molecule?.State == State.S0 ? "Absorption" : "Emission";
+        IsSpectrumVisible = true;
+        OnPropertyChanged(nameof(SpectrumWavelengths));
+        OnPropertyChanged(nameof(SpectrumIntensities));
+        OnPropertyChanged(nameof(SpectrumType));
     }
 
 

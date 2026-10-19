@@ -1,5 +1,12 @@
 # Changelog
 
+## [v1.1.0] - unreleased
+
+### Added
+
+- Spectra for absorption or fluorescence calculations
+
+
 ## [v1.0.3] - 2026-10-13
 
 ### Added 

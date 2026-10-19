@@ -7,5 +7,6 @@ public class Results
     public double[] MoEnergies { get; set; } = [];
     public double[] ScfEnergies { get; set; } = [];
     public string CoordResults { get; set; } = string.Empty;
+    public List<Peak> Peaks { get; set; } = [];
     public int Version { get; set; } = 1;
 }

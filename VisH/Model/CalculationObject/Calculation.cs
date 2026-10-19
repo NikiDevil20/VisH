@@ -316,7 +316,7 @@ public class Calculation
         return calculation;
     }
 
-    public void UpdateFromDownloadedFiles(string resultJsonPath, string lgPath)
+    public void UpdateFromDownloadedFiles(string resultJsonPath, string lgPath, string? logPath = null)
     {
         if (Results == null)
         {
@@ -326,6 +326,11 @@ public class Calculation
         if (File.Exists(resultJsonPath))
         {
             Results = CalculationResultParser.ApplyLogFile(Results, resultJsonPath);
+        }
+
+        if (GaussianParameters?.Jobtype == JobTypes.TimeDependant && !string.IsNullOrWhiteSpace(logPath) && File.Exists(logPath))
+        {
+            Results.Peaks = CalculationResultParser.ParseExcitedStates(logPath).ToList();
         }
 
         if (MetaData == null)
