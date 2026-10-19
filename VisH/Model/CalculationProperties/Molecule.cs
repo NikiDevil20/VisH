@@ -111,4 +111,7 @@ public class Molecule
     {
         Atoms = atoms;
     }
+
+    public IReadOnlyList<string>? GetAtomElements() =>
+        Atoms?.Select(atom => atom.Element).ToArray();
 }

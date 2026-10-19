@@ -260,17 +260,6 @@ public class Calculation
                 return oldState != MetaData.JobState;
             }
 
-            var nimagMatches = GaussianRegex.NImagRegex.Matches(logContent);
-            if (nimagMatches.Count > 0)
-            {
-                var lastMatch = nimagMatches[^1];
-                if (int.TryParse(lastMatch.Groups[1].Value, out var nimag) && nimag != 0)
-                {
-                    MetaData.JobState = JobState.Imaginary;
-                    return oldState != MetaData.JobState;
-                }
-            }
-
             MetaData.JobState = JobState.Successful;
             return oldState != MetaData.JobState;
         }

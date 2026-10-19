@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import math
 import re
 import sys
 import traceback
@@ -22,67 +23,203 @@ ATOMIC_SYMBOLS = {
     115: "Mc", 116: "Lv", 117: "Ts", 118: "Og"
 }
 
+def find_closed_shell_orbitals(occupied_orbitals, virtual_orbitals):
+    if not occupied_orbitals or not virtual_orbitals:
+        return None, None
+    return len(occupied_orbitals) - 1, len(occupied_orbitals)
+
+def parse_orbital_values(line, spin, orbital_kind):
+    match = re.search(
+        rf"^{spin}\s+{orbital_kind}\s+eigenvalues\s+--\s+(.+)$",
+        line,
+        re.IGNORECASE,
+    )
+    if not match:
+        return None
+
+    values = []
+    for value in match.group(1).split():
+        try:
+            values.append(float(value.replace("D", "E").replace("d", "e")))
+        except ValueError:
+            return None
+    return values if values else None
+
+def select_last_complete_restricted_orbitals(orbital_groups):
+    complete_groups = [
+        group for group in orbital_groups
+        if group["occupied"] and group["virtual"]
+    ]
+    if not complete_groups:
+        return None
+    return complete_groups[-1]
+
+def parse_last_complete_standard_orientation(lines):
+    valid_blocks = []
+    marker = "Standard orientation:"
+    for index, line in enumerate(lines):
+        if marker.lower() not in line.lower():
+            continue
+
+        cursor = index + 1
+        while cursor < len(lines) and not re.match(r"\s*-{5,}\s*$", lines[cursor]):
+            cursor += 1
+        if cursor >= len(lines) or cursor + 3 >= len(lines):
+            continue
+
+        data_start = cursor + 4
+        if not re.match(r"\s*-{5,}\s*$", lines[data_start - 1]):
+            continue
+
+        atoms = []
+        cursor = data_start
+        complete = False
+        while cursor < len(lines):
+            line = lines[cursor]
+            if re.match(r"\s*-{5,}\s*$", line):
+                complete = bool(atoms)
+                break
+
+            parts = line.split()
+            if len(parts) != 6:
+                complete = False
+                break
+
+            try:
+                atomic_number = int(parts[1])
+                x, y, z = (float(value.replace("D", "E").replace("d", "e"))
+                           for value in parts[3:6])
+            except ValueError:
+                complete = False
+                break
+
+            if (atomic_number not in ATOMIC_SYMBOLS or
+                    not all(math.isfinite(value) for value in (x, y, z))):
+                complete = False
+                break
+
+            atoms.append(
+                f"{ATOMIC_SYMBOLS[atomic_number]} {parts[3]} {parts[4]} {parts[5]}"
+            )
+            cursor += 1
+
+        if complete:
+            valid_blocks.append(atoms)
+
+    if not valid_blocks:
+        return [], False, "Keine vollständige gültige Standard-orientation-Tabelle gefunden."
+    return valid_blocks[-1], True, ""
+
 def parse_logfile(logfile_path):
     json_dict = {}
-    nhomo = 0
+    orbital_groups = []
+    current_orbital_group = None
+    unrestricted = False
     freqs = []
-    mo_energies = []
     scf_energies = []
     coord_block = []
-
-    in_orientation = False
-    skip_orientation_headers = 0
-    current_orientation = []
+    geometry_valid = False
+    geometry_message = ""
+    explicit_nimag = None
+    normal_termination = None
+    optimization_converged = None
+    termination_events = []
+    optimization_events = []
 
     with open(logfile_path, "r", encoding="utf-8", errors="ignore") as logfile:
-        for raw_line in logfile:
-            line = raw_line.rstrip("\n")
+        lines = logfile.readlines()
 
-            nhomo_match = re.search(r"N\s*Imag\s*=\s*(\d+)", line, re.IGNORECASE)
-            if nhomo_match:
-                nhomo = int(nhomo_match.group(1))
+    coord_block, geometry_valid, geometry_message = parse_last_complete_standard_orientation(lines)
 
-            freq_match = re.search(r"Frequencies --\s+([-\d.\s]+)", line)
-            if freq_match:
-                freqs.extend(float(value) for value in freq_match.group(1).split())
+    for raw_line in lines:
+        line = raw_line.rstrip("\n")
 
-            scf_match = re.search(r"SCF Done:\s+E\([^)]+\)\s+=\s+(-?\d+\.\d+)", line)
-            if scf_match:
-                scf_energies.append(float(scf_match.group(1)))
+        if re.search(r"Normal termination", line, re.IGNORECASE):
+            termination_events.append("normal")
 
-            mo_match = re.search(r"Alpha\s+occ\.\s+eigenvalues\s+--\s+([-\d.\s]+)", line)
-            if mo_match:
-                mo_energies.extend(float(value) for value in mo_match.group(1).split())
+        if re.search(r"Error termination", line, re.IGNORECASE):
+            termination_events.append("error")
 
-            if "Standard orientation:" in line:
-                in_orientation = True
-                skip_orientation_headers = 5
-                current_orientation = []
-                continue
+        if re.search(r"Optimization completed", line, re.IGNORECASE):
+            optimization_events.append(True)
 
-            if in_orientation:
-                if skip_orientation_headers > 0:
-                    skip_orientation_headers -= 1
+        if re.search(r"Optimization stopped", line, re.IGNORECASE):
+            optimization_events.append(False)
+
+        nimag_match = re.search(r"N\s*Imag\s*=\s*(\d+)", line, re.IGNORECASE)
+        if nimag_match:
+            explicit_nimag = int(nimag_match.group(1))
+
+        freq_match = re.search(r"Frequencies --\s+([-\d.\s]+)", line)
+        if freq_match:
+            freqs.extend(float(value) for value in freq_match.group(1).split())
+
+        scf_match = re.search(r"SCF Done:\s+E\([^)]+\)\s+=\s+(-?\d+\.\d+)", line)
+        if scf_match:
+            scf_energies.append(float(scf_match.group(1)))
+
+        for spin in ("Alpha", "Beta"):
+            for orbital_kind in ("occ.", "virt."):
+                values = parse_orbital_values(line.strip(), spin, orbital_kind)
+                if values is None:
                     continue
 
-                if re.match(r"\s*-+\s*$", line):
-                    if current_orientation:
-                        coord_block = current_orientation
-                    in_orientation = False
+                if spin.lower() == "beta":
+                    unrestricted = True
+                    current_orbital_group = None
                     continue
 
-                parts = line.split()
-                if len(parts) >= 6:
-                    atomnumber = int(parts[1])
-                    atomsymbol = ATOMIC_SYMBOLS.get(atomnumber, "X")
-                    x, y, z = parts[3], parts[4], parts[5]
-                    current_orientation.append(f"{atomsymbol} {x} {y} {z}")
+                if orbital_kind == "occ.":
+                    if current_orbital_group is not None:
+                        orbital_groups.append(current_orbital_group)
+                    current_orbital_group = {"occupied": [], "virtual": []}
+                    current_orbital_group["occupied"].extend(values)
+                elif current_orbital_group is not None:
+                    current_orbital_group["virtual"].extend(values)
 
-    json_dict["NHomo"] = nhomo
+    if current_orbital_group is not None:
+        orbital_groups.append(current_orbital_group)
+
+    orbital_group = None if unrestricted else select_last_complete_restricted_orbitals(orbital_groups)
+    if orbital_group is None:
+        json_dict["NHomo"] = None
+        json_dict["NLumo"] = None
+        json_dict["MoEnergies"] = []
+        json_dict["OrbitalDataAvailable"] = False
+    else:
+        homo_index, lumo_index = find_closed_shell_orbitals(
+            orbital_group["occupied"],
+            orbital_group["virtual"],
+        )
+        json_dict["NHomo"] = homo_index
+        json_dict["NLumo"] = lumo_index
+        json_dict["MoEnergies"] = orbital_group["occupied"] + orbital_group["virtual"]
+        json_dict["OrbitalDataAvailable"] = True
+
+    if explicit_nimag is not None:
+        json_dict["NImag"] = explicit_nimag
+    elif freqs:
+        json_dict["NImag"] = sum(1 for frequency in freqs if frequency < 0)
+    else:
+        json_dict["NImag"] = None
+
+    json_dict["NImagFromFrequencies"] = (
+        sum(1 for frequency in freqs if frequency < 0)
+        if freqs else None
+    )
+    if termination_events:
+        normal_termination = termination_events[-1] == "normal"
+    if optimization_events:
+        optimization_converged = optimization_events[-1]
+
+    json_dict["NormalTermination"] = normal_termination
+    json_dict["OptimizationConverged"] = optimization_converged
+    json_dict["Unrestricted"] = unrestricted
     json_dict["AllFreqs"] = freqs
-    json_dict["MoEnergies"] = mo_energies
     json_dict["ScfEnergies"] = scf_energies
     json_dict["CoordResults"] = "\n".join(coord_block)
+    json_dict["GeometryValid"] = geometry_valid
+    json_dict["GeometryMessage"] = geometry_message
     json_dict["Version"] = 1
 
     return json_dict

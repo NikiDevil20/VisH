@@ -59,8 +59,10 @@
                         <Label Grid.Row="0" Content="{Binding MoleculeName}" FontSize="18"
                                ></Label>
                         
-                        <Image Grid.Row="1" x:Name="Molecule" Width="400" Stretch="Uniform" 
-                               Source="{Binding MoleculeImage}"></Image>
+                        <Grid Grid.Row="1">
+                            <Image x:Name="Molecule" Width="400" Stretch="Uniform"
+                                   Source="{Binding MoleculeImage}"></Image>
+                        </Grid>
                     </Grid>
                     
                     </Border>
@@ -236,6 +238,45 @@
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Text="{Binding SpectrumType}" FontWeight="Bold" FontSize="16" Margin="8,5,8,0"/>
                             <scottPlot:WpfPlot x:Name="SpectrumPlot" Grid.Row="1" Margin="5"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="1" Margin="8,0,8,8" CornerRadius="2"
+                            BorderThickness="3" BorderBrush="#006DB3"
+                            Visibility="{Binding IsMoleculeViewerVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid Background="White">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Molekülansicht" FontWeight="Bold" FontSize="16" Margin="8,5,8,0"/>
+                            <Grid Grid.Row="1" Margin="5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4">
+                                    <TextBlock Text="Orbitale:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <ComboBox x:Name="MoleculeViewerOrbitalMode"
+                                              Width="110"
+                                              SelectedValuePath="Tag"
+                                              SelectedValue="{Binding MoleculeViewerOrbitalMode, Mode=OneWay}"
+                                              SelectionChanged="MoleculeViewerOrbitalMode_SelectionChanged">
+                                        <ComboBoxItem Content="HOMO" Tag="HOMO"/>
+                                        <ComboBoxItem Content="LUMO" Tag="LUMO"/>
+                                        <ComboBoxItem Content="Beide" Tag="Beide"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <ContentControl x:Name="MoleculeViewerHost"/>
+                                    <TextBlock Text="{Binding MoleculeViewerMessage}"
+                                               Margin="8"
+                                               VerticalAlignment="Bottom"
+                                               TextWrapping="Wrap"
+                                               Foreground="#404040"
+                                               Background="#EFFFFFFF"/>
+                                </Grid>
+                            </Grid>
                         </Grid>
                     </Border>
                         
