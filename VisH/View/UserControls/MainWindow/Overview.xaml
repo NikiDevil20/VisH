@@ -264,7 +264,6 @@
                                               SelectionChanged="MoleculeViewerOrbitalMode_SelectionChanged">
                                         <ComboBoxItem Content="HOMO" Tag="HOMO"/>
                                         <ComboBoxItem Content="LUMO" Tag="LUMO"/>
-                                        <ComboBoxItem Content="Beide" Tag="Beide"/>
                                     </ComboBox>
                                 </StackPanel>
                                 <Grid Grid.Row="1">
