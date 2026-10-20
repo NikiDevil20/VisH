@@ -1,0 +1,337 @@
+<Window x:Class="VisH.View.Windows.SetupWindow.SetupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="Gaussian Job Setup"
+        Width="980"
+        Height="760"
+        MinWidth="760"
+        MinHeight="600"
+        WindowStartupLocation="CenterOwner"
+        Background="#F5F7FA">
+    <Window.Resources>
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="#414B57" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="9,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,0,16" />
+        </Style>
+        <Style x:Key="FieldComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,0,16" />
+        </Style>
+        <Style x:Key="WatermarkStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#9AA4AE" />
+            <Setter Property="Margin" Value="10,0,10,16" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Children[0].Text, RelativeSource={RelativeSource AncestorType=Grid}}" Value="">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="19" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#27313B" />
+            <Setter Property="Margin" Value="0,0,0,18" />
+        </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="20,9" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TabControl Grid.Row="0" Margin="0,0,0,18">
+            <TabItem Header="General">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <Border Padding="24" Background="White" BorderBrush="#DCE2E8" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="180" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="General" Style="{StaticResource SectionHeaderStyle}" />
+                            <TextBlock Grid.Row="1" Text="Molecule Name" Style="{StaticResource FieldLabelStyle}" />
+                            <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">
+                                <TextBox x:Name="MoleculeNameInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding MoleculeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="Molecule Name" Style="{StaticResource WatermarkStyle}" />
+                            </Grid>
+
+                            <TextBlock Grid.Row="2" Text="Geometry from" Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox x:Name="GeometrySourceSelector" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource FieldComboBoxStyle}"
+                                      SelectedValuePath="Tag" SelectedValue="{Binding GeometrySource, Mode=TwoWay}">
+                                <ComboBoxItem Content="SMILES" Tag="SMILES" />
+                                <ComboBoxItem Content="Job" Tag="Job" />
+                            </ComboBox>
+
+                            <TextBlock Grid.Row="3" Text="SMILES">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource FieldLabelStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=GeometrySourceSelector}" Value="SMILES"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=GeometrySourceSelector}" Value="SMILES"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <TextBox x:Name="SmilesInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding Smiles, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="SMILES string" Style="{StaticResource WatermarkStyle}" />
+                            </Grid>
+                            <TextBlock Grid.Row="4" Text="Geometry job">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource FieldLabelStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=GeometrySourceSelector}" Value="Job"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Grid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=GeometrySourceSelector}" Value="Job"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <TextBox x:Name="GeometryJobIdInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding GeometryJobId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="Enter job id" Style="{StaticResource WatermarkStyle}" />
+                            </Grid>
+
+                            <TextBlock Grid.Row="5" Text="Rechenzeit" Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox x:Name="WallTimeProfileSelector" Grid.Row="5" Grid.Column="1" Style="{StaticResource FieldComboBoxStyle}"
+                                      SelectedValuePath="Tag" SelectedValue="{Binding WallTimeProfile, Mode=TwoWay}">
+                                <ComboBoxItem Content="Work" Tag="Work" />
+                                <ComboBoxItem Content="Long" Tag="Long" />
+                                <ComboBoxItem Content="Custom" Tag="Custom" />
+                            </ComboBox>
+                            <Grid Grid.Row="5" Grid.Column="2" Margin="8,0,0,16">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=WallTimeProfileSelector}" Value="Custom"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <TextBox x:Name="CustomWallTimeInput" Width="150" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding CustomWallTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="e.g. 24:00:00" Style="{StaticResource WatermarkStyle}" />
+                            </Grid>
+
+                            <TextBlock Grid.Row="6" Text="RAM" Style="{StaticResource FieldLabelStyle}" />
+                            <Grid Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2">
+                                <TextBox x:Name="MemoryInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding Memory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="RAM" Style="{StaticResource WatermarkStyle}" />
+                            </Grid>
+                            <TextBlock Grid.Row="7" Text="nCPUs" Style="{StaticResource FieldLabelStyle}" />
+                            <Grid Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2">
+                                <TextBox x:Name="CpuCountInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding CpuCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="nCPUs" Style="{StaticResource WatermarkStyle}" />
+                            </Grid>
+                            <TextBlock Grid.Row="8" Text="Jobtype" Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource FieldComboBoxStyle}"
+                                      SelectedValuePath="Tag" SelectedValue="{Binding JobType, Mode=TwoWay}">
+                                <ComboBoxItem Content="Opt + Freq" Tag="Opt + Freq" />
+                                <ComboBoxItem Content="Time Dependent" Tag="Time Dependent" />
+                            </ComboBox>
+                        </Grid>
+                    </Border>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Method">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <Border Padding="24" Background="White" BorderBrush="#DCE2E8" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="180" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Method" Style="{StaticResource SectionHeaderStyle}" />
+                            <TextBlock Grid.Row="1" Text="State" Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource FieldComboBoxStyle}" SelectedValuePath="Tag" SelectedValue="{Binding ElectronicState, Mode=TwoWay}">
+                                <ComboBoxItem Content="Ground State" Tag="Ground State" />
+                                <ComboBoxItem Content="Excited State" Tag="Excited State" />
+                            </ComboBox>
+                            <TextBlock Grid.Row="2" Text="Level" Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox x:Name="MethodLevelSelector" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource FieldComboBoxStyle}" SelectedValuePath="Tag" SelectedValue="{Binding MethodLevel, Mode=TwoWay}">
+                                <ComboBoxItem Content="Hartree-Fock" Tag="Hartree-Fock" />
+                                <ComboBoxItem Content="DFT" Tag="DFT" />
+                            </ComboBox>
+                            <TextBlock Grid.Row="3" Text="Functional">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource FieldLabelStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=MethodLevelSelector}" Value="DFT"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <ComboBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" SelectedValuePath="Tag" SelectedValue="{Binding Functional, Mode=TwoWay}">
+                                <ComboBox.Style>
+                                    <Style TargetType="ComboBox" BasedOn="{StaticResource FieldComboBoxStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=MethodLevelSelector}" Value="DFT"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </ComboBox.Style>
+                                <ComboBoxItem Content="B3LYP" Tag="B3LYP" />
+                                <ComboBoxItem Content="PBE1PBE (PBE0)" Tag="PBE1PBE" />
+                                <ComboBoxItem Content="TPSSh" Tag="TPSSh" />
+                                <ComboBoxItem Content="M06-2X" Tag="M06-2X" />
+                                <ComboBoxItem Content="CAM-B3LYP" Tag="CAM-B3LYP" />
+                                <ComboBoxItem Content="wB97XD" Tag="wB97XD" />
+                                <ComboBoxItem Content="wB97X-D" Tag="wB97X-D" />
+                            </ComboBox>
+                            <TextBlock Grid.Row="4" Text="Basisset" Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox Grid.Row="4" Grid.Column="1" Style="{StaticResource FieldComboBoxStyle}" SelectedValuePath="Tag" SelectedValue="{Binding BasisSet, Mode=TwoWay}">
+                                <ComboBoxItem Content="STO-3G" Tag="STO-3G" />
+                                <ComboBoxItem Content="3-21G" Tag="3-21G" />
+                                <ComboBoxItem Content="6-31G" Tag="6-31G" />
+                                <ComboBoxItem Content="6-31G(d)" Tag="6-31G(d)" />
+                                <ComboBoxItem Content="6-31G(d,p)" Tag="6-31G(d,p)" />
+                                <ComboBoxItem Content="6-31+G(d,p)" Tag="6-31+G(d,p)" />
+                                <ComboBoxItem Content="6-311G(d,p)" Tag="6-311G(d,p)" />
+                                <ComboBoxItem Content="def2-SVP" Tag="def2-SVP" />
+                                <ComboBoxItem Content="def2-TZVP" Tag="def2-TZVP" />
+                                <ComboBoxItem Content="def2-TZVPP" Tag="def2-TZVPP" />
+                                <ComboBoxItem Content="cc-pVDZ" Tag="cc-pVDZ" />
+                                <ComboBoxItem Content="cc-pVTZ" Tag="cc-pVTZ" />
+                                <ComboBoxItem Content="aug-cc-pVDZ" Tag="aug-cc-pVDZ" />
+                                <ComboBoxItem Content="aug-cc-pVTZ" Tag="aug-cc-pVTZ" />
+                            </ComboBox>
+                            <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" Margin="8,0,0,16">
+                                <ToggleButton Content="+ Polarization" Padding="10,5" Margin="0,0,8,0" IsChecked="{Binding AddPolarizationFunctions, Mode=TwoWay}" />
+                                <ToggleButton Content="+ Diffuse" Padding="10,5" IsChecked="{Binding AddDiffuseFunctions, Mode=TwoWay}" />
+                            </StackPanel>
+                            <TextBlock Grid.Row="5" Text="Charge / Spin" Style="{StaticResource FieldLabelStyle}" />
+                            <Grid Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid>
+                                    <TextBox x:Name="ChargeInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding Charge, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBlock Text="0" Style="{StaticResource WatermarkStyle}" />
+                                </Grid>
+                                <ComboBox Grid.Column="2" Style="{StaticResource FieldComboBoxStyle}" SelectedValuePath="Tag" SelectedValue="{Binding SpinMultiplicity, Mode=TwoWay}">
+                                    <ComboBoxItem Content="Singlet" Tag="Singlet" />
+                                    <ComboBoxItem Content="Triplet" Tag="Triplet" />
+                                </ComboBox>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Solvent">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <Border Padding="24" Background="White" BorderBrush="#DCE2E8" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="180" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Solvent" Style="{StaticResource SectionHeaderStyle}" />
+                            <TextBlock Grid.Row="1" Text="Solvent model" Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox x:Name="SolventModelSelector" Grid.Row="1" Grid.Column="1" Style="{StaticResource FieldComboBoxStyle}" SelectedValuePath="Tag" SelectedValue="{Binding SolventModel, Mode=TwoWay}">
+                                <ComboBoxItem Content="None" Tag="None" />
+                                <ComboBoxItem Content="PCM" Tag="PCM" />
+                                <ComboBoxItem Content="SMD" Tag="SMD" />
+                            </ComboBox>
+                            <TextBlock Grid.Row="2" Text="Solvent">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource FieldLabelStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=SolventModelSelector}" Value="PCM"><Setter Property="Visibility" Value="Visible" /></DataTrigger><DataTrigger Binding="{Binding SelectedValue, ElementName=SolventModelSelector}" Value="SMD"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <ComboBox Grid.Row="2" Grid.Column="1" SelectedValuePath="Tag" SelectedValue="{Binding Solvent, Mode=TwoWay}">
+                                <ComboBox.Style>
+                                    <Style TargetType="ComboBox" BasedOn="{StaticResource FieldComboBoxStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=SolventModelSelector}" Value="PCM"><Setter Property="Visibility" Value="Visible" /></DataTrigger><DataTrigger Binding="{Binding SelectedValue, ElementName=SolventModelSelector}" Value="SMD"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </ComboBox.Style>
+                                <ComboBoxItem Content="Water" Tag="Water" />
+                                <ComboBoxItem Content="Acetonitrile" Tag="Acetonitrile" />
+                                <ComboBoxItem Content="Dichloromethane" Tag="Dichloromethane" />
+                                <ComboBoxItem Content="Chloroform" Tag="Chloroform" />
+                                <ComboBoxItem Content="Toluene" Tag="Toluene" />
+                                <ComboBoxItem Content="THF" Tag="THF" />
+                                <ComboBoxItem Content="Methanol" Tag="Methanol" />
+                                <ComboBoxItem Content="Ethanol" Tag="Ethanol" />
+                                <ComboBoxItem Content="Acetone" Tag="Acetone" />
+                                <ComboBoxItem Content="DMF" Tag="DMF" />
+                                <ComboBoxItem Content="DMSO" Tag="DMSO" />
+                                <ComboBoxItem Content="Benzene" Tag="Benzene" />
+                            </ComboBox>
+                        </Grid>
+                    </Border>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <Border Grid.Row="1" Padding="14" Background="White" BorderBrush="#DCE2E8" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="100" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Gaussian Input Preview" FontWeight="SemiBold" Foreground="#27313B" Margin="0,0,0,8" />
+                <TextBox Grid.Row="1" Text="{Binding GaussianHeaderPreview, Mode=OneWay}" IsReadOnly="True"
+                         AcceptsReturn="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto"
+                         VerticalScrollBarVisibility="Auto" FontFamily="Consolas" Padding="8" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
