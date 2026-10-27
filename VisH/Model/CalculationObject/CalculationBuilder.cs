@@ -15,7 +15,7 @@ public static class CalculationBuilder
     {
         var metaData = new MetaData();
         var gaussianParameters = new GaussianParameters(bundledParameters);
-        var molecule = new Molecule(bundledParameters);
+        var molecule = new Molecule(bundledParameters, bundledParameters.GeometryAtoms);
         
         var calculation = new Calculation(sshService);
         
@@ -33,7 +33,8 @@ public static class CalculationBuilder
         BundledConstructionParameters bundledConstructionParameters,
         string geometryOptimizationJobId,
         string geometryOptimizationChkPath,
-        SshService sshService)
+        SshService sshService,
+        bool useExistingCheckpoint = false)
     {
         if (string.IsNullOrWhiteSpace(geometryOptimizationJobId))
         {
@@ -45,12 +46,14 @@ public static class CalculationBuilder
             throw new ArgumentException("The geometry optimization checkpoint path is required for a time-dependent calculation.", nameof(geometryOptimizationChkPath));
         }
 
-        var molecule = new Molecule(bundledConstructionParameters);
+        var molecule = new Molecule(
+            bundledConstructionParameters,
+            bundledConstructionParameters.GeometryAtoms);
         var metaData = new MetaData();
         var gaussianParameters = new GaussianParameters(bundledConstructionParameters)
         {
-            OldChkPath = geometryOptimizationChkPath,
-            DependencyJobId = geometryOptimizationJobId
+            OldChkPath = useExistingCheckpoint ? null : geometryOptimizationChkPath,
+            DependencyJobId = useExistingCheckpoint ? null : geometryOptimizationJobId
         };
 
         var calculation = new Calculation(sshService);

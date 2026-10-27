@@ -1,4 +1,5 @@
 ﻿using VisH.Model.Enums;
+using VisH.Model.GeneralUtils;
 
 namespace VisH.Model.CalculationUtils;
 
@@ -15,6 +16,7 @@ public record BundledConstructionParameters(
     Solvents Solvent,
     TimeSpan MaxWalltime,
     string? GeometryOptimizationJobId,
+    Atom[]? GeometryAtoms,
     string? OptionalKeywords,
     bool? DispersionCorrection,
     string? ScanContext

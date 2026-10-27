@@ -4,8 +4,10 @@ using VisH.Model;
 using VisH.Model.CalculationProperties;
 using VisH.Model.CalculationUtils;
 using VisH.Model.Enums;
+using VisH.Model.GeneralUtils;
 using VisH.Model.GeneralUtils.Enums;
 using VisH.Model.GeneralUtils.FileHandling;
+using VisH.Model.PostRun;
 
 namespace VisH.ViewModel;
 
@@ -45,6 +47,7 @@ public class NewCalcViewModel : ViewModelBase
     private string? _scanContext;
     private bool? _dispersionCorrection;
     private Queues? _selectedQueue;
+    private readonly JobFinder? _jobFinder;
 
     public State? SelectedState
     {
@@ -193,8 +196,9 @@ public class NewCalcViewModel : ViewModelBase
     
     public BundledConstructionParameters[]? Result { get; private set; }
     
-    public NewCalcViewModel()
+    public NewCalcViewModel(JobFinder? jobFinder = null)
     {
+        _jobFinder = jobFinder;
         SelectedState = State.S0;
         SelectedCharge = Charges[3];
         SelectedFunctional = Functionals.wB97XD;
@@ -206,9 +210,11 @@ public class NewCalcViewModel : ViewModelBase
     
     private BundledConstructionParameters BuildBundledParameters()
     {
+        string? normalizedJobId = string.IsNullOrWhiteSpace(JobId) ? null : JobId.Trim();
+
         return new BundledConstructionParameters(
             MoleculeName: MoleculeName ?? throw new ArgumentNullException(nameof(MoleculeName)),
-            SmilesString: SmilesString ?? throw new ArgumentNullException(nameof(SmilesString)),
+            SmilesString: normalizedJobId == null ? SmilesString ?? string.Empty : string.Empty,
             Charge: SelectedCharge ?? "0",
             State: SelectedState ?? State.S0,
             Memory: int.Parse(Ram ?? "8"),
@@ -223,7 +229,8 @@ public class NewCalcViewModel : ViewModelBase
                 Queues.LongQueue => TimeSpan.FromDays(5),
                 _ => TimeSpan.FromHours(72)
             },
-            GeometryOptimizationJobId: JobId,
+            GeometryOptimizationJobId: normalizedJobId,
+            GeometryAtoms: _geometryAtoms,
             OptionalKeywords: OptionalKeywords,
             DispersionCorrection: DispersionCorrection,
             ScanContext: ScanContext
@@ -275,16 +282,90 @@ public class NewCalcViewModel : ViewModelBase
     
     private bool AllEntriesFilled()
     {
-        return !string.IsNullOrEmpty(MoleculeName) &&
-               !string.IsNullOrEmpty(SmilesString) &&
-               !string.IsNullOrEmpty(NCores) &&
-               !string.IsNullOrEmpty(Ram);
+        return !string.IsNullOrWhiteSpace(MoleculeName) &&
+               (!string.IsNullOrWhiteSpace(SmilesString) || !string.IsNullOrWhiteSpace(JobId)) &&
+               !string.IsNullOrWhiteSpace(NCores) &&
+               !string.IsNullOrWhiteSpace(Ram);
     }
     
+    private Atom[]? _geometryAtoms;
+
     private bool AllEntriesValid()
     {
-        if (!Molecule.IsValidSmiles(SmilesString))
+        bool hasJobId = !string.IsNullOrWhiteSpace(JobId);
+        bool hasSmiles = !string.IsNullOrWhiteSpace(SmilesString);
+
+        if (hasJobId)
         {
+            if (hasSmiles)
+            {
+                MessageBox.Show(
+                    "Both a SMILES string and a Job ID were entered. The SMILES string will be ignored.",
+                    "Warning",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+
+            if (_jobFinder == null)
+            {
+                MessageBox.Show(
+                    "The calculation search is not available.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return false;
+            }
+
+            var sourceCalculation = _jobFinder.GetCalculationByJobId(JobId!.Trim());
+            if (sourceCalculation == null)
+            {
+                MessageBox.Show(
+                    $"No calculation was found for Job ID '{JobId}'.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return false;
+            }
+
+            if (sourceCalculation.GaussianParameters?.Jobtype != JobTypes.GeometryOptimization)
+            {
+                MessageBox.Show(
+                    $"The calculation for Job ID '{JobId}' is not a geometry optimization.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return false;
+            }
+
+            var geometryAtoms = sourceCalculation.Molecule?.Atoms;
+            if (geometryAtoms == null || geometryAtoms.Length == 0 ||
+                geometryAtoms.Any(atom =>
+                    string.IsNullOrWhiteSpace(atom.Element) ||
+                    !double.IsFinite(atom.x) ||
+                    !double.IsFinite(atom.y) ||
+                    !double.IsFinite(atom.z)))
+            {
+                MessageBox.Show(
+                    $"The calculation for Job ID '{JobId}' does not contain valid coordinates.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return false;
+            }
+
+            _geometryAtoms = geometryAtoms
+                .Select(atom => new Atom
+                {
+                    Element = atom.Element,
+                    x = atom.x,
+                    y = atom.y,
+                    z = atom.z
+                })
+                .ToArray();
+        }
+        else if (!Molecule.IsValidSmiles(SmilesString!))
+        {
+            _geometryAtoms = null;
             MessageBox.Show(
                 "Please enter a valid SMILES string.",
                 "Error",

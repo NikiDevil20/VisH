@@ -23,24 +23,13 @@
                 <userControls:CustomTextInput Placeholder="SMILES" Text="{Binding SmilesString}" 
                                               Margin="5" Grid.Row="1"></userControls:CustomTextInput>
                 
+                <userControls:CustomTextInput Placeholder="Job ID" Text="{Binding JobId}"
+                                              Margin="5"></userControls:CustomTextInput>
             </StackPanel>
             
                 
         
         </GroupBox>
-        
-        <!-- <GroupBox VerticalAlignment="Top" Header="SMILES" Margin="10" BorderBrush="#006DB3" BorderThickness="2"  -->
-        <!--           Padding="5"> -->
-        <!--     <StackPanel> -->
-        <!--          -->
-        <!--         <userControls:CustomTextInput Placeholder="SMILES" Text="{Binding SmilesString}"  -->
-        <!--                                       Margin="5" Grid.Row="0"></userControls:CustomTextInput> -->
-        <!--      -->
-        <!--         ~1~ <userControls:CustomTextInput Placeholder="Job ID" Text="{Binding JobId}"  @1@ -->
-        <!--         ~1~                               Margin="5" Grid.Row="1"></userControls:CustomTextInput> @1@ -->
-        <!--          -->
-        <!--     </StackPanel> -->
-        <!-- </GroupBox> -->
         
         <GroupBox VerticalAlignment="Top" Header="State and Charge" Margin="10" BorderBrush="#006DB3" BorderThickness="2" 
                   Padding="5">
@@ -138,10 +127,15 @@
                 
                 
             </Grid>
-            
+
+        </GroupBox>
+
+        <GroupBox VerticalAlignment="Top" Header="Additional Keywords" Margin="10" BorderBrush="#006DB3" BorderThickness="2"
+                  Padding="5">
+            <userControls:CustomTextInput Placeholder="Additional Keywords" Text="{Binding OptionalKeywords}"
+                                          Margin="5"></userControls:CustomTextInput>
         </GroupBox>
         
     </StackPanel>
         
 </UserControl>
-

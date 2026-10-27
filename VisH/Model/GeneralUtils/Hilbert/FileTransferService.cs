@@ -81,6 +81,50 @@ public class FileTransferService
             FileClient.UploadFile(fileStream, normalizedRemotePaths[i]);
         }
     }
+
+    public void CopyFile(string sourcePath, string destinationPath)
+    {
+        var source = NormalizeRemotePath(sourcePath);
+        var destination = NormalizeRemotePath(destinationPath);
+        var destinationDirectory = Path.GetDirectoryName(destination)?.Replace('\\', '/');
+
+        if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(destination) ||
+            string.IsNullOrWhiteSpace(destinationDirectory))
+        {
+            throw new ArgumentException("Source and destination paths are required.");
+        }
+
+        BuildRecursiveDirs(destinationDirectory);
+
+        using var buffer = new MemoryStream();
+        FileClient.DownloadFile(source, buffer);
+        buffer.Position = 0;
+        FileClient.UploadFile(buffer, destination, true);
+    }
+
+    public bool RemoteFileExists(string path) =>
+        FileClient.Exists(NormalizeRemotePath(path));
+
+    public void UploadLocalFile(string localPath, string remotePath)
+    {
+        var destination = NormalizeRemotePath(remotePath);
+        var destinationDirectory = Path.GetDirectoryName(destination)?.Replace('\\', '/');
+
+        if (string.IsNullOrWhiteSpace(destination) ||
+            string.IsNullOrWhiteSpace(destinationDirectory))
+        {
+            throw new ArgumentException("Local and remote paths are required.");
+        }
+
+        if (!File.Exists(localPath))
+        {
+            throw new FileNotFoundException("The local source file does not exist.", localPath);
+        }
+
+        BuildRecursiveDirs(destinationDirectory);
+        using var fileStream = File.OpenRead(localPath);
+        FileClient.UploadFile(fileStream, destination, true);
+    }
     
     /// <summary>
     /// Connects to the file transfer client if it is not already connected and executes the specified operation.
