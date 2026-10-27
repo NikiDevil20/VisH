@@ -11,7 +11,7 @@ namespace VisH.Model.CalculationProperties;
 public class Molecule
 {
     public string MoleculeName { get; set; }
-    private Atom[] Atoms { get; set; }
+    public Atom[] Atoms { get; set; }
     public State State { get; set; }
     public int Charge { get; set; }
     public string SmilesString { get; set; }
@@ -23,11 +23,11 @@ public class Molecule
     
     public Molecule(
         BundledConstructionParameters parameters,
-        string? atomCoordinates=null)
+        Atom[]? geometryAtoms = null)
     {
-        if (atomCoordinates != null)
+        if (geometryAtoms != null)
         {
-            Atoms = GetAtomsFromCoordinates(atomCoordinates).ToArray();
+            Atoms = geometryAtoms;
         }
         else
         {
@@ -71,12 +71,6 @@ public class Molecule
         return atoms;
     }
     
-    private List<Atom> GetAtomsFromCoordinates(string coordinates)
-    {
-        // Implementation for getting atoms from coordinates
-        throw new NotImplementedException();
-    }
-
     private string SmilesToJson(string smilesString)
     {
         var bridge = new PythonBridge();

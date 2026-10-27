@@ -1,3 +1,4 @@
+using System.IO;
 using VisH.Model.CalculationUtils;
 using VisH.Model.CalculationObject;
 using VisH.Model.CalculationUtils;
@@ -35,7 +36,9 @@ public class FileHandler
         return success;
     }
     
-    public string[] Upload(Calculation[] calculations)
+    public string[] Upload(
+        Calculation[] calculations,
+        Action<Calculation>? beforeSubmit = null)
     {
         string[] clusterDirectories = new string[calculations.Length];
         
@@ -52,6 +55,7 @@ public class FileHandler
                 [gaussianInputFile.GetPath(), gstartFile.GetPath()],
                 [gaussianInputFile.GetPath(PathType.Cluster), gstartFile.GetPath(PathType.Cluster)],
                 clusterDirectories[i]);
+            beforeSubmit?.Invoke(calculations[i]);
             
         }
 
@@ -59,6 +63,33 @@ public class FileHandler
         
         ClusterChanged?.Invoke();
         return jobIds;
+    }
+
+    public void CopyCheckpoint(FileExtension source, FileExtension destination)
+    {
+        _fileTransferService.ConnectAndExecute(() =>
+        {
+            string clusterSource = source.GetPath(PathType.Cluster);
+            string localSource = source.GetPath(PathType.Local);
+            string clusterDestination = destination.GetPath(PathType.Cluster);
+
+            if (_fileTransferService.RemoteFileExists(clusterSource))
+            {
+                _fileTransferService.CopyFile(clusterSource, clusterDestination);
+                return;
+            }
+
+            if (File.Exists(localSource))
+            {
+                _fileTransferService.UploadLocalFile(localSource, clusterDestination);
+                return;
+            }
+
+            throw new FileNotFoundException(
+                $"The checkpoint file for job '{source.GetDirectory(PathType.Local)}' " +
+                "was not found on the cluster or locally.",
+                localSource);
+        });
     }
 
 }

@@ -5,6 +5,8 @@
 ### Added
 
 - Spectra for absorption or fluorescence calculations
+- Viewer for calculated molecule geometry
+- Start jobs from Job-IDs (UV/Vis + Flu)
 
 
 ## [v1.0.3] - 2026-10-13

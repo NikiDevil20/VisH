@@ -31,7 +31,7 @@ public class MenuBarViewModel : ViewModelBase
     
     private void NewCalc()
     {
-        var window = new StartNewCalcWindow();
+        var window = new StartNewCalcWindow(_jobFinder);
         if (window.ShowDialog() == false)
         {
             return;
@@ -40,6 +40,7 @@ public class MenuBarViewModel : ViewModelBase
         BundledConstructionParameters[] allBundledParameters = window.Result;
         
         List<Calculation> calculationsToSubmit = new();
+        var existingCheckpointSources = new Dictionary<Calculation, FileExtension>();
 
         foreach (var bundledParameters in allBundledParameters)
         {
@@ -49,23 +50,46 @@ public class MenuBarViewModel : ViewModelBase
                     calculationsToSubmit.Add(CalculationBuilder.GeometryOptimization(bundledParameters, _sshService));
                     break;
                 case JobTypes.TimeDependant:
-                    var geometryOptimization = CalculationBuilder.GeometryOptimization(
-                        bundledParameters with { JobType = JobTypes.GeometryOptimization },
-                        _sshService);
+                    if (!string.IsNullOrWhiteSpace(bundledParameters.GeometryOptimizationJobId))
+                    {
+                        var sourceCalculation = _jobFinder.GetCalculationByJobId(
+                            bundledParameters.GeometryOptimizationJobId);
 
-                    var geometryJobIds = _fileHandler.Upload([geometryOptimization]);
-                    var geometryJobId = geometryJobIds.FirstOrDefault()
-                        ?? throw new InvalidOperationException("Geometry optimization job submission failed.");
-                    geometryOptimization.MetaData.JobId = geometryJobId;
-                    geometryOptimization.Molecule.DrawSvg(geometryOptimization.Paths.RelativeDirectory.GetPath(), new PythonBridge());
-                    geometryOptimization.SaveCalculation();
+                        if (sourceCalculation?.Paths?.ChkFile == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"The geometry optimization calculation for Job ID " +
+                                $"'{bundledParameters.GeometryOptimizationJobId}' could not be loaded.");
+                        }
 
-                    var timeDependentCalculation = CalculationBuilder.TimeDependant(
-                        bundledParameters,
-                        geometryJobId,
-                        geometryOptimization.Paths.ChkFile.GetPath(PathType.Cluster),
-                        _sshService);
-                    calculationsToSubmit.Add(timeDependentCalculation);
+                        calculationsToSubmit.Add(CalculationBuilder.TimeDependant(
+                            bundledParameters,
+                            bundledParameters.GeometryOptimizationJobId,
+                            sourceCalculation.Paths.ChkFile.GetPath(PathType.Cluster),
+                            _sshService,
+                            useExistingCheckpoint: true));
+                        existingCheckpointSources[calculationsToSubmit[^1]] =
+                            sourceCalculation.Paths.ChkFile;
+                    }
+                    else
+                    {
+                        var geometryOptimization = CalculationBuilder.GeometryOptimization(
+                            bundledParameters with { JobType = JobTypes.GeometryOptimization },
+                            _sshService);
+
+                        var geometryJobIds = _fileHandler.Upload([geometryOptimization]);
+                        var geometryJobId = geometryJobIds.FirstOrDefault()
+                            ?? throw new InvalidOperationException("Geometry optimization job submission failed.");
+                        geometryOptimization.MetaData.JobId = geometryJobId;
+                        DrawMoleculePreview(geometryOptimization);
+                        geometryOptimization.SaveCalculation();
+
+                        calculationsToSubmit.Add(CalculationBuilder.TimeDependant(
+                            bundledParameters,
+                            geometryJobId,
+                            geometryOptimization.Paths.ChkFile.GetPath(PathType.Cluster),
+                            _sshService));
+                    }
                     break;
                 default:
                     throw new NotImplementedException("Unsupported job type");
@@ -77,16 +101,35 @@ public class MenuBarViewModel : ViewModelBase
             return;
         }
 
-        var jobIds = _fileHandler.Upload(calculationsToSubmit.ToArray());
+        var jobIds = _fileHandler.Upload(
+            calculationsToSubmit.ToArray(),
+            calculation =>
+            {
+                if (!existingCheckpointSources.TryGetValue(calculation, out var source))
+                {
+                    return;
+                }
+
+                _fileHandler.CopyCheckpoint(source, calculation.Paths!.ChkFile!);
+            });
 
         for (int i = 0; i < calculationsToSubmit.Count; i++)
         {
             var calculation = calculationsToSubmit[i];
             calculation.MetaData.JobId = jobIds[i];
-            calculation.Molecule.DrawSvg(calculation.Paths.RelativeDirectory.GetPath(), new PythonBridge());
+            DrawMoleculePreview(calculation);
             calculation.SaveCalculation();
         }
-        
+    }
+
+    private static void DrawMoleculePreview(Calculation calculation)
+    {
+        if (!string.IsNullOrWhiteSpace(calculation.Molecule?.SmilesString))
+        {
+            calculation.Molecule.DrawSvg(
+                calculation.Paths!.RelativeDirectory.GetPath(),
+                new PythonBridge());
+        }
     }
 
     private void OpenSettings()
