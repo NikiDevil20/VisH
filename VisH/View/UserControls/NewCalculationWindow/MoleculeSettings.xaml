@@ -127,7 +127,13 @@
                 
                 
             </Grid>
-            
+
+        </GroupBox>
+
+        <GroupBox VerticalAlignment="Top" Header="Additional Keywords" Margin="10" BorderBrush="#006DB3" BorderThickness="2"
+                  Padding="5">
+            <userControls:CustomTextInput Placeholder="Additional Keywords" Text="{Binding OptionalKeywords}"
+                                          Margin="5"></userControls:CustomTextInput>
         </GroupBox>
         
     </StackPanel>

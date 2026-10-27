@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:VisH.View.Windows"
         xmlns:newCalculationWindow="clr-namespace:VisH.View.UserControls.NewCalculationWindow"
         mc:Ignorable="d"
-        Title="Start New Calculation" Height="650" Width="450">
+        Title="Start New Calculation" Height="750" Width="450">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"></RowDefinition>
@@ -45,4 +45,3 @@
         
     </Grid>
 </Window>
-
