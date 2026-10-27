@@ -260,17 +260,6 @@ public class Calculation
                 return oldState != MetaData.JobState;
             }
 
-            var nimagMatches = GaussianRegex.NImagRegex.Matches(logContent);
-            if (nimagMatches.Count > 0)
-            {
-                var lastMatch = nimagMatches[^1];
-                if (int.TryParse(lastMatch.Groups[1].Value, out var nimag) && nimag != 0)
-                {
-                    MetaData.JobState = JobState.Imaginary;
-                    return oldState != MetaData.JobState;
-                }
-            }
-
             MetaData.JobState = JobState.Successful;
             return oldState != MetaData.JobState;
         }
@@ -316,7 +305,7 @@ public class Calculation
         return calculation;
     }
 
-    public void UpdateFromDownloadedFiles(string resultJsonPath, string lgPath)
+    public void UpdateFromDownloadedFiles(string resultJsonPath, string lgPath, string? logPath = null)
     {
         if (Results == null)
         {
@@ -326,6 +315,11 @@ public class Calculation
         if (File.Exists(resultJsonPath))
         {
             Results = CalculationResultParser.ApplyLogFile(Results, resultJsonPath);
+        }
+
+        if (GaussianParameters?.Jobtype == JobTypes.TimeDependant && !string.IsNullOrWhiteSpace(logPath) && File.Exists(logPath))
+        {
+            Results.Peaks = CalculationResultParser.ParseExcitedStates(logPath).ToList();
         }
 
         if (MetaData == null)

@@ -20,6 +20,8 @@
       <PackageReference Include="Serilog" Version="4.4.1-dev-02443" />
       <PackageReference Include="Serilog.Sinks.File" Version="8.0.0-nblumhardt-02322" />
       <PackageReference Include="SSH.NET" Version="2025.1.0" />
+      <PackageReference Include="ScottPlot.WPF" Version="5.0.55" />
+      <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
     </ItemGroup>
 
     <ItemGroup>
@@ -53,6 +55,12 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="WebView\**\*">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

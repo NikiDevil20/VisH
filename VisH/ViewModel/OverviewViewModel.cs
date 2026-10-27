@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text.Json;
 using VisH.Model;
 using VisH.Model.CalculationProperties;
 using VisH.Model.Enums;
@@ -25,6 +26,15 @@ public class OverviewViewModel : ViewModelBase
     public ObservableCollection<DataGridItem> EnergiesGridItems { get; } = [];
     public ObservableCollection<DataGridItem> FrequenciesGridItems { get; } = [];
     public ObservableCollection<DataGridItem> OrbitalsGridItems{ get; } = [];
+    private bool _isSpectrumVisible;
+    public bool IsSpectrumVisible
+    {
+        get => _isSpectrumVisible;
+        private set => SetProperty(ref _isSpectrumVisible, value);
+    }
+    public double[] SpectrumWavelengths { get; private set; } = [];
+    public double[] SpectrumIntensities { get; private set; } = [];
+    public string SpectrumType { get; private set; } = string.Empty;
     private string _moleculeImage = "";
     public string MoleculeImage
     {
@@ -36,6 +46,27 @@ public class OverviewViewModel : ViewModelBase
     {
         get => _moleculeName;
         set => SetProperty(ref _moleculeName, value);
+    }
+    private bool _isMoleculeViewerVisible;
+    public bool IsMoleculeViewerVisible
+    {
+        get => _isMoleculeViewerVisible;
+        private set => SetProperty(ref _isMoleculeViewerVisible, value);
+    }
+    private string _moleculeViewerMessage = string.Empty;
+    public string MoleculeViewerMessage
+    {
+        get => _moleculeViewerMessage;
+        private set => SetProperty(ref _moleculeViewerMessage, value);
+    }
+    public string MoleculeViewerPayloadJson { get; private set; } = string.Empty;
+    public string MoleculeViewerOrbitalMode { get; private set; } = "HOMO";
+    public bool HasHomoCube { get; private set; }
+    public bool HasLumoCube { get; private set; }
+
+    public void SetMoleculeViewerError(string message)
+    {
+        MoleculeViewerMessage = message;
     }
     private bool _hasValidSelection;
     public bool HasValidSelection
@@ -54,6 +85,7 @@ public class OverviewViewModel : ViewModelBase
             if (value is null)
             {
                 SelectedPath = null;
+                ClearProperties();
                 OnPropertyChanged();
                 return;
             }
@@ -142,6 +174,17 @@ public class OverviewViewModel : ViewModelBase
         EnergiesGridItems.Clear();
         FrequenciesGridItems.Clear();
         OrbitalsGridItems.Clear();
+        SpectrumWavelengths = [];
+        SpectrumIntensities = [];
+        SpectrumType = string.Empty;
+        IsSpectrumVisible = false;
+        IsMoleculeViewerVisible = false;
+        MoleculeViewerMessage = string.Empty;
+        MoleculeViewerPayloadJson = string.Empty;
+        MoleculeViewerOrbitalMode = "HOMO";
+        HasHomoCube = false;
+        HasLumoCube = false;
+        OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
     }
 
     private void SetupTreeview()
@@ -189,7 +232,204 @@ public class OverviewViewModel : ViewModelBase
         DictToGridItems(SetupEnergies(calculation.Results), EnergiesGridItems);
         DictToGridItems(SetupFrequencies(calculation.Results), FrequenciesGridItems);
         DictToGridItems(SetupOrbitals(calculation.Results), OrbitalsGridItems);
+        SetSpectrum(calculation);
+        SetMoleculeViewer(calculation);
         HasValidSelection = true;
+    }
+
+    private void SetMoleculeViewer(Calculation calculation)
+    {
+        IsMoleculeViewerVisible = false;
+        MoleculeViewerMessage = string.Empty;
+        MoleculeViewerPayloadJson = string.Empty;
+        MoleculeViewerOrbitalMode = "HOMO";
+        HasHomoCube = false;
+        HasLumoCube = false;
+
+        if (calculation.GaussianParameters?.Jobtype != JobTypes.GeometryOptimization)
+        {
+            OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
+            return;
+        }
+
+        var geometry = calculation.Results?.CoordResults;
+        if (string.IsNullOrWhiteSpace(geometry))
+        {
+            MoleculeViewerMessage = "Keine finale Geometrie für diese Rechnung verfügbar.";
+            IsMoleculeViewerVisible = true;
+            OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
+            return;
+        }
+
+        var geometryResult = MoleculeDataValidation.ParseGeometry(geometry);
+        if (!geometryResult.IsValid)
+        {
+            MoleculeViewerMessage = calculation.Results?.GeometryMessage
+                ?? geometryResult.Message;
+            IsMoleculeViewerVisible = true;
+            OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
+            return;
+        }
+
+        var calculationDirectory = SelectedPath?.GetPath(PathType.Local);
+        if (string.IsNullOrWhiteSpace(calculationDirectory))
+        {
+            MoleculeViewerMessage = "Das Rechnungsverzeichnis ist nicht verfügbar.";
+            IsMoleculeViewerVisible = true;
+            OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
+            return;
+        }
+
+        var cubeErrors = new List<string>();
+        string[] files;
+        try
+        {
+            files = Directory.EnumerateFiles(calculationDirectory, "*", SearchOption.TopDirectoryOnly)
+                .Where(path => string.Equals(Path.GetExtension(path), ".cube", StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            files = [];
+            cubeErrors.Add($"Cube-Dateien konnten nicht durchsucht werden: {exception.Message}");
+        }
+        var xyzGeometry = ToXyz(geometryResult.Atoms);
+        var optimizationComplete = IsOptimizationComplete(calculation);
+        var topologyMessage = MoleculeDataValidation.HasSameAtomOrder(
+            geometryResult.Atoms,
+            calculation.Molecule?.GetAtomElements())
+            ? string.Empty
+            : "Geometrie angezeigt; Bindungstopologie konnte nicht sicher der Molekülstruktur zugeordnet werden.";
+        var homoCube = optimizationComplete
+            ? FindValidatedCube(files, "homo.cube", geometryResult.Atoms, cubeErrors)
+            : null;
+        var lumoCube = optimizationComplete
+            ? FindValidatedCube(files, "lumo.cube", geometryResult.Atoms, cubeErrors)
+            : null;
+        var densityCube = optimizationComplete
+            ? FindValidatedCube(files, "density.cube", geometryResult.Atoms, cubeErrors)
+            : null;
+        HasHomoCube = homoCube is not null;
+        HasLumoCube = lumoCube is not null;
+        MoleculeViewerOrbitalMode = HasHomoCube ? "HOMO" : HasLumoCube ? "LUMO" : "HOMO";
+        var statusMessage = string.Join(" ", new[]
+        {
+            optimizationComplete ? string.Empty :
+                "Letzte bekannte Geometrie; Optimierung nicht als vollständig bestätigt.",
+            topologyMessage,
+            string.Join(" ", cubeErrors)
+        }.Where(message => !string.IsNullOrWhiteSpace(message)));
+        MoleculeViewerMessage = statusMessage;
+        var payload = new
+        {
+            geometry = xyzGeometry,
+            statusMessage,
+            homoCube,
+            lumoCube,
+            densityCube,
+            orbitalMode = MoleculeViewerOrbitalMode,
+            isoValue = 0.02,
+            opacity = 0.65
+        };
+        MoleculeViewerPayloadJson = JsonSerializer.Serialize(payload);
+        IsMoleculeViewerVisible = true;
+        OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
+    }
+
+    private static string ToXyz(IReadOnlyList<GeometryAtom> atoms)
+    {
+        var lines = atoms.Select(atom =>
+            $"{atom.Element} {atom.X.ToString(System.Globalization.CultureInfo.InvariantCulture)} " +
+            $"{atom.Y.ToString(System.Globalization.CultureInfo.InvariantCulture)} " +
+            atom.Z.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        return $"{atoms.Count}{Environment.NewLine}Optimized geometry{Environment.NewLine}" +
+               string.Join(Environment.NewLine, lines);
+    }
+
+    private static bool IsOptimizationComplete(Calculation calculation)
+    {
+        if (calculation.Results?.NormalTermination == true &&
+            calculation.Results.OptimizationConverged == true)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static string? FindValidatedCube(
+        IReadOnlyList<string> files,
+        string expectedName,
+        IReadOnlyList<GeometryAtom> geometry,
+        ICollection<string> errors)
+    {
+        var matches = files
+            .Where(path => string.Equals(
+                Path.GetFileName(path),
+                expectedName,
+                StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        if (matches.Length == 0)
+        {
+            return null;
+        }
+        if (matches.Length > 1)
+        {
+            errors.Add($"Cube-Datei {expectedName} ist mehrdeutig und wurde nicht geladen.");
+            return null;
+        }
+
+        var validation = MoleculeDataValidation.ValidateCube(matches[0], geometry);
+        if (!validation.IsValid)
+        {
+            errors.Add($"{expectedName}: {validation.Message}");
+            return null;
+        }
+
+        var relativePath = Path.GetRelativePath(
+            Config.Load().LocalRechnungenPath,
+            matches[0]).Replace('\\', '/');
+        return $"https://molecule.local/{relativePath}";
+    }
+
+    private void SetSpectrum(Calculation calculation)
+    {
+        var peaks = calculation.Results?.Peaks;
+        if (calculation.GaussianParameters?.Jobtype != JobTypes.TimeDependant ||
+            peaks is null || peaks.Count == 0)
+        {
+            SpectrumWavelengths = [];
+            SpectrumIntensities = [];
+            SpectrumType = string.Empty;
+            IsSpectrumVisible = false;
+            return;
+        }
+
+        var minimum = peaks.Min(peak => peak.Wavelength) - 5;
+        var maximum = peaks.Max(peak => peak.Wavelength) + 25;
+        var wavelengths = new SortedSet<double>();
+        for (var wavelength = minimum; wavelength <= maximum; wavelength += 0.1)
+        {
+            wavelengths.Add(wavelength);
+        }
+
+        // foreach (var peak in peaks)
+        // {
+        //     wavelengths.Add(peak.Wavelength);
+        // }
+
+        var peakWavelengths = peaks.Select(peak => peak.Wavelength).ToArray();
+        var oscillatorStrengths = peaks.Select(peak => peak.OscillatorStrength).ToArray();
+        var spectrum = new SpectrumCalculator().CalculateSpectrum(
+            wavelengths.ToArray(), peakWavelengths, oscillatorStrengths);
+
+        SpectrumWavelengths = spectrum.Keys.ToArray();
+        SpectrumIntensities = spectrum.Values.ToArray();
+        SpectrumType = calculation.Molecule?.State == State.S0 ? "Absorption" : "Emission";
+        IsSpectrumVisible = true;
+        OnPropertyChanged(nameof(SpectrumWavelengths));
+        OnPropertyChanged(nameof(SpectrumIntensities));
+        OnPropertyChanged(nameof(SpectrumType));
     }
 
 
@@ -235,10 +475,16 @@ public class OverviewViewModel : ViewModelBase
     private Dictionary<string, string> SetupOrbitals(Results? results)
     {
         var dict = new Dictionary<string, string>();
-        if (results == null || results.MoEnergies.Length <= results.NHomo + 1) return dict;
-        dict["HOMO"] = results.MoEnergies[results.NHomo].ToString("F6");
-        dict["LUMO"] = results.MoEnergies[results.NHomo + 1].ToString("F6");
-        dict["Gap"] = (results.MoEnergies[results.NHomo + 1] - results.MoEnergies[results.NHomo]).ToString("F6");
+        if (results?.NHomo is not int homoIndex ||
+            homoIndex < 0 ||
+            results.MoEnergies.Length <= homoIndex + 1)
+        {
+            return dict;
+        }
+
+        dict["HOMO"] = results.MoEnergies[homoIndex].ToString("F6");
+        dict["LUMO"] = results.MoEnergies[homoIndex + 1].ToString("F6");
+        dict["Gap"] = (results.MoEnergies[homoIndex + 1] - results.MoEnergies[homoIndex]).ToString("F6");
         return dict;
     }
     
