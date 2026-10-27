@@ -10,6 +10,7 @@ using VisH.Model.GeneralUtils.FileHandling;
 using VisH.Model.GeneralUtils.Hilbert;
 using VisH.Model.PostRun;
 using VisH.View.Windows;
+using VisH.View.Windows.SetupWindow;
 using VisH.View.Windows.SettingsWindow;
 
 namespace VisH.ViewModel;
@@ -17,6 +18,7 @@ namespace VisH.ViewModel;
 public class MenuBarViewModel : ViewModelBase
 {
     public RelayCommand NewCalcCommand => new RelayCommand(execute => NewCalc());
+    public RelayCommand AdvancedCalcCommand => new RelayCommand(_ => OpenAdvancedCalculation());
     public RelayCommand SettingsCommand => new RelayCommand(_ => OpenSettings());
     private FileHandler _fileHandler;
     private readonly SshService _sshService;
@@ -92,6 +94,15 @@ public class MenuBarViewModel : ViewModelBase
     private void OpenSettings()
     {
         SettingsWindow window = new()
+        {
+            Owner = Application.Current?.MainWindow
+        };
+        window.ShowDialog();
+    }
+
+    private void OpenAdvancedCalculation()
+    {
+        SetupWindow window = new()
         {
             Owner = Application.Current?.MainWindow
         };

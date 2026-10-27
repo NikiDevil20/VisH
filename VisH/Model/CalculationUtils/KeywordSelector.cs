@@ -68,12 +68,18 @@ public class KeywordSelector
         switch (_state)
         {
             case State.S0:
-                keywords.Add($"scrf=(smd,solvent={_solvent})");
+                if (_solvent != Solvents.None)
+                {
+                    keywords.Add($"scrf=(smd,solvent={_solvent})");
+                }
                 keywords.Add("opt scf=xqc pop=full GFInput");
                 break;
             
             case State.S1 or State.S2 or State.S3:
-                keywords.Add($"scrf=(smd,solvent={_solvent})");
+                if (_solvent != Solvents.None)
+                {
+                    keywords.Add($"scrf=(smd,solvent={_solvent})");
+                }
                 keywords.Add("opt scf=xqc TD=(singlet,NStates=6,root=1)");
                 break;
             
@@ -92,11 +98,17 @@ public class KeywordSelector
         switch (_state)
         {
             case State.S0:
-                keywords.Add($"scrf=(smd,solvent={_solvent},correctedLR)");
+                if (_solvent != Solvents.None)
+                {
+                    keywords.Add($"scrf=(smd,solvent={_solvent},correctedLR)");
+                }
                 keywords.Add("TD=(singlet,NStates=25,root=1) geom=check guess=read");
                 break;
             case State.S1 or State.S2 or State.S3:
-                keywords.Add($"scrf=(smd,solvent={_solvent},ExternalIteration,correctedLR)");
+                if (_solvent != Solvents.None)
+                {
+                    keywords.Add($"scrf=(smd,solvent={_solvent},ExternalIteration,correctedLR)");
+                }
                 keywords.Add("TD=(singlet,NStates=6,root=1) geom=check guess=read");
                 break;
             

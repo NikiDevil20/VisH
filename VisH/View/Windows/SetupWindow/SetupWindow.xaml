@@ -3,11 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:userControls="clr-namespace:VisH.View.UserControls"
         mc:Ignorable="d"
         Title="Gaussian Job Setup"
-        Width="980"
+        Width="450"
         Height="760"
-        MinWidth="760"
+        MinWidth="450"
         MinHeight="600"
         WindowStartupLocation="CenterOwner"
         Background="#F5F7FA">
@@ -28,6 +29,8 @@
             <Setter Property="Padding" Value="8,0" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Margin" Value="0,0,0,16" />
+            <Setter Property="Width" Value="260" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
         <Style x:Key="WatermarkStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#9AA4AE" />
@@ -50,19 +53,34 @@
         <Style TargetType="TabItem">
             <Setter Property="FontSize" Value="14" />
             <Setter Property="Padding" Value="20,9" />
+            <Setter Property="Foreground" Value="#006DB3" />
+        </Style>
+        <Style TargetType="ToggleButton">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="Foreground" Value="#006DB3" />
+            <Setter Property="BorderBrush" Value="#006DB3" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
         </Style>
     </Window.Resources>
 
-    <Grid Margin="24">
+    <Grid Margin="0">
         <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TabControl Grid.Row="0" Margin="0,0,0,18">
+        <Border Grid.Row="0" Background="#006DB3" CornerRadius="4,4,0,0">
+            <TextBlock Text="Advanced Calculation" FontSize="20" FontWeight="Bold"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Foreground="White" />
+        </Border>
+
+        <TabControl Grid.Row="1" Margin="0,0,0,18">
             <TabItem Header="General">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Border Padding="24" Background="White" BorderBrush="#DCE2E8" BorderThickness="1">
+                    <Border Padding="24" Background="White" BorderBrush="#006DB3" BorderThickness="2" CornerRadius="0,0,4,4">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="180" />
@@ -87,8 +105,8 @@
                             <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="General" Style="{StaticResource SectionHeaderStyle}" />
                             <TextBlock Grid.Row="1" Text="Molecule Name" Style="{StaticResource FieldLabelStyle}" />
                             <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">
-                                <TextBox x:Name="MoleculeNameInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding MoleculeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Text="Molecule Name" Style="{StaticResource WatermarkStyle}" />
+                                <userControls:CustomTextInput x:Name="MoleculeNameInput" Height="34" Placeholder="Molecule Name"
+                                                              Text="{Binding MoleculeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </Grid>
 
                             <TextBlock Grid.Row="2" Text="Geometry from" Style="{StaticResource FieldLabelStyle}" />
@@ -113,8 +131,8 @@
                                         <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=GeometrySourceSelector}" Value="SMILES"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <TextBox x:Name="SmilesInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding Smiles, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Text="SMILES string" Style="{StaticResource WatermarkStyle}" />
+                                <userControls:CustomTextInput x:Name="SmilesInput" Height="34" Placeholder="SMILES string"
+                                                              Text="{Binding Smiles, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </Grid>
                             <TextBlock Grid.Row="4" Text="Geometry job">
                                 <TextBlock.Style>
@@ -131,8 +149,8 @@
                                         <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=GeometrySourceSelector}" Value="Job"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <TextBox x:Name="GeometryJobIdInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding GeometryJobId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Text="Enter job id" Style="{StaticResource WatermarkStyle}" />
+                                <userControls:CustomTextInput x:Name="GeometryJobIdInput" Height="34" Placeholder="Enter job id"
+                                                              Text="{Binding GeometryJobId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </Grid>
 
                             <TextBlock Grid.Row="5" Text="Rechenzeit" Style="{StaticResource FieldLabelStyle}" />
@@ -149,19 +167,19 @@
                                         <Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=WallTimeProfileSelector}" Value="Custom"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <TextBox x:Name="CustomWallTimeInput" Width="150" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding CustomWallTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Text="e.g. 24:00:00" Style="{StaticResource WatermarkStyle}" />
+                                <userControls:CustomTextInput x:Name="CustomWallTimeInput" Width="150" Height="34" Placeholder="e.g. 24:00:00"
+                                                              Text="{Binding CustomWallTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </Grid>
 
                             <TextBlock Grid.Row="6" Text="RAM" Style="{StaticResource FieldLabelStyle}" />
                             <Grid Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2">
-                                <TextBox x:Name="MemoryInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding Memory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Text="RAM" Style="{StaticResource WatermarkStyle}" />
+                                <userControls:CustomTextInput x:Name="MemoryInput" Height="34" Placeholder="RAM"
+                                                              Text="{Binding Memory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </Grid>
                             <TextBlock Grid.Row="7" Text="nCPUs" Style="{StaticResource FieldLabelStyle}" />
                             <Grid Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2">
-                                <TextBox x:Name="CpuCountInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding CpuCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Text="nCPUs" Style="{StaticResource WatermarkStyle}" />
+                                <userControls:CustomTextInput x:Name="CpuCountInput" Height="34" Placeholder="nCPUs"
+                                                              Text="{Binding CpuCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </Grid>
                             <TextBlock Grid.Row="8" Text="Jobtype" Style="{StaticResource FieldLabelStyle}" />
                             <ComboBox Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource FieldComboBoxStyle}"
@@ -176,7 +194,7 @@
 
             <TabItem Header="Method">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Border Padding="24" Background="White" BorderBrush="#DCE2E8" BorderThickness="1">
+                    <Border Padding="24" Background="White" BorderBrush="#006DB3" BorderThickness="2" CornerRadius="0,0,4,4">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="180" />
@@ -243,8 +261,12 @@
                                 <ComboBoxItem Content="aug-cc-pVTZ" Tag="aug-cc-pVTZ" />
                             </ComboBox>
                             <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" Margin="8,0,0,16">
-                                <ToggleButton Content="+ Polarization" Padding="10,5" Margin="0,0,8,0" IsChecked="{Binding AddPolarizationFunctions, Mode=TwoWay}" />
-                                <ToggleButton Content="+ Diffuse" Padding="10,5" IsChecked="{Binding AddDiffuseFunctions, Mode=TwoWay}" />
+                                <ToggleButton Content="+ Polarization" Padding="10,5" Margin="0,0,8,0"
+                                              IsChecked="{Binding AddPolarizationFunctions, Mode=TwoWay}"
+                                              IsEnabled="{Binding CanAddPolarizationFunctions}" />
+                                <ToggleButton Content="+ Diffuse" Padding="10,5"
+                                              IsChecked="{Binding AddDiffuseFunctions, Mode=TwoWay}"
+                                              IsEnabled="{Binding CanAddDiffuseFunctions}" />
                             </StackPanel>
                             <TextBlock Grid.Row="5" Text="Charge / Spin" Style="{StaticResource FieldLabelStyle}" />
                             <Grid Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2">
@@ -254,8 +276,8 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Grid>
-                                    <TextBox x:Name="ChargeInput" Style="{StaticResource FieldTextBoxStyle}" Text="{Binding Charge, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                    <TextBlock Text="0" Style="{StaticResource WatermarkStyle}" />
+                                    <userControls:CustomTextInput x:Name="ChargeInput" Height="34" Placeholder="0"
+                                                                  Text="{Binding Charge, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 </Grid>
                                 <ComboBox Grid.Column="2" Style="{StaticResource FieldComboBoxStyle}" SelectedValuePath="Tag" SelectedValue="{Binding SpinMultiplicity, Mode=TwoWay}">
                                     <ComboBoxItem Content="Singlet" Tag="Singlet" />
@@ -269,7 +291,7 @@
 
             <TabItem Header="Solvent">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Border Padding="24" Background="White" BorderBrush="#DCE2E8" BorderThickness="1">
+                    <Border Padding="24" Background="White" BorderBrush="#006DB3" BorderThickness="2" CornerRadius="0,0,4,4">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="180" />
@@ -321,7 +343,7 @@
             </TabItem>
         </TabControl>
 
-        <Border Grid.Row="1" Padding="14" Background="White" BorderBrush="#DCE2E8" BorderThickness="1">
+        <Border Grid.Row="2" Padding="14" Background="White" BorderBrush="#006DB3" BorderThickness="2" CornerRadius="4">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
