@@ -69,12 +69,12 @@ public class KeywordSelector
         {
             case State.S0:
                 AddSolventKeyword(keywords);
-                keywords.Add("opt scf=xqc pop=full GFInput");
+                keywords.Add("opt pop=full GFInput");
                 break;
             
             case State.S1 or State.S2 or State.S3:
                 AddSolventKeyword(keywords);
-                keywords.Add("opt scf=xqc TD=(singlet,NStates=6,root=1)");
+                keywords.Add("opt TD=(singlet,NStates=6,root=1)");
                 break;
             
             case State.T1 or State.T2 or State.T3:
