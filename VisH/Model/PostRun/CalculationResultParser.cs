@@ -87,6 +87,31 @@ public static class CalculationResultParser
             metaData.Ressources.UsedMemory = usedMem;
         }
 
+        var usedCores = GaussianRegex.MatchString(text, GaussianRegex.UsedCoresRegex);
+        if (usedCores != null && int.TryParse(usedCores, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedUsedCores))
+        {
+            metaData.Ressources.UsedCores = parsedUsedCores;
+        }
+
+        SetDate(text, GaussianRegex.SubmittedTimeRegex, date => metaData.Dates.SubmittedDate = date);
+        SetDate(text, GaussianRegex.StartTimeRegex, date => metaData.Dates.StartDate = date);
+        SetDate(text, GaussianRegex.EndTimeRegex, date => metaData.Dates.EndDate = date);
+
         return metaData;
+    }
+
+    private static void SetDate(string text, Regex pattern, Action<DateTime> setter)
+    {
+        var value = GaussianRegex.MatchString(text, pattern);
+        if (value != null &&
+            DateTime.TryParseExact(
+                value,
+                "ddd MMM d HH:mm:ss yyyy",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var date))
+        {
+            setter(date);
+        }
     }
 }
