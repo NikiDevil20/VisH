@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using VisH.Model;
@@ -26,6 +27,7 @@ public class OverviewViewModel : ViewModelBase
     public ObservableCollection<DataGridItem> EnergiesGridItems { get; } = [];
     public ObservableCollection<DataGridItem> FrequenciesGridItems { get; } = [];
     public ObservableCollection<DataGridItem> OrbitalsGridItems{ get; } = [];
+    public ObservableCollection<DataGridItem> MethodGridItems { get; } = [];
     private bool _isSpectrumVisible;
     public bool IsSpectrumVisible
     {
@@ -174,6 +176,7 @@ public class OverviewViewModel : ViewModelBase
         EnergiesGridItems.Clear();
         FrequenciesGridItems.Clear();
         OrbitalsGridItems.Clear();
+        MethodGridItems.Clear();
         SpectrumWavelengths = [];
         SpectrumIntensities = [];
         SpectrumType = string.Empty;
@@ -228,10 +231,11 @@ public class OverviewViewModel : ViewModelBase
         var calculation = Calculation.FromJson(calculationJson.GetPath(PathType.Local), _sshService);
         MoleculeName = calculation.MetaData?.JobName ?? "";
 
-        DictToGridItems(SetupMetaData(calculation.MetaData), MetaDataGridItems);
+        DictToGridItems(SetupMetaData(calculation.MetaData, calculation.GaussianParameters), MetaDataGridItems);
         DictToGridItems(SetupEnergies(calculation.Results), EnergiesGridItems);
         DictToGridItems(SetupFrequencies(calculation.Results), FrequenciesGridItems);
         DictToGridItems(SetupOrbitals(calculation.Results), OrbitalsGridItems);
+        DictToGridItems(SetupMethod(calculation.GaussianParameters), MethodGridItems);
         SetSpectrum(calculation);
         SetMoleculeViewer(calculation);
         HasValidSelection = true;
@@ -442,16 +446,53 @@ public class OverviewViewModel : ViewModelBase
             targetCollection.Add(new DataGridItem(ele.Key, ele.Value));
         }
     }
-    private Dictionary<string, string> SetupMetaData(MetaData? metaData)
+    private Dictionary<string, string> SetupMetaData(MetaData? metaData, GaussianParameters? gaussianParameters)
     {
         var dict = new Dictionary<string, string>();
         if (metaData == null) return dict;
         dict["JobName"] = metaData.JobName ?? "";
         dict["JobId"] = metaData.JobId ?? "";
+        dict["Submitted"] = FormatDate(metaData.Dates.SubmittedDate);
+        dict["Started"] = FormatDate(metaData.Dates.StartDate);
+        dict["Ended"] = FormatDate(metaData.Dates.EndDate);
         dict["Walltime"] = metaData.Ressources.Walltime.ToString();
-        dict["UsedCpu"] = metaData.Ressources.UsedCpu.ToString();
-        dict["UsedMemory"] = metaData.Ressources.UsedMemory.ToString();
+        dict["CPU Usage"] = FormatCpuUsage(
+            metaData.Ressources.UsedCpu,
+            gaussianParameters?.NProc ?? metaData.Ressources.UsedCores);
+        dict["Memory Usage"] = FormatMemoryUsage(
+            metaData.Ressources.UsedMemory,
+            gaussianParameters?.Memory ?? 0);
         return dict;
+    }
+
+    private static string FormatDate(DateTime date)
+    {
+        return date == default
+            ? ""
+            : date.ToString("g", CultureInfo.CurrentCulture);
+    }
+
+    private static string FormatCpuUsage(float usedCpu, int requestedCores)
+    {
+        if (usedCpu <= 0 || requestedCores <= 0)
+        {
+            return "";
+        }
+
+        var percentage = usedCpu / (requestedCores * 100f) * 100f;
+        return $"{percentage.ToString("F1", CultureInfo.CurrentCulture)} % of {requestedCores} cores";
+    }
+
+    private static string FormatMemoryUsage(float usedMemoryKb, int requestedMemoryGb)
+    {
+        if (usedMemoryKb <= 0 || requestedMemoryGb <= 0)
+        {
+            return "";
+        }
+
+        var requestedMemoryKb = requestedMemoryGb * 1024f * 1024f;
+        var percentage = usedMemoryKb / requestedMemoryKb * 100f;
+        return $"{percentage.ToString("F1", CultureInfo.CurrentCulture)} % of {requestedMemoryGb} GB";
     }
 
     private Dictionary<string, string> SetupEnergies(Results? results)
@@ -485,6 +526,18 @@ public class OverviewViewModel : ViewModelBase
         dict["HOMO"] = results.MoEnergies[homoIndex].ToString("F6");
         dict["LUMO"] = results.MoEnergies[homoIndex + 1].ToString("F6");
         dict["Gap"] = (results.MoEnergies[homoIndex + 1] - results.MoEnergies[homoIndex]).ToString("F6");
+        return dict;
+    }
+
+    private static Dictionary<string, string> SetupMethod(GaussianParameters? gaussianParameters)
+    {
+        var dict = new Dictionary<string, string>();
+        if (gaussianParameters == null) return dict;
+
+        dict["Functional"] = gaussianParameters.Functional.ToString();
+        dict["Basis set"] = BasisSetsParser.ToString(gaussianParameters.BasisSet);
+        dict["Keywords"] = gaussianParameters.Keywords ?? "";
+        dict["Link keywords"] = gaussianParameters.LinkKeywords ?? "";
         return dict;
     }
     
