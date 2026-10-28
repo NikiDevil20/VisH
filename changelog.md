@@ -2,6 +2,10 @@
 
 ## [v1.1.1] - unreleased
 
+### Added
+
+- More detailed result screen
+
 ### Fixed
 
 - Atom coordinates in calculation.json were not overwritten after downloading the calculation
