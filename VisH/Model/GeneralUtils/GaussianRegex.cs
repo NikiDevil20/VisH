@@ -35,6 +35,18 @@ public class GaussianRegex
     public static readonly Regex UsedCoresRegex =
         new(@"resources_used\.ncpus\s*=\s*(\d+)", RegexOptions.Compiled);
 
+    public static readonly Regex SubmittedTimeRegex =
+        new(@"qtime\s*=\s*(\w{3}\s+\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    public static readonly Regex StartTimeRegex =
+        new(@"stime\s*=\s*(\w{3}\s+\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    public static readonly Regex EndTimeRegex =
+        new(@"etime\s*=\s*(\w{3}\s+\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     public static readonly Regex RamRegex =
         new(@"%mem\s*=\s*(\d+)\s*([KMGT]?B)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);

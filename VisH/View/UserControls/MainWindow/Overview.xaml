@@ -91,6 +91,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
                                 <Grid.ColumnDefinitions>
@@ -99,7 +100,7 @@
                                 </Grid.ColumnDefinitions>
                                 
                                 <!-- Metadata -->
-                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
+                                <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="5">
                                     <TextBlock Text="Metadata"
                                                FontWeight="Bold"
                                                FontSize="16"
@@ -128,9 +129,40 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
+
+                                <!-- Method -->
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
+                                    <TextBlock Text="Method"
+                                               FontWeight="Bold"
+                                               FontSize="16"
+                                               Margin="0,0,0,5"/>
+
+                                    <ItemsControl ItemsSource="{Binding MethodGridItems}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="37*"/>
+                                                        <ColumnDefinition Width="63*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Text="{Binding Property}"/>
+                                                    <TextBox Grid.Column="1"
+                                                             Text="{Binding Value}"
+                                                             IsReadOnly="True"
+                                                             BorderThickness="0"
+                                                             Background="Transparent"
+                                                             Padding="0"
+                                                             Margin="0"
+                                                             VerticalContentAlignment="Center"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
                                 
                                 <!-- Orbitals -->
-                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
                                     <TextBlock Text="Orbitals"
                                                FontWeight="Bold"
                                                FontSize="16"
@@ -161,7 +193,7 @@
                                 </StackPanel>
                                 
                                 <!-- Frequencies -->
-                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
+                                <StackPanel Grid.Row="2" Grid.Column="0" Margin="5">
                                     <TextBlock Text="Frequencies"
                                                FontWeight="Bold"
                                                FontSize="16"
@@ -192,7 +224,7 @@
                                 </StackPanel>
                                 
                                 <!--  Energies -->
-                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
+                                <StackPanel Grid.Row="2" Grid.Column="1" Margin="5">
                                     <TextBlock Text="Energies"
                                                FontWeight="Bold"
                                                FontSize="16"
