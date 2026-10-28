@@ -281,14 +281,14 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="Molekülansicht" FontWeight="Bold" FontSize="16" Margin="8,5,8,0"/>
+                            <TextBlock Grid.Row="0" Text="Molecule viewer" FontWeight="Bold" FontSize="16" Margin="8,5,8,0"/>
                             <Grid Grid.Row="1" Margin="5">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4">
-                                    <TextBlock Text="Orbitale:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Display:" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                     <ComboBox x:Name="MoleculeViewerOrbitalMode"
                                               Width="110"
                                               SelectedValuePath="Tag"
@@ -296,6 +296,7 @@
                                               SelectionChanged="MoleculeViewerOrbitalMode_SelectionChanged">
                                         <ComboBoxItem Content="HOMO" Tag="HOMO"/>
                                         <ComboBoxItem Content="LUMO" Tag="LUMO"/>
+                                        <ComboBoxItem Content="Indices" Tag="Indices"/>
                                     </ComboBox>
                                 </StackPanel>
                                 <Grid Grid.Row="1">

@@ -190,12 +190,12 @@ public partial class Overview : UserControl
         try
         {
             await _moleculeViewer.ExecuteScriptAsync(
-                $"setOrbitalMode({JsonSerializer.Serialize(mode)});");
+                $"setDisplayMode({JsonSerializer.Serialize(mode)});");
         }
         catch (Exception exception)
         {
             viewModel.SetMoleculeViewerError(
-                $"Orbitalauswahl konnte nicht angewendet werden: {exception.Message}");
+                $"Anzeigemodus konnte nicht angewendet werden: {exception.Message}");
         }
     }
 

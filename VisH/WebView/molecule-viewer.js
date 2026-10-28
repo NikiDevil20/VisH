@@ -19,6 +19,10 @@ function appendMessage(message) {
         : message;
 }
 
+function getDisplayMode(data) {
+    return data?.displayMode || data?.orbitalMode || "HOMO";
+}
+
 async function loadCube(url) {
     const response = await fetch(url);
     if (!response.ok) {
@@ -30,30 +34,72 @@ async function loadCube(url) {
 function renderGeometry(data) {
     viewer.removeAllModels();
     viewer.removeAllSurfaces();
+    viewer.removeAllLabels?.();
     viewer.addModel(data.geometry, "xyz");
     viewer.setStyle({}, { stick: {}, sphere: { scale: 0.28 } });
     viewer.zoomTo();
     viewer.render();
 }
 
+function renderAtomIndices() {
+    if (!currentData || !viewer) return;
+    viewer.removeAllLabels?.();
+    const lines = String(currentData.geometry || "").split(/\r?\n/);
+    const atomCount = Number.parseInt(lines[0] || "0", 10);
+    if (!Number.isFinite(atomCount) || atomCount <= 0) {
+        return;
+    }
+
+    for (let i = 0; i < atomCount; i++) {
+        const lineIndex = i + 2;
+        const line = (lines[lineIndex] || "").trim();
+        if (!line) continue;
+        const parts = line.split(/\s+/).filter(Boolean);
+        if (parts.length < 4) continue;
+
+        const x = Number.parseFloat(parts[1]);
+        const y = Number.parseFloat(parts[2]);
+        const z = Number.parseFloat(parts[3]);
+        if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
+            continue;
+        }
+
+        viewer.addLabel(String(i + 1), {
+            position: { x, y, z },
+            alignment: "center",
+            showBackground: false,
+            fontSize: 12,
+            fontColor: "black",
+            useScreen: false,
+            inFront: true
+        });
+    }
+    viewer.render();
+}
+
 async function setMoleculeData(data) {
     orbitalModeRequest++;
-    currentData = data;
+    currentData = { ...data, displayMode: getDisplayMode(data) };
     cubeCache = new Map();
     try {
         if (viewer) {
             viewer.removeAllModels();
             viewer.removeAllSurfaces();
+            viewer.removeAllLabels?.();
         }
         initialize();
-        renderGeometry(data);
+        renderGeometry(currentData);
     } catch (error) {
         showMessage(`Geometrie konnte nicht dargestellt werden: ${error.message}`);
         return;
     }
 
-    showMessage(data.statusMessage || "");
-    await renderOrbitalMode(data.orbitalMode || "HOMO");
+    showMessage(currentData.statusMessage || "");
+    if (currentData.displayMode === "Indices") {
+        renderAtomIndices();
+        return;
+    }
+    await renderOrbitalMode(currentData.displayMode || "HOMO");
 }
 
 async function getCube(url) {
@@ -65,8 +111,16 @@ async function getCube(url) {
 
 async function renderOrbitalMode(mode) {
     if (!currentData || !viewer) return;
+    if (mode === "Indices") {
+        viewer.removeAllSurfaces();
+        viewer.removeAllLabels?.();
+        renderAtomIndices();
+        return;
+    }
+
     const request = ++orbitalModeRequest;
     viewer.removeAllSurfaces();
+    viewer.removeAllLabels?.();
     showMessage(currentData.statusMessage || "");
     const selected = mode === "Beide"
         ? [["HOMO", currentData.homoCube], ["LUMO", currentData.lumoCube]]
@@ -155,14 +209,19 @@ async function renderDensity(url, isoValue, opacity, request) {
 }
 
 window.setMoleculeData = setMoleculeData;
+window.setDisplayMode = async function (mode) {
+    if (!currentData) return;
+    await setMoleculeData({ ...currentData, displayMode: mode, orbitalMode: mode === "Indices" ? "HOMO" : mode });
+};
 window.setOrbitalMode = async function (mode) {
     if (!currentData) return;
-    await setMoleculeData({ ...currentData, orbitalMode: mode });
+    await setMoleculeData({ ...currentData, displayMode: mode === "Indices" ? "Indices" : (currentData.displayMode === "Indices" ? "HOMO" : currentData.displayMode), orbitalMode: mode });
 };
 window.clearMoleculeData = function () {
     if (viewer) {
         viewer.removeAllModels();
         viewer.removeAllSurfaces();
+        viewer.removeAllLabels?.();
         viewer.render();
     }
     cubeCache = new Map();

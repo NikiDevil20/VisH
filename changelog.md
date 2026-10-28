@@ -5,6 +5,7 @@
 ### Added
 
 - More detailed result screen
+- Atom indices in viewer
 
 ### Fixed
 
