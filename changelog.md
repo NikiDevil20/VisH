@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.1.1] - unreleased
+
+### Fixed
+
+- Atom coordinates in calculation.json were not overwritten after downloading the calculation
+
 ## [v1.1.0] - 2026-10-27
 
 ### Added

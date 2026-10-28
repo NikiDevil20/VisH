@@ -315,6 +315,7 @@ public class Calculation
         if (File.Exists(resultJsonPath))
         {
             Results = CalculationResultParser.ApplyLogFile(Results, resultJsonPath);
+            UpdateMoleculeGeometryFromResults();
         }
 
         if (GaussianParameters?.Jobtype == JobTypes.TimeDependant && !string.IsNullOrWhiteSpace(logPath) && File.Exists(logPath))
@@ -331,5 +332,46 @@ public class Calculation
         {
             MetaData = CalculationResultParser.ApplyLgFile(MetaData, lgPath);
         }
+    }
+
+    private void UpdateMoleculeGeometryFromResults()
+    {
+        if (GaussianParameters?.Jobtype != JobTypes.GeometryOptimization ||
+            Molecule == null ||
+            Results?.GeometryValid != true ||
+            string.IsNullOrWhiteSpace(Results.CoordResults))
+        {
+            return;
+        }
+
+        var geometry = MoleculeDataValidation.ParseGeometry(Results.CoordResults);
+        if (!geometry.IsValid)
+        {
+            Log.Warning(
+                "The downloaded geometry for calculation {JobId} could not be parsed: {Message}",
+                MetaData?.JobId,
+                geometry.Message);
+            return;
+        }
+
+        if (!MoleculeDataValidation.HasSameAtomOrder(
+                geometry.Atoms,
+                Molecule.GetAtomElements()))
+        {
+            Log.Warning(
+                "The downloaded geometry for calculation {JobId} has a different atom order or count.",
+                MetaData?.JobId);
+            return;
+        }
+
+        Molecule.SetAtoms(geometry.Atoms
+            .Select(atom => new Atom
+            {
+                Element = atom.Element,
+                x = atom.X,
+                y = atom.Y,
+                z = atom.Z
+            })
+            .ToArray());
     }
 }
