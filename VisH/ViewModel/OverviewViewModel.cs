@@ -409,8 +409,8 @@ public class OverviewViewModel : ViewModelBase
             return;
         }
 
-        var minimum = peaks.Min(peak => peak.Wavelength) - 5;
-        var maximum = peaks.Max(peak => peak.Wavelength) + 25;
+        var minimum = 200.0;
+        var maximum = 900.0;
         var wavelengths = new SortedSet<double>();
         for (var wavelength = minimum; wavelength <= maximum; wavelength += 0.1)
         {
