@@ -267,13 +267,13 @@ public class Filewriter
 
                                    echo "Starting HOMO cube generation..." >> "$WORKDIR/$LOGFILE"
                                    cubegen 0 MO=HOMO chkfile.fchk homo.cube \
-                                       -2 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                       -3 h >> "$WORKDIR/$LOGFILE" 2>&1
                                    HOMO_STATUS=$?
                                    echo "HOMO cubegen exit code: $HOMO_STATUS" >> "$WORKDIR/$LOGFILE"
 
                                    echo "Starting LUMO cube generation..." >> "$WORKDIR/$LOGFILE"
                                    cubegen 0 MO=LUMO chkfile.fchk lumo.cube \
-                                       -2 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                       -3 h >> "$WORKDIR/$LOGFILE" 2>&1
                                    LUMO_STATUS=$?
                                    echo "LUMO cubegen exit code: $LUMO_STATUS" >> "$WORKDIR/$LOGFILE"
 
@@ -333,7 +333,7 @@ public class Filewriter
                               FCHK_FILE=$(find "$WORKDIR" -maxdepth 1 -type f -name "*.fchk" -size +0c | head -n 1)
                               EDD_CUBE="{sharedDirectory}/$PBS_JOBID""_{stateName}_density.cube"
                               if [ -s "$FCHK_FILE" ]; then
-                                  cubegen 0 Density=CI "$FCHK_FILE" "$EDD_CUBE" -2 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                  cubegen 0 Density=CI "$FCHK_FILE" "$EDD_CUBE" -3 h >> "$WORKDIR/$LOGFILE" 2>&1
                                   CUBE_STATUS=$?
                                   echo "EDD excited-state cubegen exit code: $CUBE_STATUS" >> "$WORKDIR/$LOGFILE"
                                   if [ "$CUBE_STATUS" -ne 0 ]; then exit "$CUBE_STATUS"; fi
@@ -350,7 +350,7 @@ public class Filewriter
                               FCHK_FILE=$(find "$WORKDIR" -maxdepth 1 -type f -name "*.fchk" -size +0c | head -n 1)
                               S0_CUBE="$WORKDIR/$PBS_JOBID""_s0_density.cube"
                               if [ -s "$FCHK_FILE" ]; then
-                                  cubegen 0 Density=SCF "$FCHK_FILE" "$S0_CUBE" -2 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                  cubegen 0 Density=SCF "$FCHK_FILE" "$S0_CUBE" -3 h >> "$WORKDIR/$LOGFILE" 2>&1
                                   CUBE_STATUS=$?
                                   echo "EDD ground-state cubegen exit code: $CUBE_STATUS" >> "$WORKDIR/$LOGFILE"
                                   if [ "$CUBE_STATUS" -ne 0 ]; then exit "$CUBE_STATUS"; fi
