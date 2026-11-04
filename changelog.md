@@ -1,11 +1,13 @@
 # Changelog
 
-## [v1.1.1] - unreleased
+## [v1.2.0] - unreleased
 
 ### Added
 
 - More detailed result screen
 - Atom indices in viewer
+- Singlepoint jobs
+- Electron density difference visualization
 
 ### Fixed
 

@@ -283,7 +283,9 @@ public class NewCalcViewModel : ViewModelBase
     private bool AllEntriesFilled()
     {
         return !string.IsNullOrWhiteSpace(MoleculeName) &&
-               (!string.IsNullOrWhiteSpace(SmilesString) || !string.IsNullOrWhiteSpace(JobId)) &&
+               (SelectedCalcType == JobTypes.SinglePoint
+                   ? !string.IsNullOrWhiteSpace(JobId)
+                   : !string.IsNullOrWhiteSpace(SmilesString) || !string.IsNullOrWhiteSpace(JobId)) &&
                !string.IsNullOrWhiteSpace(NCores) &&
                !string.IsNullOrWhiteSpace(Ram);
     }
@@ -294,6 +296,27 @@ public class NewCalcViewModel : ViewModelBase
     {
         bool hasJobId = !string.IsNullOrWhiteSpace(JobId);
         bool hasSmiles = !string.IsNullOrWhiteSpace(SmilesString);
+
+        if (SelectedCalcType == JobTypes.SinglePoint && !hasJobId)
+        {
+            MessageBox.Show(
+                "A Job ID of an existing geometry optimization is required for a single-point calculation.",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            return false;
+        }
+
+        if (SelectedCalcType == JobTypes.ElectronDensityDifference &&
+            SelectedState is not (State.S1 or State.S2 or State.S3))
+        {
+            MessageBox.Show(
+                "EDD calculations require state S1, S2, or S3.",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            return false;
+        }
 
         if (hasJobId)
         {
@@ -331,6 +354,32 @@ public class NewCalcViewModel : ViewModelBase
             {
                 MessageBox.Show(
                     $"The calculation for Job ID '{JobId}' is not a geometry optimization.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return false;
+            }
+
+            if (SelectedCalcType == JobTypes.ElectronDensityDifference &&
+                sourceCalculation.Molecule?.State != SelectedState)
+            {
+                MessageBox.Show(
+                    $"The optimization for Job ID '{JobId}' has a different electronic state.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return false;
+            }
+
+            if (SelectedCalcType == JobTypes.ElectronDensityDifference &&
+                sourceCalculation.GaussianParameters is { } sourceParameters &&
+                (sourceParameters.Functional != SelectedFunctional ||
+                 sourceParameters.BasisSet != SelectedBasisSet ||
+                 sourceCalculation.Molecule?.Charge.ToString() != SelectedCharge ||
+                 sourceParameters.Solvent != SelectedSolvent))
+            {
+                MessageBox.Show(
+                    "Functional, basis set, charge, and solvent must match the selected optimization.",
                     "Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

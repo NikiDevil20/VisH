@@ -33,7 +33,8 @@ public class Paths
         MetaData metaData,
         Molecule molecule,
         GaussianParameters gaussianParameters,
-        SshService sshService)
+        SshService sshService,
+        string? relativePathOverride = null)
     {
         _metaData = metaData;
         _molecule = molecule;
@@ -52,11 +53,16 @@ public class Paths
         var state = _molecule.State.ToString();
         var jobName = _metaData.JobName!;
         
-        var relativePath = Path.Combine(moleculeName, state, jobName);
+        var relativePath = relativePathOverride ?? Path.Combine(moleculeName, state, jobName);
         
-        if (isNewCalculation)
+        if (isNewCalculation && relativePathOverride == null)
         {
             SetDirectory(relativePath);
+        }
+        else if (relativePathOverride != null)
+        {
+            RelativeDirectory = new DirectoryExtension(relativePath, _sshService);
+            Directory.CreateDirectory(RelativeDirectory.GetPath());
         }
         else
         {

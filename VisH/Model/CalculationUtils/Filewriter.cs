@@ -195,6 +195,24 @@ public class Filewriter
 
     cd "$WORKDIR" || exit 1
 
+    """;
+
+        if (!string.IsNullOrWhiteSpace(_calculation.EddCheckpointSourceDirectory))
+        {
+            staticTextTop += $"""
+    # Stage the checkpoint after the PBS dependency has completed.
+    EDD_SOURCE_DIR="/home/{cfg.ClusterUsername}/{_calculation.EddCheckpointSourceDirectory}"
+    if [ ! -s "$EDD_SOURCE_DIR/gauss.chk" ]; then
+        echo "ERROR: source checkpoint is missing: $EDD_SOURCE_DIR/gauss.chk" >> "$LOGFILE"
+        exit 1
+    fi
+    cp "$EDD_SOURCE_DIR/gauss.chk" "$WORKDIR/gauss.chk" || exit 1
+
+    """;
+        }
+
+        staticTextTop += """
+
     echo "$PBS_JOBID ($PBS_JOBNAME) @ $(hostname) at $(date) in $WORKDIR START" > "$LOGFILE"
     echo "$(date +"%d.%m.%Y-%T")" >> "$LOGFILE"
 
@@ -304,6 +322,80 @@ public class Filewriter
                                   echo "$(date +"%d.%m.%Y-%T")" >> "$LOGFILE"
                                   """;
 
+        string eddScript = "";
+        if (_calculation.EddSharedDirectory != null)
+        {
+            var sharedDirectory = $"/home/{cfg.ClusterUsername}/{_calculation.EddSharedDirectory}";
+            var stateName = _calculation.Molecule.State.ToString().ToLowerInvariant();
+            if (_calculation.GaussianParameters.Jobtype == JobTypes.ElectronDensityDifference)
+            {
+                eddScript = $"""
+                              FCHK_FILE=$(find "$WORKDIR" -maxdepth 1 -type f -name "*.fchk" -size +0c | head -n 1)
+                              EDD_CUBE="{sharedDirectory}/$PBS_JOBID""_{stateName}_density.cube"
+                              if [ -s "$FCHK_FILE" ]; then
+                                  cubegen 0 Density=CI "$FCHK_FILE" "$EDD_CUBE" -2 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                  CUBE_STATUS=$?
+                                  echo "EDD excited-state cubegen exit code: $CUBE_STATUS" >> "$WORKDIR/$LOGFILE"
+                                  if [ "$CUBE_STATUS" -ne 0 ]; then exit "$CUBE_STATUS"; fi
+                              else
+                                  echo "ERROR: TD formatted checkpoint is missing." >> "$WORKDIR/$LOGFILE"
+                                  exit 1
+                              fi
+                              """;
+            }
+            else if (_calculation.GaussianParameters.Jobtype == JobTypes.SinglePoint)
+            {
+                var partnerDirectory = $"/home/{cfg.ClusterUsername}/{_calculation.EddPartnerDirectory}";
+                eddScript = $"""
+                              FCHK_FILE=$(find "$WORKDIR" -maxdepth 1 -type f -name "*.fchk" -size +0c | head -n 1)
+                              S0_CUBE="$WORKDIR/$PBS_JOBID""_s0_density.cube"
+                              if [ -s "$FCHK_FILE" ]; then
+                                  cubegen 0 Density=SCF "$FCHK_FILE" "$S0_CUBE" -2 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                  CUBE_STATUS=$?
+                                  echo "EDD ground-state cubegen exit code: $CUBE_STATUS" >> "$WORKDIR/$LOGFILE"
+                                  if [ "$CUBE_STATUS" -ne 0 ]; then exit "$CUBE_STATUS"; fi
+                              else
+                                  echo "ERROR: S0 formatted checkpoint is missing." >> "$WORKDIR/$LOGFILE"
+                                  exit 1
+                              fi
+
+                              TD_FCHK=""
+                              for attempt in $(seq 1 720); do
+                                  TD_FCHK=$(find "{partnerDirectory}" -maxdepth 1 -type f -name "*.fchk" -size +0c | head -n 1)
+                                  if [ -n "$TD_FCHK" ]; then break; fi
+                                  sleep 60
+                              done
+                              if [ -z "$TD_FCHK" ]; then
+                                  echo "ERROR: TD formatted checkpoint did not become available." >> "$WORKDIR/$LOGFILE"
+                                  exit 1
+                              fi
+
+                              S1_CUBE=$(find "{sharedDirectory}" -maxdepth 1 -type f -name "*_s{stateName.Substring(1)}_density.cube" -size +0c | head -n 1)
+                              if [ -z "$S1_CUBE" ]; then
+                                  echo "ERROR: excited-state density cube was not found." >> "$WORKDIR/$LOGFILE"
+                                  exit 1
+                              fi
+
+                              EDD_CUBE="{sharedDirectory}/$PBS_JOBID""_EDD.cube"
+                              cubman <<EOF >> "$WORKDIR/$LOGFILE" 2>&1
+                              su
+                              $S1_CUBE
+                              y
+                              $S0_CUBE
+                              y
+                              $EDD_CUBE
+                              y
+                              EOF
+                              CUBMAN_STATUS=$?
+                              echo "cubman exit code: $CUBMAN_STATUS" >> "$WORKDIR/$LOGFILE"
+                              if [ "$CUBMAN_STATUS" -ne 0 ] || [ ! -s "$EDD_CUBE" ]; then
+                                  echo "ERROR: EDD cube was not created." >> "$WORKDIR/$LOGFILE"
+                                  exit 1
+                              fi
+                              """;
+            }
+        }
+
          sb.AppendLine(staticTextTop);
 
          if (_calculation.GaussianParameters.Jobtype == JobTypes.GeometryOptimization)
@@ -312,6 +404,10 @@ public class Filewriter
          }
          
          sb.AppendLine(staticTextBottom);
+         if (!string.IsNullOrWhiteSpace(eddScript))
+         {
+             sb.AppendLine(eddScript);
+         }
          string content = sb.ToString();
          content = NormalizeUnixLineEndings(content);
          return content;

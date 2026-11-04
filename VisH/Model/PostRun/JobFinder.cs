@@ -114,6 +114,9 @@ public class JobFinder
         try
         {
             var calculation = Calculation.FromJson(jsonPath, _sshService);
+            calculation.AddPaths(string.Join(
+                Path.DirectorySeparatorChar,
+                directory.RelativePath));
             
             if (propertySelector(propertyValue, calculation) == false)
             {

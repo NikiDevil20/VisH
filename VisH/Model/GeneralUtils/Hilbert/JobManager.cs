@@ -40,7 +40,7 @@ public class JobManager
         try
         {
             long totalFolderSize = directory.GetDirectorySize(PathType.Cluster);
-            PathExtension[] files = directory.GetContent(PathType.Cluster);
+            PathExtension[] files = GetFilesRecursively(directory);
             long bytesFinished = 0;
 
             var clusterFiles = files.OfType<FileExtension>().ToList();
@@ -131,18 +131,7 @@ public class JobManager
                     }
                 }
 
-                try
-                {
-                    var clusterDirPath = directory.GetPath(PathType.Cluster);
-                    if (_fileTransferService.FileClient.Exists(clusterDirPath))
-                    {
-                        _fileTransferService.FileClient.DeleteDirectory(clusterDirPath);
-                    }
-                }
-                catch
-                {
-                    // Ignore directory deletion error if not empty or not supported
-                }
+                DeleteRemoteDirectory(directory);
 
                 return true;
             }
@@ -154,13 +143,56 @@ public class JobManager
             _fileTransferService.Disconnect();
         }
     }
+
+    private static PathExtension[] GetFilesRecursively(DirectoryExtension directory)
+    {
+        var files = new List<PathExtension>();
+        foreach (var entry in directory.GetContent(PathType.Cluster))
+        {
+            if (entry is FileExtension)
+            {
+                files.Add(entry);
+            }
+            else if (entry is DirectoryExtension childDirectory)
+            {
+                files.AddRange(GetFilesRecursively(childDirectory));
+            }
+        }
+
+        return files.ToArray();
+    }
+
+    private void DeleteRemoteDirectory(DirectoryExtension directory)
+    {
+        foreach (var entry in directory.GetContent(PathType.Cluster))
+        {
+            if (entry is FileExtension file)
+            {
+                if (_fileTransferService.FileClient.Exists(file.GetPath(PathType.Cluster)))
+                {
+                    _fileTransferService.FileClient.DeleteFile(file.GetPath(PathType.Cluster));
+                }
+            }
+            else if (entry is DirectoryExtension childDirectory)
+            {
+                DeleteRemoteDirectory(childDirectory);
+            }
+        }
+
+        var directoryPath = directory.GetPath(PathType.Cluster);
+        if (_fileTransferService.FileClient.Exists(directoryPath))
+        {
+            _fileTransferService.FileClient.DeleteDirectory(directoryPath);
+        }
+    }
     
     public DirectoryExtension[] GetJobsOnCluster()
     {
         List<DirectoryExtension> pathsToJobs = new List<DirectoryExtension>();
     
         var cmd = _sshService.ConnectAndExecute(() =>
-            _sshService.CommandClient.RunCommand("cd Rechnungen && find -maxdepth 3 -mindepth 3 -type d"));
+            _sshService.CommandClient.RunCommand(
+                "cd Rechnungen && find . -mindepth 3 -type d"));
 
         string fullString = cmd.Result;
         
@@ -170,7 +202,11 @@ public class JobManager
         
         foreach (var path in splitString)
         {
-            var relativePath = path.Substring(1, path.Length - 1);
+            var relativePath = path.Trim();
+            if (relativePath.StartsWith("./", StringComparison.Ordinal))
+            {
+                relativePath = relativePath[2..];
+            }
             var newPathObject = new DirectoryExtension(relativePath, _sshService);
             pathsToJobs.Add(newPathObject);
         }

@@ -95,6 +95,44 @@ async function setMoleculeData(data) {
     }
 
     showMessage(currentData.statusMessage || "");
+    if (currentData.displayMode === "EDD") {
+        await renderEdd(currentData.eddCube, currentData.isoValue, currentData.opacity);
+        return;
+    }
+    if (currentData.displayMode === "Atoms") {
+        return;
+    }
+
+    async function renderEdd(url, isoValue, opacity) {
+        if (!url || !viewer) {
+            appendMessage("EDD-Cube ist nicht verfügbar.");
+            return;
+        }
+
+        const request = ++orbitalModeRequest;
+        viewer.removeAllSurfaces();
+        viewer.removeAllLabels?.();
+        await renderCubeSafely(
+            async () => {
+                const cube = await getCube(url);
+                if (request !== orbitalModeRequest) return;
+                viewer.addVolumetricData(cube, "cube", {
+                    isoval: isoValue,
+                    color: "#f2d200",
+                    opacity: opacity
+                });
+                viewer.addVolumetricData(cube, "cube", {
+                    isoval: -isoValue,
+                    color: "#7b3fb3",
+                    opacity: opacity
+                });
+                viewer.render();
+            },
+            "EDD-Cube");
+        if (request === orbitalModeRequest) {
+            viewer.render();
+        }
+    }
     if (currentData.displayMode === "Indices") {
         renderAtomIndices();
         return;

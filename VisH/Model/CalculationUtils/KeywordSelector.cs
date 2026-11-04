@@ -40,6 +40,12 @@ public class KeywordSelector
             case JobTypes.TimeDependant:
                  keywords = TimeDependantKeywords(keywords);
                 break;
+            case JobTypes.ElectronDensityDifference:
+                keywords = TimeDependantKeywords(keywords);
+                break;
+            case JobTypes.SinglePoint:
+                keywords = SinglePointKeywords(keywords);
+                break;
             case JobTypes.NaturalTransitionOrbitals:
                 keywords = NaturalTransitionOrbitalsKeywords(keywords);
                 break;
@@ -74,7 +80,8 @@ public class KeywordSelector
             
             case State.S1 or State.S2 or State.S3:
                 AddSolventKeyword(keywords);
-                keywords.Add("opt TD=(singlet,NStates=6,root=1)");
+                var root = (int)_state.Value - (int)State.S0;
+                keywords.Add($"opt TD=(singlet,NStates={Math.Max(6, root)},root={root})");
                 break;
             
             case State.T1 or State.T2 or State.T3:
@@ -97,7 +104,9 @@ public class KeywordSelector
                 break;
             case State.S1 or State.S2 or State.S3:
                 AddSolventKeyword(keywords, "ExternalIteration,correctedLR");
-                keywords.Add("TD=(singlet,NStates=6,root=1) geom=check guess=read");
+                var root = (int)_state.Value - (int)State.S0;
+                var nStates = Math.Max(6, root);
+                keywords.Add($"TD=(singlet,NStates={nStates},root={root}) geom=check guess=read");
                 break;
             
             case State.T1 or State.T2 or State.T3:
@@ -120,6 +129,13 @@ public class KeywordSelector
 
         var suffix = string.IsNullOrWhiteSpace(options) ? string.Empty : $",{options}";
         keywords.Add($"scrf=(smd,solvent={_solvent}{suffix})");
+    }
+
+    private List<string> SinglePointKeywords(List<string> keywords)
+    {
+        AddSolventKeyword(keywords);
+        keywords.Add("geom=check guess=read");
+        return keywords;
     }
     
     private List<string> NaturalTransitionOrbitalsKeywords(List<string> keywords)

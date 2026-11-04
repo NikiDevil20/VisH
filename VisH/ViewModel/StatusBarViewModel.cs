@@ -189,12 +189,31 @@ public class StatusBarViewModel : ViewModelBase
 
     private async void DownloadSelection()
     {
-        if (SelectedCalcstatus?.Calculation?.Paths?.RelativeDirectory == null)
+        var selectedCalculation = SelectedCalcstatus?.Calculation;
+        if (selectedCalculation?.Paths?.RelativeDirectory == null)
             return;
 
         try
         {
-            bool success = await _fileHandler.Download(SelectedCalcstatus.Calculation.Paths.RelativeDirectory);
+            var downloadDirectory = selectedCalculation.Paths.RelativeDirectory;
+            if (IsEddCalculation(selectedCalculation))
+            {
+                var eddPair = FindEddPair(selectedCalculation);
+                if (eddPair == null)
+                {
+                    MessageBox.Show(
+                        "Die zugehörige TD- oder SP-Rechnung ist noch nicht erfolgreich abgeschlossen. " +
+                        "Der EDD-Ordner wurde nicht heruntergeladen.",
+                        "EDD noch nicht vollständig",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                downloadDirectory = GetEddSharedDirectory(selectedCalculation);
+            }
+
+            bool success = await _fileHandler.Download(downloadDirectory);
             if (success)
             {
                 MessageBox.Show(
@@ -216,5 +235,32 @@ public class StatusBarViewModel : ViewModelBase
                 MessageBoxImage.Error
             );
         }
+    }
+
+    private bool IsEddCalculation(Calculation calculation)
+    {
+        return calculation.GaussianParameters?.IsEddDensityCalculation == true &&
+               calculation.Paths.RelativeDirectory.RelativePath.LastOrDefault() is "td" or "sp";
+    }
+
+    private CalcStatus? FindEddPair(Calculation calculation)
+    {
+        var sharedPath = calculation.Paths!.RelativeDirectory.RelativePath
+            .Take(calculation.Paths.RelativeDirectory.RelativePath.Count - 1)
+            .ToArray();
+
+        return JobsOnCluster
+            .FirstOrDefault(status =>
+                status.Calculation?.Paths?.RelativeDirectory.RelativePath.SequenceEqual(
+                    sharedPath.Append(
+                        calculation.Paths.RelativeDirectory.RelativePath.Last() == "td" ? "sp" : "td")) == true &&
+                status.Calculation.MetaData?.JobState == JobState.Successful);
+    }
+
+    private DirectoryExtension GetEddSharedDirectory(Calculation calculation)
+    {
+        var sharedPath = calculation.Paths!.RelativeDirectory.RelativePath
+            .Take(calculation.Paths.RelativeDirectory.RelativePath.Count - 1);
+        return new DirectoryExtension(sharedPath, _sshService);
     }
 }

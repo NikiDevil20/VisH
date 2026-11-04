@@ -32,6 +32,12 @@ public static class NameGenerator
                         break;
                 }
                 break;
+            case JobTypes.SinglePoint:
+                suffix = "sp";
+                break;
+            case JobTypes.ElectronDensityDifference:
+                suffix = "edd";
+                break;
             case JobTypes.PotentialScan:
                 suffix = "scan";
                 break;
@@ -53,6 +59,7 @@ public static class NameGenerator
     {
         if (nonUniqueName.EndsWith("abs") || nonUniqueName.EndsWith("flu") ||
             nonUniqueName.EndsWith("pho") || nonUniqueName.EndsWith("opt") || 
+            nonUniqueName.EndsWith("sp") || nonUniqueName.EndsWith("edd") ||
             nonUniqueName.EndsWith("scan"))
         {
             // hat noch kein inkrement

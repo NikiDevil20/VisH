@@ -165,6 +165,98 @@ public static class MoleculeDataValidation
         }
     }
 
+    public static GeometryValidationResult ParseCubeGeometry(string cubePath)
+    {
+        try
+        {
+            using var reader = new StreamReader(cubePath);
+            if (reader.ReadLine() is null || reader.ReadLine() is null)
+            {
+                return GeometryValidationResult.Invalid(
+                    "Cube-Datei enthält keine vollständigen Kommentarzeilen.");
+            }
+
+            var atomLine = ReadValues(reader);
+            if (atomLine is null || atomLine.Length < 4 ||
+                !TryParseInt(atomLine[0], out var signedAtomCount) ||
+                signedAtomCount == 0)
+            {
+                return GeometryValidationResult.Invalid(
+                    "Cube-Header enthält keine gültige Atomanzahl.");
+            }
+
+            var atomCount = Math.Abs(signedAtomCount);
+            var gridUnitSigns = new List<bool>(3);
+            for (var i = 0; i < 3; i++)
+            {
+                var gridLine = ReadValues(reader);
+                if (gridLine is null || gridLine.Length < 4 ||
+                    !TryParseInt(gridLine[0], out var gridCount) ||
+                    gridCount == 0 ||
+                    !TryParseFinite(gridLine[1], out _) ||
+                    !TryParseFinite(gridLine[2], out _) ||
+                    !TryParseFinite(gridLine[3], out _))
+                {
+                    return GeometryValidationResult.Invalid(
+                        "Cube-Header enthält ungültige Gitterdaten.");
+                }
+
+                gridUnitSigns.Add(gridCount < 0);
+            }
+
+            if (gridUnitSigns.Distinct().Count() != 1)
+            {
+                return GeometryValidationResult.Invalid(
+                    "Cube-Datei verwendet uneinheitliche Einheiten im Gitterheader.");
+            }
+
+            var usesAngstrom = gridUnitSigns[0];
+            var atoms = new List<GeometryAtom>(atomCount);
+            for (var i = 0; i < atomCount; i++)
+            {
+                var values = ReadValues(reader);
+                if (values is null || values.Length < 5 ||
+                    !TryParseInt(values[0], out var atomicNumber) ||
+                    atomicNumber <= 0 ||
+                    !TryParseFinite(values[2], out var x) ||
+                    !TryParseFinite(values[3], out var y) ||
+                    !TryParseFinite(values[4], out var z))
+                {
+                    return GeometryValidationResult.Invalid(
+                        "Cube-Datei enthält ungültige Atomdaten.");
+                }
+
+                var element = ElementFromAtomicNumber(atomicNumber);
+                if (element is null)
+                {
+                    return GeometryValidationResult.Invalid(
+                        "Cube-Datei enthält eine unbekannte Ordnungszahl.");
+                }
+
+                if (!usesAngstrom)
+                {
+                    x *= BohrToAngstrom;
+                    y *= BohrToAngstrom;
+                    z *= BohrToAngstrom;
+                }
+
+                atoms.Add(new GeometryAtom(element, x, y, z));
+            }
+
+            return new GeometryValidationResult(atoms, true, string.Empty);
+        }
+        catch (IOException exception)
+        {
+            return GeometryValidationResult.Invalid(
+                $"Cube-Datei konnte nicht gelesen werden: {exception.Message}");
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            return GeometryValidationResult.Invalid(
+                $"Cube-Datei konnte nicht gelesen werden: {exception.Message}");
+        }
+    }
+
     private static string[]? ReadValues(StreamReader reader) =>
         reader.ReadLine()?.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
 

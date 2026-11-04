@@ -91,6 +91,73 @@ public class MenuBarViewModel : ViewModelBase
                             _sshService));
                     }
                     break;
+                case JobTypes.SinglePoint:
+                    var singlePointSource = _jobFinder.GetCalculationByJobId(
+                        bundledParameters.GeometryOptimizationJobId
+                        ?? throw new InvalidOperationException(
+                            "A geometry optimization job id is required for a single-point calculation."));
+
+                    if (singlePointSource?.GaussianParameters?.Jobtype != JobTypes.GeometryOptimization ||
+                        singlePointSource.Paths?.ChkFile == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"The geometry optimization calculation for Job ID " +
+                            $"'{bundledParameters.GeometryOptimizationJobId}' could not be loaded.");
+                    }
+
+                    var singlePoint = CalculationBuilder.SinglePoint(
+                        bundledParameters,
+                        bundledParameters.GeometryOptimizationJobId!,
+                        _sshService);
+                    calculationsToSubmit.Add(singlePoint);
+                    existingCheckpointSources[singlePoint] = singlePointSource.Paths.ChkFile;
+                    break;
+                case JobTypes.ElectronDensityDifference:
+                    Calculation eddSource;
+                    bool sourceIsAlreadyComplete;
+                    if (!string.IsNullOrWhiteSpace(bundledParameters.GeometryOptimizationJobId))
+                    {
+                        eddSource = _jobFinder.GetCalculationByJobId(
+                            bundledParameters.GeometryOptimizationJobId)
+                            ?? throw new InvalidOperationException(
+                                $"The optimization for Job ID '{bundledParameters.GeometryOptimizationJobId}' could not be loaded.");
+                        sourceIsAlreadyComplete = true;
+                    }
+                    else
+                    {
+                        var optimization = CalculationBuilder.GeometryOptimization(
+                            bundledParameters with { JobType = JobTypes.GeometryOptimization },
+                            _sshService);
+                        var optimizationJobId = _fileHandler.Upload([optimization]).FirstOrDefault()
+                            ?? throw new InvalidOperationException("Geometry optimization job submission failed.");
+                        optimization.MetaData!.JobId = optimizationJobId;
+                        DrawMoleculePreview(optimization);
+                        optimization.SaveCalculation();
+                        eddSource = optimization;
+                        sourceIsAlreadyComplete = false;
+                    }
+
+                    if (eddSource.GaussianParameters?.Jobtype != JobTypes.GeometryOptimization ||
+                        eddSource.Paths?.ChkFile == null ||
+                        eddSource.MetaData?.JobId == null)
+                    {
+                        throw new InvalidOperationException(
+                            "The EDD source must be a geometry optimization with a checkpoint and job id.");
+                    }
+
+                    var eddCalculations = CalculationBuilder.ElectronDensityDifference(
+                        bundledParameters,
+                        eddSource,
+                        _sshService,
+                        sourceIsAlreadyComplete);
+                    calculationsToSubmit.Add(eddCalculations.TimeDependent);
+                    calculationsToSubmit.Add(eddCalculations.GroundState);
+                    if (sourceIsAlreadyComplete)
+                    {
+                        existingCheckpointSources[eddCalculations.TimeDependent] = eddSource.Paths.ChkFile;
+                        existingCheckpointSources[eddCalculations.GroundState] = eddSource.Paths.ChkFile;
+                    }
+                    break;
                 default:
                     throw new NotImplementedException("Unsupported job type");
             }
