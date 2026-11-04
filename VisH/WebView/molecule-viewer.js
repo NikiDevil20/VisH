@@ -36,7 +36,15 @@ function renderGeometry(data) {
     viewer.removeAllSurfaces();
     viewer.removeAllLabels?.();
     viewer.addModel(data.geometry, "xyz");
-    viewer.setStyle({}, { stick: {}, sphere: { scale: 0.28 } });
+    viewer.setStyle({}, {
+        stick: {
+            radius: 0.07,
+            colorscheme: "Jmol"
+        },
+        sphere: {
+            scale: 0.24
+        }
+    });
     viewer.zoomTo();
     viewer.render();
 }
