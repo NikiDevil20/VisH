@@ -396,7 +396,7 @@ public class OverviewViewModel : ViewModelBase
             densityCube,
             orbitalMode = MoleculeViewerOrbitalMode,
             isoValue = 0.02,
-            opacity = 0.65
+            opacity = 0.85
         };
         MoleculeViewerPayloadJson = JsonSerializer.Serialize(payload);
         IsMoleculeViewerVisible = true;
