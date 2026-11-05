@@ -33,7 +33,7 @@
                 <!-- <ColumnDefinition Width="200" MinWidth="200" MaxWidth="400"></ColumnDefinition> -->
                 <!-- <ColumnDefinition Width="5"></ColumnDefinition> -->
                 <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition Width="200" MinWidth="200"></ColumnDefinition>
+                <ColumnDefinition Width="300" MinWidth="200"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
             <!-- ~1~ Menu Panel @1@ -->
