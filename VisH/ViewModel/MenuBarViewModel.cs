@@ -41,6 +41,7 @@ public class MenuBarViewModel : ViewModelBase
         
         List<Calculation> calculationsToSubmit = new();
         var existingCheckpointSources = new Dictionary<Calculation, FileExtension>();
+        BundledConstructionParameters? eddBundledParameters = null;
 
         foreach (var bundledParameters in allBundledParameters)
         {
@@ -113,6 +114,7 @@ public class MenuBarViewModel : ViewModelBase
                     existingCheckpointSources[singlePoint] = singlePointSource.Paths.ChkFile;
                     break;
                 case JobTypes.ElectronDensityDifference:
+                    eddBundledParameters = bundledParameters;
                     Calculation eddSource;
                     bool sourceIsAlreadyComplete;
                     if (!string.IsNullOrWhiteSpace(bundledParameters.GeometryOptimizationJobId))
@@ -186,6 +188,28 @@ public class MenuBarViewModel : ViewModelBase
             calculation.MetaData.JobId = jobIds[i];
             DrawMoleculePreview(calculation);
             calculation.SaveCalculation();
+        }
+
+        var eddTd = calculationsToSubmit.FirstOrDefault(calculation =>
+            calculation.GaussianParameters?.Jobtype == JobTypes.ElectronDensityDifference);
+        var eddSp = calculationsToSubmit.FirstOrDefault(calculation =>
+            calculation.GaussianParameters?.Jobtype == JobTypes.SinglePoint &&
+            calculation.EddSharedDirectory != null);
+        if (eddBundledParameters != null && eddTd != null && eddSp != null &&
+            !string.IsNullOrWhiteSpace(eddTd.MetaData?.JobId) &&
+            !string.IsNullOrWhiteSpace(eddSp.MetaData?.JobId))
+        {
+            var postProcessing = CalculationBuilder.EddPostProcessing(
+                eddBundledParameters,
+                eddTd,
+                eddSp,
+                $"{eddTd.MetaData.JobId}:{eddSp.MetaData.JobId}",
+                _sshService);
+            var postJobId = _fileHandler.Upload([postProcessing]).FirstOrDefault()
+                            ?? throw new InvalidOperationException(
+                                "EDD postprocessing job submission failed.");
+            postProcessing.MetaData!.JobId = postJobId;
+            postProcessing.SaveCalculation();
         }
     }
 

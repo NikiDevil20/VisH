@@ -48,12 +48,19 @@ public class FileHandler
         {
             calculations[i].WriteFiles();
             clusterDirectories[i] = calculations[i].Paths.RelativeDirectory.GetPath(PathType.Cluster);
-            var gaussianInputFile = calculations[i].Paths.GaussianInputFile;
             var gstartFile = calculations[i].Paths.GstartFile;
+            var localFiles = calculations[i].GaussianParameters?.Jobtype ==
+                             JobTypes.EddPostProcessing
+                ? new[] { gstartFile.GetPath() }
+                : new[] { calculations[i].Paths.GaussianInputFile.GetPath(), gstartFile.GetPath() };
+            var remoteFiles = calculations[i].GaussianParameters?.Jobtype ==
+                              JobTypes.EddPostProcessing
+                ? new[] { gstartFile.GetPath(PathType.Cluster) }
+                : new[] { calculations[i].Paths.GaussianInputFile.GetPath(PathType.Cluster), gstartFile.GetPath(PathType.Cluster) };
             
             runner.UploadJob(
-                [gaussianInputFile.GetPath(), gstartFile.GetPath()],
-                [gaussianInputFile.GetPath(PathType.Cluster), gstartFile.GetPath(PathType.Cluster)],
+                localFiles,
+                remoteFiles,
                 clusterDirectories[i]);
             beforeSubmit?.Invoke(calculations[i]);
             

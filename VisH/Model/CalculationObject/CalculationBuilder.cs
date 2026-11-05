@@ -165,4 +165,33 @@ public static class CalculationBuilder
 
         return (td, sp);
     }
+
+    public static Calculation EddPostProcessing(
+        BundledConstructionParameters bundledParameters,
+        Calculation timeDependent,
+        Calculation groundState,
+        string dependencyJobIds,
+        SshService sshService)
+    {
+        var sharedPath = timeDependent.Paths!.RelativeDirectory.RelativePath
+            .Take(timeDependent.Paths.RelativeDirectory.RelativePath.Count - 1)
+            .ToArray();
+        var postParameters = bundledParameters with { JobType = JobTypes.EddPostProcessing };
+        var post = new Calculation(sshService);
+        post.AddGaussianParameters(new GaussianParameters(postParameters)
+        {
+            DependencyJobId = dependencyJobIds
+        });
+        post.AddMolecule(new Molecule(postParameters, timeDependent.Molecule?.Atoms));
+        post.AddMetaData(new MetaData
+        {
+            JobName = $"{bundledParameters.MoleculeName}_edd_post"
+        });
+        post.AddPaths(string.Join(Path.DirectorySeparatorChar, sharedPath));
+        post.EddSharedDirectory = new DirectoryExtension(sharedPath, sshService)
+            .GetPath(PathType.Cluster);
+        post.EddTdDirectory = timeDependent.Paths.RelativeDirectory.GetPath(PathType.Cluster);
+        post.EddSpDirectory = groundState.Paths.RelativeDirectory.GetPath(PathType.Cluster);
+        return post;
+    }
 }

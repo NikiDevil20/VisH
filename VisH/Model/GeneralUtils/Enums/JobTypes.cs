@@ -6,6 +6,7 @@ public enum JobTypes
     TimeDependant,
     SinglePoint,
     ElectronDensityDifference,
+    EddPostProcessing,
     NaturalTransitionOrbitals,
     PotentialScan
 }

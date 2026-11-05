@@ -286,7 +286,7 @@ public class OverviewViewModel : ViewModelBase
             densityCube = (string?)null,
             eddCube = ToViewerUrl(cubePath),
             orbitalMode = "EDD",
-            isoValue = 0.005,
+            isoValue = 0.001,
             opacity = 0.85
         };
         MoleculeViewerPayloadJson = JsonSerializer.Serialize(payload);
@@ -395,7 +395,7 @@ public class OverviewViewModel : ViewModelBase
             lumoCube,
             densityCube,
             orbitalMode = MoleculeViewerOrbitalMode,
-            isoValue = 0.02,
+            isoValue = 0.01,
             opacity = 0.85
         };
         MoleculeViewerPayloadJson = JsonSerializer.Serialize(payload);

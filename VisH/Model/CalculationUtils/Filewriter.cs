@@ -73,6 +73,10 @@ public class Filewriter
     {
         var sb = new StringBuilder();
         var cfg = Config.Load();
+        if (_calculation.GaussianParameters.Jobtype == JobTypes.EddPostProcessing)
+        {
+            return GetEddPostProcessingGstart(cfg);
+        }
         
         string walltime =
             $"{(int)_calculation.GaussianParameters.MaxWalltime.TotalHours:00}" +
@@ -345,8 +349,7 @@ public class Filewriter
             }
             else if (_calculation.GaussianParameters.Jobtype == JobTypes.SinglePoint)
             {
-                var partnerDirectory = $"/home/{cfg.ClusterUsername}/{_calculation.EddPartnerDirectory}";
-                eddScript = $"""
+                eddScript = """
                               FCHK_FILE=$(find "$WORKDIR" -maxdepth 1 -type f -name "*.fchk" -size +0c | head -n 1)
                               S0_CUBE="$WORKDIR/$PBS_JOBID""_s0_density.cube"
                               if [ -s "$FCHK_FILE" ]; then
@@ -359,39 +362,6 @@ public class Filewriter
                                   exit 1
                               fi
 
-                              TD_FCHK=""
-                              for attempt in $(seq 1 720); do
-                                  TD_FCHK=$(find "{partnerDirectory}" -maxdepth 1 -type f -name "*.fchk" -size +0c | head -n 1)
-                                  if [ -n "$TD_FCHK" ]; then break; fi
-                                  sleep 60
-                              done
-                              if [ -z "$TD_FCHK" ]; then
-                                  echo "ERROR: TD formatted checkpoint did not become available." >> "$WORKDIR/$LOGFILE"
-                                  exit 1
-                              fi
-
-                              S1_CUBE=$(find "{sharedDirectory}" -maxdepth 1 -type f -name "*_s{stateName.Substring(1)}_density.cube" -size +0c | head -n 1)
-                              if [ -z "$S1_CUBE" ]; then
-                                  echo "ERROR: excited-state density cube was not found." >> "$WORKDIR/$LOGFILE"
-                                  exit 1
-                              fi
-
-                              EDD_CUBE="{sharedDirectory}/$PBS_JOBID""_EDD.cube"
-                              cubman <<EOF >> "$WORKDIR/$LOGFILE" 2>&1
-                              su
-                              $S1_CUBE
-                              y
-                              $S0_CUBE
-                              y
-                              $EDD_CUBE
-                              y
-                              EOF
-                              CUBMAN_STATUS=$?
-                              echo "cubman exit code: $CUBMAN_STATUS" >> "$WORKDIR/$LOGFILE"
-                              if [ "$CUBMAN_STATUS" -ne 0 ] || [ ! -s "$EDD_CUBE" ]; then
-                                  echo "ERROR: EDD cube was not created." >> "$WORKDIR/$LOGFILE"
-                                  exit 1
-                              fi
                               """;
             }
         }
@@ -413,6 +383,72 @@ public class Filewriter
          return content;
     }
 
+    private string GetEddPostProcessingGstart(Config cfg)
+    {
+         var walltime =
+             $"{(int)_calculation.GaussianParameters.MaxWalltime.TotalHours:00}" +
+             $":{_calculation.GaussianParameters.MaxWalltime.Minutes:00}" +
+             $":{_calculation.GaussianParameters.MaxWalltime.Seconds:00}";
+         var sharedDirectory = _calculation.EddSharedDirectory!;
+         var tdDirectory = _calculation.EddTdDirectory!;
+         var spDirectory = _calculation.EddSpDirectory!;
+         var stateName = _calculation.Molecule!.State.ToString().ToLowerInvariant();
+         return $"""
+#!/bin/bash
+#PBS -l select=1:ncpus={_calculation.GaussianParameters.NProc}:mem={_calculation.GaussianParameters.Memory + 2}GB
+#PBS -l walltime={walltime}
+#PBS -r n
+#PBS -W depend=afterok:{_calculation.GaussianParameters.DependencyJobId}
+#PBS -N {_calculation.MetaData!.JobName}P
+#PBS -A OC1M
+
+module load Gaussian/g16.C02_pgi
+if ! command -v cubman >/dev/null 2>&1; then
+    echo "ERROR: cubman is not available after loading Gaussian/g16.C02_pgi." > "/home/{cfg.ClusterUsername}/{sharedDirectory}/{_calculation.MetaData.JobName}.$PBS_JOBID.lg"
+    exit 127
+fi
+
+WORKDIR="/home/{cfg.ClusterUsername}/{sharedDirectory}"
+TD_DIR="/home/{cfg.ClusterUsername}/{tdDirectory}"
+SP_DIR="/home/{cfg.ClusterUsername}/{spDirectory}"
+LOGFILE="$WORKDIR/{_calculation.MetaData.JobName}.$PBS_JOBID.lg"
+EDD_CUBE="$WORKDIR/$PBS_JOBID""_EDD.cube"
+echo "EDD postprocessing started at $(date)" > "$LOGFILE"
+echo "Gaussian module: Gaussian/g16.C02_pgi" >> "$LOGFILE"
+echo "cubman path: $(command -v cubman)" >> "$LOGFILE"
+echo "TD directory: $TD_DIR" >> "$LOGFILE"
+echo "SP directory: $SP_DIR" >> "$LOGFILE"
+S1_CUBE=$(find "$WORKDIR" -maxdepth 1 -type f -name "*_s{stateName.Substring(1)}_density.cube" -size +0c | head -n 1)
+S0_CUBE=$(find "$SP_DIR" -maxdepth 1 -type f -name "*_s0_density.cube" -size +0c | head -n 1)
+if [ -z "$S1_CUBE" ]; then
+    echo "ERROR: excited-state density cube was not found." >> "$LOGFILE"
+    exit 1
+fi
+if [ -z "$S0_CUBE" ]; then
+    echo "ERROR: ground-state density cube was not found." >> "$LOGFILE"
+    exit 1
+fi
+echo "S1 cube: $S1_CUBE" >> "$LOGFILE"
+echo "S0 cube: $S0_CUBE" >> "$LOGFILE"
+cubman <<EOF >> "$LOGFILE" 2>&1
+su
+$S1_CUBE
+y
+$S0_CUBE
+y
+$EDD_CUBE
+y
+EOF
+CUBMAN_STATUS=$?
+echo "cubman exit code: $CUBMAN_STATUS" >> "$LOGFILE"
+if [ "$CUBMAN_STATUS" -ne 0 ] || [ ! -s "$EDD_CUBE" ]; then
+    echo "ERROR: EDD cube was not created: $EDD_CUBE" >> "$LOGFILE"
+    exit 1
+fi
+echo "EDD cube created successfully: $EDD_CUBE ($(stat -c%s "$EDD_CUBE") bytes)" >> "$LOGFILE"
+""";
+    }
+
     public void WriteGaussianInputFile()
     {
         var content = GetGaussianInputText();
@@ -424,8 +460,9 @@ public class Filewriter
     public void WriteGstartFile()
     {
         var content = GetGstartText();
+        content = NormalizeUnixLineEndings(content);
         var path = _calculation.Paths.GstartFile.GetPath();
 
-        File.WriteAllText(path, content);
+        File.WriteAllText(path, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
     }
 }
