@@ -22,6 +22,16 @@ public class Calculation
     private SshService _sshService;
     [JsonIgnore]
     public Paths? Paths { get; set; }
+    [JsonIgnore]
+    public string? EddPartnerDirectory { get; set; }
+    [JsonIgnore]
+    public string? EddSharedDirectory { get; set; }
+    [JsonIgnore]
+    public string? EddCheckpointSourceDirectory { get; set; }
+    [JsonIgnore]
+    public string? EddTdDirectory { get; set; }
+    [JsonIgnore]
+    public string? EddSpDirectory { get; set; }
 
     // Parameterless constructor for JSON deserialization
     [JsonConstructor]
@@ -76,7 +86,7 @@ public class Calculation
         GaussianParameters = gaussianParameters;
     }
 
-    public void AddPaths()
+    public void AddPaths(string? relativePathOverride = null)
     {
         if (MetaData == null)
         {
@@ -99,7 +109,7 @@ public class Calculation
             throw ex;
         }
 
-        var paths = new Paths(MetaData, Molecule, GaussianParameters, _sshService);
+        var paths = new Paths(MetaData, Molecule, GaussianParameters, _sshService, relativePathOverride);
         
         Log.Information(
             "Paths for job {JobName} added to calculation.",
@@ -221,6 +231,20 @@ public class Calculation
                 return oldState != MetaData.JobState;
             }
 
+            if (GaussianParameters.Jobtype == JobTypes.EddPostProcessing)
+            {
+                var hasEddCube = clusterDirectoryContent.Any(f =>
+                    f.GetFileName(PathType.Cluster).EndsWith("_EDD.cube",
+                        StringComparison.OrdinalIgnoreCase));
+                var hasPostProcessingLog = clusterDirectoryContent.Any(f =>
+                    f.GetFileName(PathType.Cluster).EndsWith(".lg",
+                        StringComparison.OrdinalIgnoreCase));
+                MetaData.JobState = hasEddCube && hasPostProcessingLog
+                    ? JobState.Successful
+                    : JobState.Failed;
+                return oldState != MetaData.JobState;
+            }
+
             var hasGaussChk = clusterDirectoryContent.Any(f =>
                 string.Equals(f.GetFileName(PathType.Cluster), "gauss.chk", StringComparison.OrdinalIgnoreCase));
             var hasLg = clusterDirectoryContent.Any(f =>
@@ -281,8 +305,10 @@ public class Calculation
     public void WriteFiles()
     {
         var fileWriter = new Filewriter(this);
-        
-        fileWriter.WriteGaussianInputFile();
+        if (GaussianParameters?.Jobtype != JobTypes.EddPostProcessing)
+        {
+            fileWriter.WriteGaussianInputFile();
+        }
         fileWriter.WriteGstartFile();
     }
 

@@ -16,6 +16,8 @@ namespace VisH.ViewModel;
 
 public class OverviewViewModel : ViewModelBase
 {
+    private const double HartreeToElectronVolt = 27.2114;
+
     private LogFileAnalyzer _logFileAnalyzer;
     private FileHandler _fileHandler;
     private readonly SshService _sshService;
@@ -65,6 +67,7 @@ public class OverviewViewModel : ViewModelBase
     public string MoleculeViewerOrbitalMode { get; private set; } = "HOMO";
     public bool HasHomoCube { get; private set; }
     public bool HasLumoCube { get; private set; }
+    public bool IsMoleculeViewerOrbitalSelectorVisible { get; private set; }
 
     public void SetMoleculeViewerError(string message)
     {
@@ -187,7 +190,9 @@ public class OverviewViewModel : ViewModelBase
         MoleculeViewerOrbitalMode = "HOMO";
         HasHomoCube = false;
         HasLumoCube = false;
+        IsMoleculeViewerOrbitalSelectorVisible = false;
         OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
+        OnPropertyChanged(nameof(IsMoleculeViewerOrbitalSelectorVisible));
     }
 
     private void SetupTreeview()
@@ -212,6 +217,12 @@ public class OverviewViewModel : ViewModelBase
         }
         
         SetMoleculeImage(SelectedPath);
+
+        if (IsEddDirectory(SelectedPath))
+        {
+            DisplayEddProperties(SelectedPath);
+            return;
+        }
         
         if (!PropertiesPresent())
         {
@@ -241,6 +252,55 @@ public class OverviewViewModel : ViewModelBase
         HasValidSelection = true;
     }
 
+    private void DisplayEddProperties(DirectoryExtension directory)
+    {
+        ClearProperties();
+
+        var cubePath = Directory.EnumerateFiles(directory.GetPath(PathType.Local), "*_EDD.cube",
+                SearchOption.TopDirectoryOnly)
+            .FirstOrDefault();
+        if (cubePath is null)
+        {
+            MoleculeName = directory.GetFileName();
+            MoleculeViewerMessage = "Keine EDD-Cube-Datei in diesem Verzeichnis gefunden.";
+            HasValidSelection = true;
+            IsMoleculeViewerVisible = true;
+            return;
+        }
+
+        var geometry = MoleculeDataValidation.ParseCubeGeometry(cubePath);
+        MoleculeName = directory.GetFileName();
+        if (!geometry.IsValid)
+        {
+            MoleculeViewerMessage = geometry.Message;
+            HasValidSelection = true;
+            IsMoleculeViewerVisible = true;
+            OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
+            return;
+        }
+
+        var payload = new
+        {
+            geometry = ToXyz(geometry.Atoms),
+            statusMessage = "Atomgeometrie und EDD-Isflächen aus der EDD-Cube-Datei.",
+            homoCube = (string?)null,
+            lumoCube = (string?)null,
+            densityCube = (string?)null,
+            eddCube = ToViewerUrl(cubePath),
+            orbitalMode = "EDD",
+            isoValue = 0.001,
+            opacity = 0.85
+        };
+        MoleculeViewerPayloadJson = JsonSerializer.Serialize(payload);
+        MoleculeViewerMessage = "Atomgeometrie und EDD-Isflächen aus der EDD-Cube-Datei.";
+        IsMoleculeViewerVisible = true;
+        HasValidSelection = true;
+        OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
+    }
+
+    private static bool IsEddDirectory(DirectoryExtension directory) =>
+        directory.GetFileName().EndsWith("_edd", StringComparison.OrdinalIgnoreCase);
+
     private void SetMoleculeViewer(Calculation calculation)
     {
         IsMoleculeViewerVisible = false;
@@ -249,12 +309,17 @@ public class OverviewViewModel : ViewModelBase
         MoleculeViewerOrbitalMode = "HOMO";
         HasHomoCube = false;
         HasLumoCube = false;
+        IsMoleculeViewerOrbitalSelectorVisible = false;
+        OnPropertyChanged(nameof(IsMoleculeViewerOrbitalSelectorVisible));
 
         if (calculation.GaussianParameters?.Jobtype != JobTypes.GeometryOptimization)
         {
             OnPropertyChanged(nameof(MoleculeViewerPayloadJson));
             return;
         }
+
+        IsMoleculeViewerOrbitalSelectorVisible = true;
+        OnPropertyChanged(nameof(IsMoleculeViewerOrbitalSelectorVisible));
 
         var geometry = calculation.Results?.CoordResults;
         if (string.IsNullOrWhiteSpace(geometry))
@@ -332,8 +397,8 @@ public class OverviewViewModel : ViewModelBase
             lumoCube,
             densityCube,
             orbitalMode = MoleculeViewerOrbitalMode,
-            isoValue = 0.02,
-            opacity = 0.65
+            isoValue = 0.01,
+            opacity = 0.85
         };
         MoleculeViewerPayloadJson = JsonSerializer.Serialize(payload);
         IsMoleculeViewerVisible = true;
@@ -393,6 +458,14 @@ public class OverviewViewModel : ViewModelBase
         var relativePath = Path.GetRelativePath(
             Config.Load().LocalRechnungenPath,
             matches[0]).Replace('\\', '/');
+        return $"https://molecule.local/{relativePath}";
+    }
+
+    private static string ToViewerUrl(string filePath)
+    {
+        var relativePath = Path.GetRelativePath(
+            Config.Load().LocalRechnungenPath,
+            filePath).Replace('\\', '/');
         return $"https://molecule.local/{relativePath}";
     }
 
@@ -523,9 +596,11 @@ public class OverviewViewModel : ViewModelBase
             return dict;
         }
 
-        dict["HOMO"] = results.MoEnergies[homoIndex].ToString("F6");
-        dict["LUMO"] = results.MoEnergies[homoIndex + 1].ToString("F6");
-        dict["Gap"] = (results.MoEnergies[homoIndex + 1] - results.MoEnergies[homoIndex]).ToString("F6");
+        var homo = results.MoEnergies[homoIndex] * HartreeToElectronVolt;
+        var lumo = results.MoEnergies[homoIndex + 1] * HartreeToElectronVolt;
+        dict["HOMO / eV"] = homo.ToString("F6");
+        dict["LUMO / eV"] = lumo.ToString("F6");
+        dict["Gap / eV"] = (lumo - homo).ToString("F6");
         return dict;
     }
 

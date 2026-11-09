@@ -1,15 +1,18 @@
 # Changelog
 
-## [v1.1.1] - unreleased
+## [v1.2.0] - 2026-11-09
 
 ### Added
 
 - More detailed result screen
 - Atom indices in viewer
+- Singlepoint jobs
+- Electron density difference visualization
 
 ### Fixed
 
 - Atom coordinates in calculation.json were not overwritten after downloading the calculation
+- Correct multiplicity for charged molecules
 
 ## [v1.1.0] - 2026-10-27
 

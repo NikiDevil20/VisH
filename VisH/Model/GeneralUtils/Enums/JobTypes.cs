@@ -4,6 +4,9 @@ public enum JobTypes
 {
     GeometryOptimization,
     TimeDependant,
+    SinglePoint,
+    ElectronDensityDifference,
+    EddPostProcessing,
     NaturalTransitionOrbitals,
     PotentialScan
 }

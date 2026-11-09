@@ -287,7 +287,8 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4">
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4"
+                                            Visibility="{Binding IsMoleculeViewerOrbitalSelectorVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <TextBlock Text="Display:" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                     <ComboBox x:Name="MoleculeViewerOrbitalMode"
                                               Width="110"

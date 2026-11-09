@@ -58,6 +58,12 @@ public class GaussianParameters
         
         var routeBuilder = new StringBuilder();
         routeBuilder.Append($"#p {Functional} {BasisSetsParser.ToString(BasisSet)}");
+        if (IsEddDensityCalculation)
+        {
+            routeBuilder.Append(Jobtype == JobTypes.SinglePoint
+                ? " Density=SCF"
+                : " Density=current");
+        }
         // if (Solvent != Solvents.None)
         // {
         //     routeBuilder.Append($" scrf=(smd,solvent={Solvent})");
@@ -70,6 +76,8 @@ public class GaussianParameters
 
         return sb.ToString();
     }
+
+    public bool IsEddDensityCalculation { get; set; }
 
     public string ToLink()
     {

@@ -30,14 +30,9 @@ public class Filewriter
         }
         else
         {
-            var multiplicity = _calculation.Molecule.State switch
-            {
-                State.S0 or State.S1 or State.S2 or State.S3 => "1",
-                State.T1 or State.T2 or State.T3 => "3",
-                _ => throw new ArgumentOutOfRangeException(nameof(State), _calculation.Molecule.State.ToString(), null)
-            };
-            
-            sb.AppendLine($"\n{_calculation.Molecule.MoleculeName}\n\n {_calculation.Molecule.Charge} {multiplicity}");
+            sb.AppendLine(
+                $"\n{_calculation.Molecule.MoleculeName}\n\n " +
+                $"{_calculation.Molecule.Charge} {_calculation.Molecule.GetMultiplicity()}");
             
         }
         sb.AppendLine();
@@ -49,14 +44,9 @@ public class Filewriter
             if (_calculation.GaussianParameters.Jobtype == JobTypes.GeometryOptimization)
             {
                 sb.AppendLine();
-                var multiplicity = _calculation.Molecule.State switch
-                {
-                    State.S0 or State.S1 or State.S2 or State.S3 => "1",
-                    State.T1 or State.T2 or State.T3 => "3",
-                    _ => throw new ArgumentOutOfRangeException(nameof(State), _calculation.Molecule.State.ToString(), null)
-                };
-            
-                sb.AppendLine($"{_calculation.Molecule.MoleculeName}\n\n{_calculation.Molecule.Charge} {multiplicity}");
+                sb.AppendLine(
+                    $"{_calculation.Molecule.MoleculeName}\n\n" +
+                    $"{_calculation.Molecule.Charge} {_calculation.Molecule.GetMultiplicity()}");
                 sb.AppendLine();
             }
         }
@@ -73,6 +63,10 @@ public class Filewriter
     {
         var sb = new StringBuilder();
         var cfg = Config.Load();
+        if (_calculation.GaussianParameters.Jobtype == JobTypes.EddPostProcessing)
+        {
+            return GetEddPostProcessingGstart(cfg);
+        }
         
         string walltime =
             $"{(int)_calculation.GaussianParameters.MaxWalltime.TotalHours:00}" +
@@ -195,6 +189,24 @@ public class Filewriter
 
     cd "$WORKDIR" || exit 1
 
+    """;
+
+        if (!string.IsNullOrWhiteSpace(_calculation.EddCheckpointSourceDirectory))
+        {
+            staticTextTop += $"""
+    # Stage the checkpoint after the PBS dependency has completed.
+    EDD_SOURCE_DIR="/home/{cfg.ClusterUsername}/{_calculation.EddCheckpointSourceDirectory}"
+    if [ ! -s "$EDD_SOURCE_DIR/gauss.chk" ]; then
+        echo "ERROR: source checkpoint is missing: $EDD_SOURCE_DIR/gauss.chk" >> "$LOGFILE"
+        exit 1
+    fi
+    cp "$EDD_SOURCE_DIR/gauss.chk" "$WORKDIR/gauss.chk" || exit 1
+
+    """;
+        }
+
+        staticTextTop += """
+
     echo "$PBS_JOBID ($PBS_JOBNAME) @ $(hostname) at $(date) in $WORKDIR START" > "$LOGFILE"
     echo "$(date +"%d.%m.%Y-%T")" >> "$LOGFILE"
 
@@ -249,13 +261,13 @@ public class Filewriter
 
                                    echo "Starting HOMO cube generation..." >> "$WORKDIR/$LOGFILE"
                                    cubegen 0 MO=HOMO chkfile.fchk homo.cube \
-                                       -2 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                       -3 h >> "$WORKDIR/$LOGFILE" 2>&1
                                    HOMO_STATUS=$?
                                    echo "HOMO cubegen exit code: $HOMO_STATUS" >> "$WORKDIR/$LOGFILE"
 
                                    echo "Starting LUMO cube generation..." >> "$WORKDIR/$LOGFILE"
                                    cubegen 0 MO=LUMO chkfile.fchk lumo.cube \
-                                       -2 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                       -3 h >> "$WORKDIR/$LOGFILE" 2>&1
                                    LUMO_STATUS=$?
                                    echo "LUMO cubegen exit code: $LUMO_STATUS" >> "$WORKDIR/$LOGFILE"
 
@@ -304,6 +316,46 @@ public class Filewriter
                                   echo "$(date +"%d.%m.%Y-%T")" >> "$LOGFILE"
                                   """;
 
+        string eddScript = "";
+        if (_calculation.EddSharedDirectory != null)
+        {
+            var sharedDirectory = $"/home/{cfg.ClusterUsername}/{_calculation.EddSharedDirectory}";
+            var stateName = _calculation.Molecule.State.ToString().ToLowerInvariant();
+            if (_calculation.GaussianParameters.Jobtype == JobTypes.ElectronDensityDifference)
+            {
+                eddScript = $"""
+                              FCHK_FILE=$(find "$WORKDIR" -maxdepth 1 -type f -name "*.fchk" -size +0c | head -n 1)
+                              EDD_CUBE="{sharedDirectory}/$PBS_JOBID""_{stateName}_density.cube"
+                              if [ -s "$FCHK_FILE" ]; then
+                                  cubegen 0 Density=CI "$FCHK_FILE" "$EDD_CUBE" -3 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                  CUBE_STATUS=$?
+                                  echo "EDD excited-state cubegen exit code: $CUBE_STATUS" >> "$WORKDIR/$LOGFILE"
+                                  if [ "$CUBE_STATUS" -ne 0 ]; then exit "$CUBE_STATUS"; fi
+                              else
+                                  echo "ERROR: TD formatted checkpoint is missing." >> "$WORKDIR/$LOGFILE"
+                                  exit 1
+                              fi
+                              """;
+            }
+            else if (_calculation.GaussianParameters.Jobtype == JobTypes.SinglePoint)
+            {
+                eddScript = """
+                              FCHK_FILE=$(find "$WORKDIR" -maxdepth 1 -type f -name "*.fchk" -size +0c | head -n 1)
+                              S0_CUBE="$WORKDIR/$PBS_JOBID""_s0_density.cube"
+                              if [ -s "$FCHK_FILE" ]; then
+                                  cubegen 0 Density=SCF "$FCHK_FILE" "$S0_CUBE" -3 h >> "$WORKDIR/$LOGFILE" 2>&1
+                                  CUBE_STATUS=$?
+                                  echo "EDD ground-state cubegen exit code: $CUBE_STATUS" >> "$WORKDIR/$LOGFILE"
+                                  if [ "$CUBE_STATUS" -ne 0 ]; then exit "$CUBE_STATUS"; fi
+                              else
+                                  echo "ERROR: S0 formatted checkpoint is missing." >> "$WORKDIR/$LOGFILE"
+                                  exit 1
+                              fi
+
+                              """;
+            }
+        }
+
          sb.AppendLine(staticTextTop);
 
          if (_calculation.GaussianParameters.Jobtype == JobTypes.GeometryOptimization)
@@ -312,9 +364,79 @@ public class Filewriter
          }
          
          sb.AppendLine(staticTextBottom);
+         if (!string.IsNullOrWhiteSpace(eddScript))
+         {
+             sb.AppendLine(eddScript);
+         }
          string content = sb.ToString();
          content = NormalizeUnixLineEndings(content);
          return content;
+    }
+
+    private string GetEddPostProcessingGstart(Config cfg)
+    {
+         var walltime =
+             $"{(int)_calculation.GaussianParameters.MaxWalltime.TotalHours:00}" +
+             $":{_calculation.GaussianParameters.MaxWalltime.Minutes:00}" +
+             $":{_calculation.GaussianParameters.MaxWalltime.Seconds:00}";
+         var sharedDirectory = _calculation.EddSharedDirectory!;
+         var tdDirectory = _calculation.EddTdDirectory!;
+         var spDirectory = _calculation.EddSpDirectory!;
+         var stateName = _calculation.Molecule!.State.ToString().ToLowerInvariant();
+         return $"""
+#!/bin/bash
+#PBS -l select=1:ncpus={_calculation.GaussianParameters.NProc}:mem={_calculation.GaussianParameters.Memory + 2}GB
+#PBS -l walltime={walltime}
+#PBS -r n
+#PBS -W depend=afterok:{_calculation.GaussianParameters.DependencyJobId}
+#PBS -N {_calculation.MetaData!.JobName}P
+#PBS -A OC1M
+
+module load Gaussian/g16.C02_pgi
+if ! command -v cubman >/dev/null 2>&1; then
+    echo "ERROR: cubman is not available after loading Gaussian/g16.C02_pgi." > "/home/{cfg.ClusterUsername}/{sharedDirectory}/{_calculation.MetaData.JobName}.$PBS_JOBID.lg"
+    exit 127
+fi
+
+WORKDIR="/home/{cfg.ClusterUsername}/{sharedDirectory}"
+TD_DIR="/home/{cfg.ClusterUsername}/{tdDirectory}"
+SP_DIR="/home/{cfg.ClusterUsername}/{spDirectory}"
+LOGFILE="$WORKDIR/{_calculation.MetaData.JobName}.$PBS_JOBID.lg"
+EDD_CUBE="$WORKDIR/$PBS_JOBID""_EDD.cube"
+echo "EDD postprocessing started at $(date)" > "$LOGFILE"
+echo "Gaussian module: Gaussian/g16.C02_pgi" >> "$LOGFILE"
+echo "cubman path: $(command -v cubman)" >> "$LOGFILE"
+echo "TD directory: $TD_DIR" >> "$LOGFILE"
+echo "SP directory: $SP_DIR" >> "$LOGFILE"
+S1_CUBE=$(find "$WORKDIR" -maxdepth 1 -type f -name "*_s{stateName.Substring(1)}_density.cube" -size +0c | head -n 1)
+S0_CUBE=$(find "$SP_DIR" -maxdepth 1 -type f -name "*_s0_density.cube" -size +0c | head -n 1)
+if [ -z "$S1_CUBE" ]; then
+    echo "ERROR: excited-state density cube was not found." >> "$LOGFILE"
+    exit 1
+fi
+if [ -z "$S0_CUBE" ]; then
+    echo "ERROR: ground-state density cube was not found." >> "$LOGFILE"
+    exit 1
+fi
+echo "S1 cube: $S1_CUBE" >> "$LOGFILE"
+echo "S0 cube: $S0_CUBE" >> "$LOGFILE"
+cubman <<EOF >> "$LOGFILE" 2>&1
+su
+$S1_CUBE
+y
+$S0_CUBE
+y
+$EDD_CUBE
+y
+EOF
+CUBMAN_STATUS=$?
+echo "cubman exit code: $CUBMAN_STATUS" >> "$LOGFILE"
+if [ "$CUBMAN_STATUS" -ne 0 ] || [ ! -s "$EDD_CUBE" ]; then
+    echo "ERROR: EDD cube was not created: $EDD_CUBE" >> "$LOGFILE"
+    exit 1
+fi
+echo "EDD cube created successfully: $EDD_CUBE ($(stat -c%s "$EDD_CUBE") bytes)" >> "$LOGFILE"
+""";
     }
 
     public void WriteGaussianInputFile()
@@ -328,8 +450,9 @@ public class Filewriter
     public void WriteGstartFile()
     {
         var content = GetGstartText();
+        content = NormalizeUnixLineEndings(content);
         var path = _calculation.Paths.GstartFile.GetPath();
 
-        File.WriteAllText(path, content);
+        File.WriteAllText(path, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
     }
 }
