@@ -1,6 +1,6 @@
 # Changelog
 
-## [v1.2.0] - unreleased
+## [v1.2.0] - 2026-11-09
 
 ### Added
 
@@ -12,6 +12,7 @@
 ### Fixed
 
 - Atom coordinates in calculation.json were not overwritten after downloading the calculation
+- Correct multiplicity for charged molecules
 
 ## [v1.1.0] - 2026-10-27
 

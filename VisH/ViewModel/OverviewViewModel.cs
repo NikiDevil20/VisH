@@ -16,6 +16,8 @@ namespace VisH.ViewModel;
 
 public class OverviewViewModel : ViewModelBase
 {
+    private const double HartreeToElectronVolt = 27.2114;
+
     private LogFileAnalyzer _logFileAnalyzer;
     private FileHandler _fileHandler;
     private readonly SshService _sshService;
@@ -594,9 +596,11 @@ public class OverviewViewModel : ViewModelBase
             return dict;
         }
 
-        dict["HOMO"] = results.MoEnergies[homoIndex].ToString("F6");
-        dict["LUMO"] = results.MoEnergies[homoIndex + 1].ToString("F6");
-        dict["Gap"] = (results.MoEnergies[homoIndex + 1] - results.MoEnergies[homoIndex]).ToString("F6");
+        var homo = results.MoEnergies[homoIndex] * HartreeToElectronVolt;
+        var lumo = results.MoEnergies[homoIndex + 1] * HartreeToElectronVolt;
+        dict["HOMO / eV"] = homo.ToString("F6");
+        dict["LUMO / eV"] = lumo.ToString("F6");
+        dict["Gap / eV"] = (lumo - homo).ToString("F6");
         return dict;
     }
 

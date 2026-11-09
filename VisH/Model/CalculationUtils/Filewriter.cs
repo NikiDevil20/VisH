@@ -30,14 +30,9 @@ public class Filewriter
         }
         else
         {
-            var multiplicity = _calculation.Molecule.State switch
-            {
-                State.S0 or State.S1 or State.S2 or State.S3 => "1",
-                State.T1 or State.T2 or State.T3 => "3",
-                _ => throw new ArgumentOutOfRangeException(nameof(State), _calculation.Molecule.State.ToString(), null)
-            };
-            
-            sb.AppendLine($"\n{_calculation.Molecule.MoleculeName}\n\n {_calculation.Molecule.Charge} {multiplicity}");
+            sb.AppendLine(
+                $"\n{_calculation.Molecule.MoleculeName}\n\n " +
+                $"{_calculation.Molecule.Charge} {_calculation.Molecule.GetMultiplicity()}");
             
         }
         sb.AppendLine();
@@ -49,14 +44,9 @@ public class Filewriter
             if (_calculation.GaussianParameters.Jobtype == JobTypes.GeometryOptimization)
             {
                 sb.AppendLine();
-                var multiplicity = _calculation.Molecule.State switch
-                {
-                    State.S0 or State.S1 or State.S2 or State.S3 => "1",
-                    State.T1 or State.T2 or State.T3 => "3",
-                    _ => throw new ArgumentOutOfRangeException(nameof(State), _calculation.Molecule.State.ToString(), null)
-                };
-            
-                sb.AppendLine($"{_calculation.Molecule.MoleculeName}\n\n{_calculation.Molecule.Charge} {multiplicity}");
+                sb.AppendLine(
+                    $"{_calculation.Molecule.MoleculeName}\n\n" +
+                    $"{_calculation.Molecule.Charge} {_calculation.Molecule.GetMultiplicity()}");
                 sb.AppendLine();
             }
         }
