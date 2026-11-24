@@ -4,7 +4,12 @@
              xmlns:local="clr-namespace:VisH"
              ShutdownMode="OnLastWindowClose">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="View/Ressources/Colors.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="View/Ressources/RadioButtonCard.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
 

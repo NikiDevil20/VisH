@@ -11,6 +11,8 @@ public class JobManager
     private readonly SshService _sshService;
     private readonly FileTransferService _fileTransferService;
 
+    public SshService SshService => _sshService;
+
     public JobManager(SshService sshService, FileTransferService fileTransferService)
     {
         _sshService = sshService;

@@ -289,7 +289,7 @@ public class OverviewViewModel : ViewModelBase
             eddCube = ToViewerUrl(cubePath),
             orbitalMode = "EDD",
             isoValue = 0.001,
-            opacity = 0.85
+            opacity = 1.0
         };
         MoleculeViewerPayloadJson = JsonSerializer.Serialize(payload);
         MoleculeViewerMessage = "Atomgeometrie und EDD-Isflächen aus der EDD-Cube-Datei.";

@@ -105,7 +105,8 @@ public static class CalculationBuilder
         BundledConstructionParameters bundledParameters,
         Calculation sourceOptimization,
         SshService sshService,
-        bool sourceIsAlreadyComplete)
+        bool sourceIsAlreadyComplete,
+        BundledConstructionParameters? groundStateParameters = null)
     {
         if (bundledParameters.State is not (State.S1 or State.S2 or State.S3))
         {
@@ -140,7 +141,10 @@ public static class CalculationBuilder
         td.AddPaths(string.Join(Path.DirectorySeparatorChar, tdPath));
         td.GaussianParameters.AddKeywords(tdParameters);
 
-        var spParameters = bundledParameters with { JobType = JobTypes.SinglePoint };
+        var spParameters = (groundStateParameters ?? bundledParameters) with
+        {
+            JobType = JobTypes.SinglePoint
+        };
         var sp = new Calculation(sshService);
         sp.AddGaussianParameters(new GaussianParameters(spParameters)
         {

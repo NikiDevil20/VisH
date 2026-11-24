@@ -11,6 +11,7 @@ using VisH.Model.GeneralUtils.Hilbert;
 using VisH.Model.PostRun;
 using VisH.View.Windows;
 using VisH.View.Windows.SettingsWindow;
+using VisH.View.WorkflowWindow;
 
 namespace VisH.ViewModel;
 
@@ -18,6 +19,7 @@ public class MenuBarViewModel : ViewModelBase
 {
     public RelayCommand NewCalcCommand => new RelayCommand(execute => NewCalc());
     public RelayCommand SettingsCommand => new RelayCommand(_ => OpenSettings());
+    public RelayCommand WorkflowCommand => new RelayCommand(_ => NewWorkflow());
     private FileHandler _fileHandler;
     private readonly SshService _sshService;
     private readonly JobFinder _jobFinder;
@@ -230,5 +232,15 @@ public class MenuBarViewModel : ViewModelBase
             Owner = Application.Current?.MainWindow
         };
         window.ShowDialog();
+    }
+
+    private void NewWorkflow()
+    {
+        Console.WriteLine("New workflow initialized.");
+        var window = new NewWorkflowWindow();
+        if (window.ShowDialog() == false)
+        {
+            return;
+        }
     }
 }

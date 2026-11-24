@@ -1,0 +1,35 @@
+﻿<Window x:Class="VisH.View.WorkflowWindow.NewWorkflowWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:VisH.View.WorkflowWindow"
+        xmlns:customUsercontrols="clr-namespace:VisH.View.WorkflowWindow.WorkflowUsercontrols"
+        mc:Ignorable="d"
+        Title="New Workflow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="75"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="75"/>
+        </Grid.RowDefinitions>
+        
+        <customUsercontrols:WorkflowProgressbar Grid.Row="0"
+                                                ></customUsercontrols:WorkflowProgressbar>
+        
+        <StackPanel Grid.Row="2"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
+            <Button Width="100"
+                    Height="35"
+                    Margin="10,0, 10, 5"
+                    Command="{Binding BackButtonCommand}">Back</Button>
+            <Button Width="100"
+                    Height="35"
+                    Margin="0,0, 10, 5"
+                    Command="{Binding NextButtonCommand}">Next</Button>
+                    
+        </StackPanel>
+        
+    </Grid>
+</Window>
