@@ -5,6 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:VisH.View.WorkflowWindow"
         xmlns:customUsercontrols="clr-namespace:VisH.View.WorkflowWindow.WorkflowUsercontrols"
+        xmlns:pages="clr-namespace:VisH.View.WorkflowWindow.WorkflowUsercontrols.Pages"
         mc:Ignorable="d"
         Title="New Workflow" Height="450" Width="800">
     <Grid>
@@ -16,6 +17,54 @@
         
         <customUsercontrols:WorkflowProgressbar Grid.Row="0"
                                                 ></customUsercontrols:WorkflowProgressbar>
+        
+        <ContentControl Grid.Row="1">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Content">
+                        <Setter.Value>
+                            <pages:SelectWorkflow />
+                        </Setter.Value>
+                    </Setter>
+                    
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding WorkflowProgress}" Value="1">
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <pages:SelectMolecules />
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                        
+                        <DataTrigger Binding="{Binding WorkflowProgress}" Value="2">
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <pages:SelectMethod />
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                        
+                        <DataTrigger Binding="{Binding WorkflowProgress}" Value="3">
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <pages:MethodSettings />
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                        
+                        <DataTrigger Binding="{Binding WorkflowProgress}" Value="4">
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <pages:WorkflowOverwiev />
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                        
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+        
         
         <StackPanel Grid.Row="2"
                     HorizontalAlignment="Right"
