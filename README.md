@@ -69,7 +69,7 @@ Press Enter to accept the default file location. You may optionally protect the 
 If password-based SSH login is available, the public key can be copied to the cluster with:
 
 ```powershell
-Get-Content $env:USERPROFILE\.ssh\id_ed25519.pub | ssh username@storage.hpc.rz.uni-duesseldorf.de "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub" | ssh nahue103@storage.hpc.rz.uni-duesseldorf.de "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
 ```
 
 Replace `username` with your cluster username.
