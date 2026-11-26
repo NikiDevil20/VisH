@@ -34,9 +34,15 @@ public class WorkflowViewmodel : ViewModelBase
 
             OnPropertyChanged(nameof(IsFluorescenceSelected));
             OnPropertyChanged(nameof(IsElectronAffinitySelected));
+            WorkflowOptions = SelectedWorkflow is { } workflow
+                ? WorkflowOptionsViewModel.Create(workflow)
+                : null;
+            OnPropertyChanged(nameof(WorkflowOptions));
             CommandManager.InvalidateRequerySuggested();
         }
     }
+
+    public WorkflowOptionsViewModel? WorkflowOptions { get; private set; }
 
     public bool IsFluorescenceSelected
     {

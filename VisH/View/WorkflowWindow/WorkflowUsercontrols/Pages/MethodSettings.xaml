@@ -6,7 +6,80 @@
              xmlns:local="clr-namespace:VisH.View.WorkflowWindow.WorkflowUsercontrols.Pages"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <TextBlock Text="Method Settings" />
-    </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16">
+            <TextBlock Text="Method and resource settings"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Margin="0,0,0,12"/>
+
+            <ItemsControl ItemsSource="{Binding WorkflowOptions.SharedMethodOptions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <GroupBox Header="{Binding Title}" Margin="0,0,0,12" Padding="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Functional" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ComboBox Grid.Column="1"
+                                          ItemsSource="{Binding Functionals}"
+                                          SelectedItem="{Binding SelectedFunctional, Mode=TwoWay}"
+                                          Margin="0,0,16,0"/>
+                                <TextBlock Grid.Column="2" Text="Basis set" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ComboBox Grid.Column="3"
+                                          ItemsSource="{Binding BasisSets}"
+                                          SelectedItem="{Binding SelectedBasisSet, Mode=TwoWay}"/>
+                            </Grid>
+                        </GroupBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding WorkflowOptions.Calculations}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <GroupBox Header="{Binding Title}" Margin="0,0,0,12" Padding="10">
+                            <StackPanel>
+                                <StackPanel x:Name="CalculationMethodFields"
+                                            Orientation="Horizontal"
+                                            Margin="0,0,0,10">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IncludesMethodSelection}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <TextBlock Text="Functional" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <ComboBox Width="130"
+                                              ItemsSource="{Binding Functionals}"
+                                              SelectedItem="{Binding SelectedFunctional, Mode=TwoWay}"
+                                              Margin="0,0,16,0"/>
+                                    <TextBlock Text="Basis set" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <ComboBox Width="130"
+                                              ItemsSource="{Binding BasisSets}"
+                                              SelectedItem="{Binding SelectedBasisSet, Mode=TwoWay}"/>
+                                </StackPanel>
+                                <WrapPanel>
+                                    <TextBlock Text="CPUs" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBox Width="60" Text="{Binding Cpus, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,16,0"/>
+                                    <TextBlock Text="Memory (GB)" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBox Width="60" Text="{Binding MemoryGb, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,16,0"/>
+                                    <TextBlock Text="Walltime (hours)" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBox Width="60" Text="{Binding WalltimeHours, UpdateSourceTrigger=PropertyChanged}"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

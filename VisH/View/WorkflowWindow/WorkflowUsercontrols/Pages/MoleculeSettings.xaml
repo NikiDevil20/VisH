@@ -5,7 +5,41 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <TextBlock Text="Molecule Settings" />
-    </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16">
+            <TextBlock Text="Molecule settings"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Margin="0,0,0,12"/>
+            <ItemsControl ItemsSource="{Binding WorkflowOptions.MoleculeStates}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <GroupBox Header="{Binding Title}" Margin="0,0,0,12" Padding="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="150"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="Charge" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ComboBox Grid.Column="1"
+                                          ItemsSource="{Binding ChargeChoices}"
+                                          SelectedItem="{Binding SelectedCharge, Mode=TwoWay}"
+                                          Margin="0,0,16,0"/>
+                                <TextBlock Grid.Column="2" Text="Multiplicity" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ComboBox Grid.Column="3"
+                                          ItemsSource="{Binding MultiplicityChoices}"
+                                          SelectedItem="{Binding SelectedMultiplicity, Mode=TwoWay}"/>
+                            </Grid>
+                        </GroupBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>
