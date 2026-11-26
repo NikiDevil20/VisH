@@ -25,41 +25,27 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <!-- <Grid.ColumnDefinitions> -->
+            <!--     <ColumnDefinition Width="*"/> -->
+            <!--     <ColumnDefinition Width="*"/> -->
+            <!--     <ColumnDefinition Width="*"/> -->
+            <!-- </Grid.ColumnDefinitions> -->
             
             <RadioButton Grid.Row="0"
                          Grid.Column="0"
-                         Content="Option 1" 
-                         Style="{StaticResource CardRadioStyle}"/>
-        
-            <RadioButton Grid.Row="0" 
-                         Grid.Column="1"
-                         Content="Option 2" 
-                         Style="{StaticResource CardRadioStyle}"/>
-            
-            <RadioButton Grid.Row="0"
-                         Grid.Column="2"
-                         Content="Option 3" 
+                         Content="Fluorescence" 
+                         GroupName="WorkflowSelection"
+                         IsChecked="{Binding IsFluorescenceSelected, Mode=TwoWay}"
                          Style="{StaticResource CardRadioStyle}"/>
         
             <RadioButton Grid.Row="1" 
                          Grid.Column="0"
-                         Content="Option 4" 
+                         Content="Electron Affinity" 
+                         GroupName="WorkflowSelection"
+                         IsChecked="{Binding IsElectronAffinitySelected, Mode=TwoWay}"
                          Style="{StaticResource CardRadioStyle}"/>
             
-            <RadioButton Grid.Row="1"
-                         Grid.Column="1"
-                         Content="Option 5" 
-                         Style="{StaticResource CardRadioStyle}"/>
-        
-            <RadioButton Grid.Row="1" 
-                         Grid.Column="2"
-                         Content="Option 6" 
-                         Style="{StaticResource CardRadioStyle}"/>
+            
             
         </Grid>
         

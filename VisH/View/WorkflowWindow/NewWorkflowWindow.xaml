@@ -6,9 +6,20 @@
         xmlns:local="clr-namespace:VisH.View.WorkflowWindow"
         xmlns:customUsercontrols="clr-namespace:VisH.View.WorkflowWindow.WorkflowUsercontrols"
         xmlns:pages="clr-namespace:VisH.View.WorkflowWindow.WorkflowUsercontrols.Pages"
+        xmlns:fluorescencePages="clr-namespace:VisH.View.WorkflowWindow.WorkflowUsercontrols.Pages.PagesForFluorescence"
+        xmlns:electronAffinityPages="clr-namespace:VisH.View.WorkflowWindow.WorkflowUsercontrols.Pages.PagesForElectronAffinity"
         mc:Ignorable="d"
         Title="New Workflow" Height="450" Width="800">
     <Grid>
+        <Grid.Resources>
+            <fluorescencePages:FluorescenceMoleculeSettings x:Key="FluorescenceMoleculeSettingsPage"/>
+            <fluorescencePages:FluorescenceMethodSettings x:Key="FluorescenceMethodSettingsPage"/>
+            <fluorescencePages:FluorescenceOverview x:Key="FluorescenceOverviewPage"/>
+            <electronAffinityPages:ElectronAffinityMoleculeSettings x:Key="ElectronAffinityMoleculeSettingsPage"/>
+            <electronAffinityPages:ElectronAffinityMethodSettings x:Key="ElectronAffinityMethodSettingsPage"/>
+            <electronAffinityPages:ElectronAffinityOverview x:Key="ElectronAffinityOverviewPage"/>
+            <pages:MoleculeSettings x:Key="MoleculeSettingsPage"/>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="75"/>
             <RowDefinition Height="*"/>
@@ -37,11 +48,7 @@
                         </DataTrigger>
                         
                         <DataTrigger Binding="{Binding WorkflowProgress}" Value="2">
-                            <Setter Property="Content">
-                                <Setter.Value>
-                                    <pages:SelectMethod />
-                                </Setter.Value>
-                            </Setter>
+                            <Setter Property="Content" Value="{StaticResource MoleculeSettingsPage}"/>
                         </DataTrigger>
                         
                         <DataTrigger Binding="{Binding WorkflowProgress}" Value="3">
@@ -51,7 +58,6 @@
                                 </Setter.Value>
                             </Setter>
                         </DataTrigger>
-                        
                         <DataTrigger Binding="{Binding WorkflowProgress}" Value="4">
                             <Setter Property="Content">
                                 <Setter.Value>
@@ -59,7 +65,49 @@
                                 </Setter.Value>
                             </Setter>
                         </DataTrigger>
-                        
+
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding WorkflowProgress}" Value="2"/>
+                                <Condition Binding="{Binding IsFluorescenceSelected}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Content" Value="{StaticResource FluorescenceMoleculeSettingsPage}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding WorkflowProgress}" Value="2"/>
+                                <Condition Binding="{Binding IsElectronAffinitySelected}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Content" Value="{StaticResource ElectronAffinityMoleculeSettingsPage}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding WorkflowProgress}" Value="3"/>
+                                <Condition Binding="{Binding IsFluorescenceSelected}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Content" Value="{StaticResource FluorescenceMethodSettingsPage}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding WorkflowProgress}" Value="3"/>
+                                <Condition Binding="{Binding IsElectronAffinitySelected}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Content" Value="{StaticResource ElectronAffinityMethodSettingsPage}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding WorkflowProgress}" Value="4"/>
+                                <Condition Binding="{Binding IsFluorescenceSelected}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Content" Value="{StaticResource FluorescenceOverviewPage}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding WorkflowProgress}" Value="4"/>
+                                <Condition Binding="{Binding IsElectronAffinitySelected}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Content" Value="{StaticResource ElectronAffinityOverviewPage}"/>
+                        </MultiDataTrigger>
                     </Style.Triggers>
                 </Style>
             </ContentControl.Style>

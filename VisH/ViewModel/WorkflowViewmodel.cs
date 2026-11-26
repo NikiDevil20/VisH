@@ -1,11 +1,13 @@
 ﻿using System.Windows.Input;
 using System.Windows.Media;
+using VisH.Model.GeneralUtils.Enums;
 
 namespace VisH.ViewModel;
 
 public class WorkflowViewmodel : ViewModelBase
 {
     private int _workflowProgress;
+    private Workflows? _selectedWorkflow;
 
     public WorkflowViewmodel()
     {
@@ -15,11 +17,46 @@ public class WorkflowViewmodel : ViewModelBase
 
         NextButtonCommand = new RelayCommand(
             _ => NextStep(),
-            _ => WorkflowProgress < 4);
+            _ => WorkflowProgress < 4 &&
+                 (WorkflowProgress != 0 || SelectedWorkflow.HasValue));
     }
 
     public RelayCommand BackButtonCommand { get; }
     public RelayCommand NextButtonCommand { get; }
+
+    public Workflows? SelectedWorkflow
+    {
+        get => _selectedWorkflow;
+        set
+        {
+            if (!SetProperty(ref _selectedWorkflow, value))
+                return;
+
+            OnPropertyChanged(nameof(IsFluorescenceSelected));
+            OnPropertyChanged(nameof(IsElectronAffinitySelected));
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
+
+    public bool IsFluorescenceSelected
+    {
+        get => SelectedWorkflow == Workflows.Fluorescence;
+        set
+        {
+            if (value)
+                SelectedWorkflow = Workflows.Fluorescence;
+        }
+    }
+
+    public bool IsElectronAffinitySelected
+    {
+        get => SelectedWorkflow == Workflows.ElectronAffinity;
+        set
+        {
+            if (value)
+                SelectedWorkflow = Workflows.ElectronAffinity;
+        }
+    }
 
     public int WorkflowProgress
     {
@@ -40,7 +77,8 @@ public class WorkflowViewmodel : ViewModelBase
 
     public void NextStep()
     {
-        if (WorkflowProgress < 4)
+        if (WorkflowProgress < 4 &&
+            (WorkflowProgress != 0 || SelectedWorkflow.HasValue))
         {
             WorkflowProgress++;
         }
