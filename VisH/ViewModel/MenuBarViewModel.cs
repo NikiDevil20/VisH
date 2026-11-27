@@ -237,7 +237,7 @@ public class MenuBarViewModel : ViewModelBase
     private void NewWorkflow()
     {
         Console.WriteLine("New workflow initialized.");
-        var window = new NewWorkflowWindow();
+        var window = new NewWorkflowWindow(_jobFinder);
         if (window.ShowDialog() == false)
         {
             return;

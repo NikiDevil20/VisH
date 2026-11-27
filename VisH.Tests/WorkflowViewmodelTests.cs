@@ -1,5 +1,9 @@
+using System.Text.Json;
+using VisH.Model.CalculationObject;
+using VisH.Model.CalculationProperties;
 using VisH.Model.GeneralUtils.Enums;
 using VisH.Model.Enums;
+using VisH.Model.PostRun;
 using VisH.ViewModel;
 using Xunit;
 
@@ -43,6 +47,11 @@ public sealed class WorkflowViewmodelTests
         {
             IsElectronAffinitySelected = true
         };
+        var molecule = new WorkflowMoleculeViewModel("Mol", "C", null)
+        {
+            IsNewGeometrySelected = true
+        };
+        viewModel.MoleculeSelection.Molecules.Add(molecule);
 
         viewModel.NextStep();
         viewModel.NextStep();
@@ -96,6 +105,11 @@ public sealed class WorkflowViewmodelTests
             IsElectronAffinitySelected = true
         };
         var settings = viewModel.WorkflowOptions!.MoleculeStates[1];
+        viewModel.MoleculeSelection.Molecules.Add(
+            new WorkflowMoleculeViewModel("Mol", "C", null)
+            {
+                IsNewGeometrySelected = true
+            });
 
         settings.SelectedMultiplicity = 1;
         settings.SelectedCharge = "-2";
@@ -107,4 +121,99 @@ public sealed class WorkflowViewmodelTests
         Assert.Equal(1, viewModel.WorkflowOptions.MoleculeStates[1].SelectedMultiplicity);
         Assert.Equal("-2", viewModel.WorkflowOptions.MoleculeStates[1].SelectedCharge);
     }
+
+    [Fact]
+    public void LocalGeometryCatalogExcludesArchivedAndInvalidJobs()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "vish-molecule-tests", Guid.NewGuid().ToString("N"));
+        try
+        {
+            WriteCalculation(root, ["Mol", "S0", "valid"], "job-1", JobState.Successful, true);
+            WriteCalculation(root, ["Mol", "S0", "failed"], "job-2", JobState.Failed, true);
+            WriteCalculation(root, ["Mol", "S0", "invalid"], "job-3", JobState.Successful, false);
+            WriteCalculation(
+                root,
+                ["AlteRechnungen", "Mol", "S0", "old"],
+                "job-old",
+                JobState.Successful,
+                true);
+
+            var finder = new JobFinder(null!, null!);
+            var calculations = finder.GetSuccessfulLocalGeometryCalculations(root);
+
+            var calculation = Assert.Single(calculations);
+            Assert.Equal("job-1", calculation.MetaData!.JobId);
+            Assert.Equal("Mol", calculation.Molecule!.MoleculeName);
+        }
+        finally
+        {
+            if (Directory.Exists(root))
+                Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void MoleculeTileSupportsMultipleExistingGeometriesOrOneNewGeometry()
+    {
+        var firstCalculation = CreateGeometryCalculation("job-1");
+        var secondCalculation = CreateGeometryCalculation("job-2");
+        var firstGeometry = new WorkflowGeometryViewModel(firstCalculation);
+        var secondGeometry = new WorkflowGeometryViewModel(secondCalculation);
+        var molecule = new WorkflowMoleculeViewModel(
+            "Mol",
+            "C",
+            null,
+            [firstGeometry, secondGeometry]);
+
+        firstGeometry.IsSelected = true;
+        secondGeometry.IsSelected = true;
+        Assert.Equal(2, molecule.GetSelectedGeometries().Count());
+
+        molecule.IsNewGeometrySelected = true;
+        var selectedNew = Assert.Single(molecule.GetSelectedGeometries());
+        Assert.Null(selectedNew.ExistingCalculation);
+        Assert.False(firstGeometry.IsSelected);
+        Assert.False(secondGeometry.IsSelected);
+
+        molecule.IsNewGeometrySelected = false;
+        secondGeometry.IsSelected = true;
+        Assert.False(molecule.IsNewGeometrySelected);
+        Assert.Single(molecule.GetSelectedGeometries());
+    }
+
+    private static void WriteCalculation(
+        string root,
+        string[] directoryParts,
+        string jobId,
+        JobState status,
+        bool geometryValid)
+    {
+        var directory = Path.Combine(directoryParts.Prepend(root).ToArray());
+        Directory.CreateDirectory(directory);
+
+        var calculation = CreateGeometryCalculation(jobId, status, geometryValid);
+        File.WriteAllText(
+            Path.Combine(directory, "calculation.json"),
+            JsonSerializer.Serialize(calculation));
+    }
+
+    private static Calculation CreateGeometryCalculation(
+        string jobId,
+        JobState state = JobState.Successful,
+        bool geometryValid = true) =>
+        new()
+        {
+            MetaData = new MetaData { JobId = jobId, JobState = state },
+            GaussianParameters = new GaussianParameters
+            {
+                Jobtype = JobTypes.GeometryOptimization
+            },
+            Molecule = new Molecule
+            {
+                MoleculeName = "Mol",
+                SmilesString = "C",
+                Atoms = []
+            },
+            Results = new Results { GeometryValid = geometryValid }
+        };
 }

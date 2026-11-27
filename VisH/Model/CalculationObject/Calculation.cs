@@ -358,6 +358,15 @@ public class Calculation
         {
             MetaData = CalculationResultParser.ApplyLgFile(MetaData, lgPath);
         }
+
+        if (Results?.NormalTermination == true)
+        {
+            MetaData.JobState = JobState.Successful;
+        }
+        else if (Results?.NormalTermination == false)
+        {
+            MetaData.JobState = JobState.Failed;
+        }
     }
 
     private void UpdateMoleculeGeometryFromResults()

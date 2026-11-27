@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text.Json;
 using System.Windows.Documents;
 using Serilog;
 using VisH.Model.CalculationObject;
@@ -79,6 +80,70 @@ public class JobFinder
         }
         
         return calculations.ToArray();
+    }
+
+    public Calculation[] GetSuccessfulLocalGeometryCalculations(
+        string? calculationsRoot = null)
+    {
+        var root = calculationsRoot ?? Config.Load().LocalRechnungenPath;
+        if (!Directory.Exists(root))
+            throw new DirectoryNotFoundException(
+                $"The local calculations directory '{root}' does not exist.");
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new TimeSpanJsonConverter() }
+        };
+
+        var calculations = new List<Calculation>();
+        foreach (var jsonPath in Directory.EnumerateFiles(
+                     root,
+                     "calculation.json",
+                     SearchOption.AllDirectories))
+        {
+            var relativePath = Path.GetRelativePath(root, jsonPath);
+            if (relativePath.Split(
+                    [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
+                    StringSplitOptions.RemoveEmptyEntries)
+                .Any(part => string.Equals(part, "AlteRechnungen", StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            Calculation? calculation;
+            try
+            {
+                calculation = JsonSerializer.Deserialize<Calculation>(
+                    File.ReadAllText(jsonPath),
+                    options);
+            }
+            catch (JsonException exception)
+            {
+                Log.Warning(exception, "Ignoring invalid calculation data at {Path}.", jsonPath);
+                continue;
+            }
+            catch (IOException exception)
+            {
+                Log.Warning(exception, "Unable to read calculation data at {Path}.", jsonPath);
+                continue;
+            }
+
+            if (calculation?.GaussianParameters?.Jobtype == JobTypes.GeometryOptimization &&
+                calculation.MetaData?.JobState == JobState.Successful &&
+                calculation.Results?.GeometryValid == true &&
+                !string.IsNullOrWhiteSpace(calculation.MetaData.JobId) &&
+                calculation.Molecule is not null &&
+                !string.IsNullOrWhiteSpace(calculation.Molecule.SmilesString))
+            {
+                calculations.Add(calculation);
+            }
+        }
+
+        return calculations
+            .OrderBy(calculation => calculation.Molecule!.MoleculeName)
+            .ThenBy(calculation => calculation.MetaData!.JobId)
+            .ToArray();
     }
 
     private Calculation? CalculationMatchesProperty<TResult>(

@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using System.Windows.Media;
 using VisH.Model.GeneralUtils.Enums;
+using VisH.Model.PostRun;
 
 namespace VisH.ViewModel;
 
@@ -9,20 +10,26 @@ public class WorkflowViewmodel : ViewModelBase
     private int _workflowProgress;
     private Workflows? _selectedWorkflow;
 
-    public WorkflowViewmodel()
+    public WorkflowViewmodel(JobFinder? jobFinder = null)
     {
+        MoleculeSelection = new WorkflowMoleculeSelectionViewModel(jobFinder);
+        MoleculeSelection.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(WorkflowMoleculeSelectionViewModel.SelectedGeometries))
+                CommandManager.InvalidateRequerySuggested();
+        };
         BackButtonCommand = new RelayCommand(
             _ => PreviousStep(),
             _ => WorkflowProgress > 0);
 
         NextButtonCommand = new RelayCommand(
             _ => NextStep(),
-            _ => WorkflowProgress < 4 &&
-                 (WorkflowProgress != 0 || SelectedWorkflow.HasValue));
+            _ => CanAdvance());
     }
 
     public RelayCommand BackButtonCommand { get; }
     public RelayCommand NextButtonCommand { get; }
+    public WorkflowMoleculeSelectionViewModel MoleculeSelection { get; }
 
     public Workflows? SelectedWorkflow
     {
@@ -84,9 +91,11 @@ public class WorkflowViewmodel : ViewModelBase
     public void NextStep()
     {
         if (WorkflowProgress < 4 &&
-            (WorkflowProgress != 0 || SelectedWorkflow.HasValue))
+            CanAdvance())
         {
             WorkflowProgress++;
+            if (WorkflowProgress == 1)
+                MoleculeSelection.LoadExistingMolecules();
         }
     }
 
@@ -97,6 +106,13 @@ public class WorkflowViewmodel : ViewModelBase
             WorkflowProgress--;
         }
     }
+
+    private bool CanAdvance() => WorkflowProgress switch
+    {
+        0 => SelectedWorkflow.HasValue,
+        1 => MoleculeSelection.SelectedGeometries.Count > 0,
+        _ => true
+    };
 
     public Brush SelectWorkflowIndicator => GetIndicatorBrush(0);
     public Brush ChooseMoleculeIndicator => GetIndicatorBrush(1);

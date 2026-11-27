@@ -1,13 +1,14 @@
 ﻿using System.Windows;
+using VisH.Model.PostRun;
 using VisH.ViewModel;
 
 namespace VisH.View.WorkflowWindow;
 
 public partial class NewWorkflowWindow : Window
 {
-    public NewWorkflowWindow()
+    public NewWorkflowWindow(JobFinder? jobFinder = null)
     {
         InitializeComponent();
-        DataContext = new WorkflowViewmodel();
+        DataContext = new WorkflowViewmodel(jobFinder);
     }
 }

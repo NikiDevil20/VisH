@@ -5,8 +5,115 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:VisH.View.WorkflowWindow.WorkflowUsercontrols.Pages"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <TextBlock Text="Select Molecules" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+             d:DesignHeight="520" d:DesignWidth="800">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="Select molecules"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   Foreground="{StaticResource PrimaryBlueBrush}"
+                   Margin="0,0,0,12"/>
+
+        <Grid Grid.Row="1" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <TextBlock Text="Molecule name" Margin="0,0,0,4"/>
+                <TextBox Text="{Binding MoleculeSelection.MoleculeName, UpdateSourceTrigger=PropertyChanged}"
+                         Padding="6"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                <TextBlock Text="SMILES" Margin="0,0,0,4"/>
+                <TextBox Text="{Binding MoleculeSelection.SmilesString, UpdateSourceTrigger=PropertyChanged}"
+                         Padding="6"/>
+            </StackPanel>
+            <Button Grid.Column="2"
+                    Content="Add Molecule"
+                    Command="{Binding MoleculeSelection.AddMoleculeCommand}"
+                    VerticalAlignment="Bottom"
+                    Padding="14,7"/>
+        </Grid>
+
+        <TextBlock Grid.Row="2"
+                   Text="{Binding MoleculeSelection.ErrorMessage}"
+                   Foreground="Firebrick"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,8"/>
+
+        <ScrollViewer Grid.Row="3"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding MoleculeSelection.Molecules}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="280"
+                                Margin="0,0,12,8"
+                                Padding="10"
+                                BorderBrush="#B8B8B8"
+                                BorderThickness="1"
+                                CornerRadius="5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="150"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Grid.Row="0" Background="White" Margin="0,0,0,6">
+                                    <Image Source="{Binding PreviewImage}"
+                                           Stretch="Uniform"
+                                           HorizontalAlignment="Stretch"
+                                           VerticalAlignment="Stretch"/>
+                                </Border>
+                                <TextBlock Grid.Row="1"
+                                           Text="{Binding Name}"
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           TextTrimming="CharacterEllipsis"
+                                           Margin="0,0,0,8"/>
+
+                                <GroupBox Grid.Row="2" Header="Existing valid geometries" Padding="6">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsControl ItemsSource="{Binding ExistingGeometries}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="{Binding JobId}"
+                                                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                              Margin="2,4"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </GroupBox>
+
+                                <ToggleButton Grid.Row="3"
+                                              Content="New Geometry"
+                                              IsChecked="{Binding IsNewGeometrySelected, Mode=TwoWay}"
+                                              HorizontalAlignment="Stretch"
+                                              Padding="8,5"
+                                              Margin="2,8,0,0"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>
